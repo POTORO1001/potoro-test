@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ポ・トロクエスト（完成版）</title>
-<style>
-  :root{ --ui:#101522; --fg:#eef2ff; --acc:#ff7ad6; --pad:12px; }
-  *{ box-sizing:border-box; -webkit-user-select:none; user-select:none; touch-action:manipulation; }
-  html,body{ height:100%; margin:0; background:#0b0f18; color:var(--fg);
-    font-family:ui-sans-serif,system-ui,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif; }
-  .app{ min-height:100%; display:flex; flex-direction:column; gap:8px;
+<meta 
     padding:env(safe-area-inset-top) var(--pad) calc(110px + env(safe-area-inset-bottom)) var(--pad); }
   .topbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .title{ font-weight:800; color:var(--acc); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
