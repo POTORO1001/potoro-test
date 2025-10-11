@@ -5,16 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>脱獄チャンス</title>
 <style>
-  :root{
-    --text:#e6eaf3; --muted:#a8b0c3; --card:#111629;
-    --accent:#38bdf8; --accent-2:#a78bfa; --ok:#22c55e; --ng:#ef4444;
-    --shadow:0 10px 30px rgba(0,0,0,.35); --radius:18px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;overflow:hidden;background:#070a12;}
-
-  /* ==== 背景：牢屋の窓＋月明かり ==== */
+  :root{--text:#e6eaf3;--muted:#a8b0c3;--card:#111629;--accent:#38bdf8;--accent-2:#a78bfa;--ok:#22c55e;--ng:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.35);--radius:18px}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;overflow:hidden;background:#070a12}
   .bg-sky{position:fixed;inset:0;z-index:-4;background:
       radial-gradient(1200px 800px at 20% -10%, rgba(56,189,248,.14), transparent 60%),
       radial-gradient(1200px 800px at 120% 110%, rgba(167,139,250,.12), transparent 60%),
@@ -45,106 +38,69 @@
   .moonbeam{position:absolute;top:30%;left:25%;width:120%;height:120%;
     background:conic-gradient(from 200deg at 0% 0%, rgba(120,160,255,.22), rgba(120,160,255,.08) 35%, transparent 36%);
     filter:blur(1.2px);transform:rotate(-12deg) translate(-2%,-2%);mix-blend-mode:screen}
-  .bars{position:absolute;inset:0;background:
-      repeating-linear-gradient(90deg, rgba(230,240,255,.08) 0 10px, rgba(255,255,255,0) 10px 64px);
-    backdrop-filter:blur(.6px)}
+  .bars{position:absolute;inset:0;background:repeating-linear-gradient(90deg, rgba(230,240,255,.08) 0 10px, rgba(255,255,255,0) 10px 64px);backdrop-filter:blur(.6px)}
   .rim{position:absolute;inset:-14px;border-radius:50%;box-shadow:inset 0 0 0 14px #2a355b, inset 0 0 0 24px rgba(255,255,255,.05)}
-
-  /* ==== 本体 ==== */
   .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
   .card{width:min(760px,92vw);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)),var(--card);
-    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:28px 24px 32px;text-align:center;
-    box-shadow:var(--shadow);position:relative;overflow:hidden}
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:28px 24px 32px;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
   h1{font-size:clamp(28px,4.8vw,44px);letter-spacing:.06em;margin:6px 0 10px;
-    background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 0 18px rgba(56,189,248,.25)}
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 18px rgba(56,189,248,.25)}
   p.lead{margin:0 0 18px;color:var(--muted)}
   .btn{appearance:none;border:none;border-radius:14px;padding:14px 22px;font-weight:800;font-size:18px;cursor:pointer;color:#0b1220;
-    background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 10px 22px rgba(56,189,248,.25), inset 0 0 0 1px rgba(255,255,255,.25);
-    transition:transform .06s ease, filter .2s ease}
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 10px 22px rgba(56,189,248,.25), inset 0 0 0 1px rgba(255,255,255,.25);transition:transform .06s ease, filter .2s ease}
   .btn:hover{filter:brightness(1.05)} .btn:active{transform:translateY(1px) scale(.99)}
   .btn.secondary{background:#2b3046;color:var(--text);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
   .hidden{display:none!important}
-
-  /* ==== カウント専用アニメ ==== */
   .count-stage{height:34vh;display:grid;place-items:center}
   .count-num{font-variant-numeric:tabular-nums;font-size:clamp(72px,16vw,180px);font-weight:900;line-height:1;text-shadow:0 12px 36px rgba(0,0,0,.45)}
   .count-anim{animation:count-pop .75s cubic-bezier(.2,.8,.2,1) forwards}
-  @keyframes count-pop{
-    0%{opacity:0;transform:scale(.6);filter:drop-shadow(0 0 0 rgba(56,189,248,0))}
-    50%{opacity:1;transform:scale(1.15);filter:drop-shadow(0 0 30px rgba(56,189,248,.45))}
-    100%{opacity:1;transform:scale(1)}
-  }
+  @keyframes count-pop{0%{opacity:0;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
   .flash-white{position:fixed;inset:0;background:rgba(255,255,255,.06);pointer-events:none;animation:flash .3s ease forwards;z-index:5}
   @keyframes flash{to{opacity:0}}
-
-  /* ==== 結果表示 ==== */
   .result{font-weight:900;letter-spacing:.08em;font-size:clamp(36px,7.5vw,84px);margin:8px 0 16px;text-shadow:0 10px 30px rgba(0,0,0,.4)}
   .success{color:var(--ok);animation:win-glow .7s ease forwards}
-  @keyframes win-glow{0%{transform:scale(.96);text-shadow:0 0 0 rgba(34,197,94,0)}60%{transform:scale(1.06);text-shadow:0 0 40px rgba(34,197,94,.55)}100%{transform:scale(1)}}
+  @keyframes win-glow{0%{transform:scale(.96)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
   .fail{color:var(--ng)}
-
-  /* ==== 紙吹雪（成功時） ==== */
   .confetti{position:fixed;top:-10px;left:0;width:10px;height:14px;opacity:.95;will-change:transform,opacity;animation:conf-fall linear forwards;z-index:6}
   @keyframes conf-fall{to{transform:translate3d(var(--x,0),110vh,0) rotate(var(--r,720deg));opacity:1}}
-
-  /* ==== パトランプ（失敗時） ==== */
   .siren{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden}
-  .siren .beam{position:absolute;top:-10%;bottom:-10%;width:60%;background:
-      radial-gradient(60% 120% at 50% 0%, rgba(255,0,0,.35), rgba(255,0,0,.22) 40%, rgba(255,0,0,0) 70%);
-    filter:blur(2px);mix-blend-mode:screen;transform:skewX(-8deg);animation:beam-sweep 1s linear infinite}
-  .siren .beam.blue{right:-20%;background:
-      radial-gradient(60% 120% at 50% 0%, rgba(0,120,255,.35), rgba(0,120,255,.22) 40%, rgba(0,120,255,0) 70%);
-    animation-delay:.5s;transform:skewX(8deg)}
+  .siren .beam{position:absolute;top:-10%;bottom:-10%;width:60%;background:radial-gradient(60% 120% at 50% 0%, rgba(255,0,0,.35), rgba(255,0,0,.22) 40%, rgba(255,0,0,0) 70%);filter:blur(2px);mix-blend-mode:screen;transform:skewX(-8deg);animation:beam-sweep 1s linear infinite}
+  .siren .beam.blue{right:-20%;background:radial-gradient(60% 120% at 50% 0%, rgba(0,120,255,.35), rgba(0,120,255,.22) 40%, rgba(0,120,255,0) 70%);animation-delay:.5s;transform:skewX(8deg)}
   .siren .beam.red{left:-20%}
   @keyframes beam-sweep{0%{transform:translateX(-30%) skewX(-8deg)}50%{transform:translateX(20%) skewX(-8deg)}100%{transform:translateX(-30%) skewX(-8deg)}}
-  .siren .flash{position:absolute;inset:0;background:
-      linear-gradient(90deg, rgba(255,0,0,.12), rgba(0,0,0,0) 40%, rgba(0,140,255,.12) 60%, rgba(0,0,0,0));
-    animation:siren-flash 1s linear infinite}
+  .siren .flash{position:absolute;inset:0;background:linear-gradient(90deg, rgba(255,0,0,.12), rgba(0,0,0,0) 40%, rgba(0,140,255,.12) 60%, rgba(0,0,0,0));animation:siren-flash 1s linear infinite}
   @keyframes siren-flash{0%,100%{opacity:.75}50%{opacity:.25}}
-
   .footer{margin-top:10px;color:var(--muted);font-size:13px}
   kbd{background:#2b3046;border:1px solid rgba(255,255,255,.12);border-bottom-width:2px;border-radius:6px;padding:2px 6px;font-size:.9em;color:#e5e7eb}
 </style>
 </head>
 <body>
-  <!-- 背景 -->
-  <div class="bg-sky"></div>
-  <div class="stars"></div>
-  <div class="stars2"></div>
+  <div class="bg-sky"></div><div class="stars"></div><div class="stars2"></div>
   <div class="cell-window" aria-hidden="true">
     <div class="window-wrap">
       <div class="brick"></div>
       <div class="window-hole">
-        <div class="moon"></div>
-        <div class="moonbeam"></div>
-        <div class="bars"></div>
+        <div class="moon"></div><div class="moonbeam"></div><div class="bars"></div>
       </div>
       <div class="rim"></div>
     </div>
   </div>
 
-  <!-- 本体 -->
   <div class="wrap">
     <main class="card" role="main" aria-live="polite">
-      <!-- タイトル画面 -->
       <section id="screen-title">
         <h1>脱獄チャンス</h1>
-        <p class="lead">スタートで専用カウント「3 → 2 → 1」。ゼロで判定、<strong>1/10</strong>で「脱獄成功」！</p>
+        <p class="lead">スタートで専用カウント「3 → 2 → 1」。ゼロで判定、<strong>1/20</strong>で「脱獄成功」！</p>
         <button id="startBtn" class="btn" aria-label="スタート">スタート</button>
         <div class="footer">ヒント：<kbd>Enter</kbd> でも開始できます</div>
       </section>
 
-      <!-- カウント画面 -->
       <section id="screen-game" class="hidden" aria-hidden="true">
         <h1>脱獄成功まで....</h1>
-        <div class="count-stage">
-          <div id="countNum" class="count-num" aria-live="assertive">3</div>
-        </div>
+        <div class="count-stage"><div id="countNum" class="count-num" aria-live="assertive">3</div></div>
         <p class="lead">カウントが終わると運命が決まる…</p>
       </section>
 
-      <!-- 結果画面 -->
       <section id="screen-result" class="hidden" aria-hidden="true">
         <div id="resultText" class="result" role="status" aria-live="assertive">結果</div>
         <button id="retryBtn" class="btn secondary" aria-label="もう一度">もう一度</button>
@@ -154,287 +110,154 @@
   </div>
 
 <script>
-  /* ========= 設定 ========= */
-  const COUNT_SEQ = [3,2,1]; // 固定の3→2→1
+  /* ====== 設定 ====== */
+  const COUNT_SEQ = [3,2,1];      // 固定カウント
+  const SUCCESS_PROB = 1/20;      // ★ 脱獄成功の確率（1/20 = 5%）
+
+  /* ====== Audio 基盤 ==== */
   let audioCtx, masterGain;
-
-  /* ========= 要素 ========= */
-  const screenTitle  = document.getElementById('screen-title');
-  const screenGame   = document.getElementById('screen-game');
-  const screenResult = document.getElementById('screen-result');
-  const startBtn     = document.getElementById('startBtn');
-  const retryBtn     = document.getElementById('retryBtn');
-  const countNumEl   = document.getElementById('countNum');
-  const resultText   = document.getElementById('resultText');
-
-  function show(el){
-    for(const sec of [screenTitle, screenGame, screenResult]){
-      const isTarget = (sec === el);
-      sec.classList.toggle('hidden', !isTarget);
-      sec.setAttribute('aria-hidden', isTarget ? 'false' : 'true');
-    }
-  }
-
-  /* ========= Audio 基盤 ========= */
   function ensureAudio(){
     if(!audioCtx){
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.6; // 全体音量
-      masterGain.connect(audioCtx.destination);
+      masterGain = audioCtx.createGain(); masterGain.gain.value = 0.6; masterGain.connect(audioCtx.destination);
     }
     if(audioCtx.state === 'suspended') audioCtx.resume();
   }
-
-  // 汎用：短いビープ
-  function beep(freq=800, dur=0.12, type='sine', vol=0.6, attack=0.005, decay=0.08){
-    if(!audioCtx) return;
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t+attack);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+attack+decay);
-    osc.connect(g).connect(masterGain);
-    osc.start(t);
-    osc.stop(t + dur);
+  function beep(freq=800, dur=0.12, type='triangle', vol=0.6, attack=0.005, decay=0.08){
+    if(!audioCtx) return; const t=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+attack); g.gain.exponentialRampToValueAtTime(0.0001,t+attack+decay);
+    o.connect(g).connect(masterGain); o.start(t); o.stop(t+dur);
   }
-
-  // 汎用：低音のドン（心拍風）
   function thump(freq=90, dur=0.25, vol=0.9){
-    if(!audioCtx) return;
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t);
-    osc.frequency.exponentialRampToValueAtTime(freq*0.6, t+dur*0.5);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
-    osc.connect(g).connect(masterGain);
-    osc.start(t);
-    osc.stop(t+dur);
+    if(!audioCtx) return; const t=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(freq,t); o.frequency.exponentialRampToValueAtTime(freq*0.6,t+dur*0.5);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(masterGain); o.start(t); o.stop(t+dur);
   }
-
-  // カウント用：緊張感ビープ＋低音
-  function countdownTick(stepIndex){
-    // 高めビープは徐々に音程アップ
-    const base = 700;
-    const freq = base + stepIndex*80; // 3→2→1で少しずつ高く
-    beep(freq, 0.14, 'triangle', 0.5);
-    setTimeout(()=> thump(90, 0.24, 0.8), 30);
-    // 軽いノイズも足す
-    noiseBurst(0.12, 0.08);
-  }
-
-  // ノイズ短発（緊張感やアタック用）
   function noiseBurst(dur=0.1, vol=0.12){
-    if(!audioCtx) return;
-    const bufferSize = audioCtx.sampleRate * dur;
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i=0; i<bufferSize; i++) data[i] = (Math.random()*2-1) * 0.9;
-    const src = audioCtx.createBufferSource(); src.buffer = buffer;
-    const filter = audioCtx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 1200;
-    const g = audioCtx.createGain(); g.gain.value = vol;
-    src.connect(filter).connect(g).connect(masterGain);
-    src.start(); src.stop(audioCtx.currentTime + dur);
+    if(!audioCtx) return; const size=audioCtx.sampleRate*dur, buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate), data=buf.getChannelData(0);
+    for(let i=0;i<size;i++) data[i]=(Math.random()*2-1)*0.9;
+    const src=audioCtx.createBufferSource(); src.buffer=buf;
+    const f=audioCtx.createBiquadFilter(); f.type='highpass'; f.frequency.value=1200;
+    const g=audioCtx.createGain(); g.gain.value=vol;
+    src.connect(f).connect(g).connect(masterGain); src.start(); src.stop(audioCtx.currentTime+dur);
   }
+  function countdownTick(i){ const base=700; const freq=base+i*80; beep(freq,0.14,'triangle',0.5); setTimeout(()=>thump(90,0.24,0.8),30); noiseBurst(0.12,0.08); }
 
-  /* ========= サイレン（失敗時） ========= */
-  let sirenInterval = null, sirenOsc=null, sirenGain=null;
+  /* ====== サイレン（失敗時） ===== */
+  let sirenInterval=null, sirenOsc=null, sirenGain=null;
   function startSirenAudio(){
     if(!audioCtx) return;
     stopSirenAudio();
-    const t = audioCtx.currentTime;
-    sirenOsc = audioCtx.createOscillator();
-    sirenGain = audioCtx.createGain();
-    sirenOsc.type = 'sawtooth';
-    sirenOsc.frequency.setValueAtTime(650, t);
-    sirenGain.gain.setValueAtTime(0.001, t);
-    sirenGain.gain.exponentialRampToValueAtTime(0.4, t+0.03);
-    sirenOsc.connect(sirenGain).connect(masterGain);
-    sirenOsc.start();
-
-    // 周波数を上下（ウー…ウー…）
-    let up = true;
-    sirenInterval = setInterval(()=>{
-      const now = audioCtx.currentTime;
-      const target = up ? 1200 : 650;
-      sirenOsc.frequency.cancelScheduledValues(now);
-      sirenOsc.frequency.exponentialRampToValueAtTime(target, now + 0.6);
-      up = !up;
-    }, 600);
+    const t=audioCtx.currentTime;
+    sirenOsc=audioCtx.createOscillator(); sirenGain=audioCtx.createGain();
+    sirenOsc.type='sawtooth'; sirenOsc.frequency.setValueAtTime(650,t);
+    sirenGain.gain.setValueAtTime(0.001,t); sirenGain.gain.exponentialRampToValueAtTime(0.4,t+0.03);
+    sirenOsc.connect(sirenGain).connect(masterGain); sirenOsc.start();
+    let up=true; sirenInterval=setInterval(()=>{ const now=audioCtx.currentTime; const target=up?1200:650; sirenOsc.frequency.cancelScheduledValues(now); sirenOsc.frequency.exponentialRampToValueAtTime(target, now+0.6); up=!up; },600);
   }
   function stopSirenAudio(){
-    if(sirenInterval){ clearInterval(sirenInterval); sirenInterval=null; }
-    if(sirenOsc){
-      try{
-        const t = audioCtx.currentTime;
-        sirenGain.gain.exponentialRampToValueAtTime(0.0001, t+0.15);
-        sirenOsc.stop(t+0.18);
-      }catch(e){}
-      sirenOsc=null; sirenGain=null;
-    }
+    if(sirenInterval){clearInterval(sirenInterval);sirenInterval=null;}
+    if(sirenOsc){try{const t=audioCtx.currentTime; sirenGain.gain.exponentialRampToValueAtTime(0.0001,t+0.15); sirenOsc.stop(t+0.18);}catch(e){} sirenOsc=null; sirenGain=null;}
   }
 
-  /* ========= ファンファーレ（成功時） ========= */
+  /* ====== ファンファーレ（成功時） ===== */
   function fanfare(){
     if(!audioCtx) return;
-    const t0 = audioCtx.currentTime;
-    const tempo = 0.12; // アルペジオ間隔
-    // C5, E5, G5 → 和音（Cメジャー）
-    const notes = [523.25, 659.25, 783.99]; // Hz
-    notes.forEach((f, i)=> {
-      toneBurst(f, t0 + i*tempo, 0.18, 0.75, 'square');
-    });
-    // 和音を伸ばす
-    chord(notes, t0 + notes.length*tempo + 0.02, 0.8, 0.6, 'square');
-    // 追い上げ（グリッサンド）
-    glide(392.0, 523.25, t0+0.05, 0.28, 0.35);
+    const t0=audioCtx.currentTime, tempo=0.12, notes=[523.25,659.25,783.99];
+    notes.forEach((f,i)=>toneBurst(f,t0+i*tempo,0.18,0.75,'square'));
+    chord(notes, t0+notes.length*tempo+0.02, 0.8, 0.6, 'square');
+    glide(392.0,523.25,t0+0.05,0.28,0.35);
   }
   function toneBurst(freq, startTime, dur=0.2, vol=0.7, type='square'){
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, startTime);
-    g.gain.setValueAtTime(0.0001, startTime);
-    g.gain.exponentialRampToValueAtTime(vol, startTime+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, startTime+dur);
-    osc.connect(g).connect(masterGain);
-    osc.start(startTime); osc.stop(startTime+dur+0.02);
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,startTime);
+    g.gain.setValueAtTime(0.0001,startTime); g.gain.exponentialRampToValueAtTime(vol,startTime+0.02); g.gain.exponentialRampToValueAtTime(0.0001,startTime+dur);
+    o.connect(g).connect(masterGain); o.start(startTime); o.stop(startTime+dur+0.02);
   }
-  function chord(freqs, startTime, dur=0.8, vol=0.5, type='square'){
-    const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, startTime);
-    g.gain.exponentialRampToValueAtTime(vol, startTime+0.03);
-    g.gain.exponentialRampToValueAtTime(0.0001, startTime+dur);
-    g.connect(masterGain);
-    freqs.forEach(f=>{
-      const osc = audioCtx.createOscillator();
-      osc.type = type; osc.frequency.setValueAtTime(f, startTime);
-      osc.connect(g); osc.start(startTime); osc.stop(startTime+dur+0.05);
-    });
+  function chord(freqs,startTime,dur=0.8,vol=0.5,type='square'){
+    const g=audioCtx.createGain(); g.gain.setValueAtTime(0.0001,startTime); g.gain.exponentialRampToValueAtTime(vol,startTime+0.03); g.gain.exponentialRampToValueAtTime(0.0001,startTime+dur); g.connect(masterGain);
+    freqs.forEach(f=>{const o=audioCtx.createOscillator(); o.type=type; o.frequency.setValueAtTime(f,startTime); o.connect(g); o.start(startTime); o.stop(startTime+dur+0.05);});
   }
-  function glide(fStart, fEnd, startTime, dur=0.25, vol=0.25){
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type='triangle';
-    osc.frequency.setValueAtTime(fStart, startTime);
-    osc.frequency.exponentialRampToValueAtTime(fEnd, startTime+dur);
-    g.gain.setValueAtTime(0.0001, startTime);
-    g.gain.exponentialRampToValueAtTime(vol, startTime+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, startTime+dur+0.06);
-    osc.connect(g).connect(masterGain);
-    osc.start(startTime); osc.stop(startTime+dur+0.08);
+  function glide(fStart,fEnd,startTime,dur=0.25,vol=0.25){
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='triangle'; o.frequency.setValueAtTime(fStart,startTime); o.frequency.exponentialRampToValueAtTime(fEnd,startTime+dur);
+    g.gain.setValueAtTime(0.0001,startTime); g.gain.exponentialRampToValueAtTime(vol,startTime+0.02); g.gain.exponentialRampToValueAtTime(0.0001,startTime+dur+0.06);
+    o.connect(g).connect(masterGain); o.start(startTime); o.stop(startTime+dur+0.08);
   }
 
-  /* ========= 視覚エフェクト ========= */
-  function flashWhite(){
-    const f = document.createElement('div');
-    f.className = 'flash-white';
-    document.body.appendChild(f);
-    setTimeout(()=> f.remove(), 320);
-  }
-
-  // 紙吹雪
-  function confettiBurst(n=260){
-    const colors = ['#22c55e','#38bdf8','#a78bfa','#facc15','#f472b6','#60a5fa','#34d399','#fde047'];
-    const body = document.body;
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    for(let i=0;i<n;i++){
-      const el = document.createElement('div');
-      el.className = 'confetti';
-      const size = 8 + Math.random()*12;
-      el.style.width = (size*0.7)+'px';
-      el.style.height = size+'px';
-      el.style.background = colors[(Math.random()*colors.length)|0];
-      el.style.left = (Math.random()*vw)+'px';
-      el.style.setProperty('--x', (Math.random()*200 - 100) + 'px');
-      el.style.setProperty('--r', (Math.random()>.5?1:-1)*(360 + Math.random()*1440) + 'deg');
-      el.style.borderRadius = Math.random()>.7 ? '50%':'3px';
-      el.style.animationDuration = (2.0 + Math.random()*2.2) + 's';
-      body.appendChild(el);
-      setTimeout(()=> el.remove(), 4200);
+  /* ====== 視覚エフェクト ===== */
+  function flashWhite(){ const f=document.createElement('div'); f.className='flash-white'; document.body.appendChild(f); setTimeout(()=>f.remove(),320); }
+  function confettiBurst(n=300){
+    const colors=['#22c55e','#38bdf8','#a78bfa','#facc15','#f472b6','#60a5fa','#34d399','#fde047'];
+    const body=document.body, vw=Math.max(document.documentElement.clientWidth||0,window.innerWidth||0);
+    for(let i=0;i<n;i++){ const el=document.createElement('div'); el.className='confetti';
+      const size=8+Math.random()*12; el.style.width=(size*0.7)+'px'; el.style.height=size+'px';
+      el.style.background=colors[(Math.random()*colors.length)|0]; el.style.left=(Math.random()*vw)+'px';
+      el.style.setProperty('--x',(Math.random()*200-100)+'px'); el.style.setProperty('--r', (Math.random()>.5?1:-1)*(360+Math.random()*1440)+'deg');
+      el.style.borderRadius=Math.random()>.7?'50%':'3px'; el.style.animationDuration=(2.0+Math.random()*2.2)+'s';
+      body.appendChild(el); setTimeout(()=>el.remove(),4200);
     }
   }
+  function startSirenVisual(){ const w=document.createElement('div'); w.className='siren'; w.innerHTML=`<div class="beam red"></div><div class="beam blue"></div><div class="flash"></div>`; document.body.appendChild(w); return w; }
+  function stopSirenVisual(el){ if(!el) return; setTimeout(()=>el.remove(),1200); }
 
-  // パトランプ視覚
-  function startSirenVisual(){
-    const wrap = document.createElement('div');
-    wrap.className = 'siren';
-    wrap.innerHTML = `<div class="beam red"></div><div class="beam blue"></div><div class="flash"></div>`;
-    document.body.appendChild(wrap);
-    return wrap;
-  }
-  function stopSirenVisual(el){ if(!el) return; setTimeout(()=> el.remove(), 1200); }
+  /* ====== 進行 ===== */
+  const screenTitle=document.getElementById('screen-title');
+  const screenGame=document.getElementById('screen-game');
+  const screenResult=document.getElementById('screen-result');
+  const startBtn=document.getElementById('startBtn');
+  const retryBtn=document.getElementById('retryBtn');
+  const countNumEl=document.getElementById('countNum');
+  const resultText=document.getElementById('resultText');
 
-  /* ========= ロジック ========= */
+  function show(el){ for(const s of [screenTitle,screenGame,screenResult]){ const on=(s===el); s.classList.toggle('hidden',!on); s.setAttribute('aria-hidden', on?'false':'true'); } }
+
   function playCountdown(){
     return new Promise(resolve=>{
       show(screenGame);
-      let idx = 0;
-      const tick = ()=>{
-        if(idx >= COUNT_SEQ.length){
-          flashWhite();
-          setTimeout(resolve, 150);
-          return;
-        }
-        const val = COUNT_SEQ[idx];
-        countNumEl.textContent = val;
-        countNumEl.classList.remove('count-anim');
-        void countNumEl.offsetWidth; // reflow
-        countNumEl.classList.add('count-anim');
-
-        // 効果音
-        countdownTick(idx);
-
-        flashWhite();
-        idx++;
-        setTimeout(tick, 1000);
+      let idx=0;
+      const tick=()=>{
+        if(idx>=COUNT_SEQ.length){ flashWhite(); setTimeout(resolve,150); return; }
+        const val=COUNT_SEQ[idx];
+        countNumEl.textContent=val;
+        countNumEl.classList.remove('count-anim'); void countNumEl.offsetWidth; countNumEl.classList.add('count-anim');
+        countdownTick(idx); flashWhite(); idx++; setTimeout(tick,1000);
       };
       tick();
     });
   }
 
   function decide(){
-    const success = Math.random() < 0.1; // 1/10 成功
+    const success = Math.random() < SUCCESS_PROB; // ★ 1/20 で成功
     resultText.textContent = success ? '脱獄成功！！' : '脱獄失敗…';
     resultText.className = 'result ' + (success ? 'success' : 'fail');
     show(screenResult);
 
-    if (navigator.vibrate) {
-      navigator.vibrate(success ? [30,50,90] : [120,60,40]);
-    }
+    if (navigator.vibrate) navigator.vibrate(success ? [30,50,90] : [120,60,40]);
 
     if(success){
-      confettiBurst(300); setTimeout(()=> confettiBurst(140), 500);
-      fanfare(); // ← ファンファーレ
+      confettiBurst(300); setTimeout(()=>confettiBurst(140),500);
+      fanfare();
     }else{
       const sirenVis = startSirenVisual();
-      startSirenAudio(); // ← サイレン開始
-      setTimeout(()=>{
-        stopSirenVisual(sirenVis);
-        stopSirenAudio(); // サイレン停止
-      }, 2000);
+      startSirenAudio();
+      setTimeout(()=>{ stopSirenVisual(sirenVis); stopSirenAudio(); }, 2000);
     }
   }
 
-  async function startGame(){
-    ensureAudio(); // 最初のユーザー操作でAudioContextを有効化
-    await playCountdown();
-    decide();
-  }
+  async function startGame(){ ensureAudio(); await playCountdown(); decide(); }
 
-  // イベント
   startBtn.addEventListener('click', startGame);
   retryBtn.addEventListener('click', ()=> show(screenTitle));
   window.addEventListener('keydown', async (e)=>{
-    if((e.key==='Enter' || e.key===' ') && !screenTitle.classList.contains('hidden')){ ensureAudio(); await startGame(); }
-    else if((e.key==='r' || e.key==='R') && !screenResult.classList.contains('hidden')) show(screenTitle);
+    if((e.key==='Enter'||e.key===' ') && !screenTitle.classList.contains('hidden')){ ensureAudio(); await startGame(); }
+    else if((e.key==='r'||e.key==='R') && !screenResult.classList.contains('hidden')) show(screenTitle);
   });
 
-  // 初期表示
   show(screenTitle);
 </script>
 </body>
