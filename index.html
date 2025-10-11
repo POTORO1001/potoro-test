@@ -88,19 +88,20 @@
 
   <div class="wrap">
     <main class="card" role="main" aria-live="polite">
+      <!-- タイトル画面（説明とヒントを削除済み） -->
       <section id="screen-title">
         <h1>脱獄チャンス</h1>
-        <p class="lead">スタートで専用カウント「3 → 2 → 1」。ゼロで判定、<strong>1/20</strong>で「脱獄成功」！</p>
         <button id="startBtn" class="btn" aria-label="スタート">スタート</button>
-        <div class="footer">ヒント：<kbd>Enter</kbd> でも開始できます</div>
       </section>
 
+      <!-- カウント画面 -->
       <section id="screen-game" class="hidden" aria-hidden="true">
         <h1>脱獄成功まで....</h1>
         <div class="count-stage"><div id="countNum" class="count-num" aria-live="assertive">3</div></div>
         <p class="lead">カウントが終わると運命が決まる…</p>
       </section>
 
+      <!-- 結果画面 -->
       <section id="screen-result" class="hidden" aria-hidden="true">
         <div id="resultText" class="result" role="status" aria-live="assertive">結果</div>
         <button id="retryBtn" class="btn secondary" aria-label="もう一度">もう一度</button>
@@ -112,7 +113,7 @@
 <script>
   /* ====== 設定 ====== */
   const COUNT_SEQ = [3,2,1];      // 固定カウント
-  const SUCCESS_PROB = 1/20;      // ★ 脱獄成功の確率（1/20 = 5%）
+  const SUCCESS_PROB = 1/20;      // 1/20（5%）で成功
 
   /* ====== Audio 基盤 ==== */
   let audioCtx, masterGain;
@@ -206,19 +207,19 @@
   function stopSirenVisual(el){ if(!el) return; setTimeout(()=>el.remove(),1200); }
 
   /* ====== 進行 ===== */
-  const screenTitle=document.getElementById('screen-title');
-  const screenGame=document.getElementById('screen-game');
-  const screenResult=document.getElementById('screen-result');
+  const screenTitleEl=document.getElementById('screen-title');
+  const screenGameEl=document.getElementById('screen-game');
+  const screenResultEl=document.getElementById('screen-result');
   const startBtn=document.getElementById('startBtn');
   const retryBtn=document.getElementById('retryBtn');
   const countNumEl=document.getElementById('countNum');
   const resultText=document.getElementById('resultText');
 
-  function show(el){ for(const s of [screenTitle,screenGame,screenResult]){ const on=(s===el); s.classList.toggle('hidden',!on); s.setAttribute('aria-hidden', on?'false':'true'); } }
+  function show(el){ for(const s of [screenTitleEl,screenGameEl,screenResultEl]){ const on=(s===el); s.classList.toggle('hidden',!on); s.setAttribute('aria-hidden', on?'false':'true'); } }
 
   function playCountdown(){
     return new Promise(resolve=>{
-      show(screenGame);
+      show(screenGameEl);
       let idx=0;
       const tick=()=>{
         if(idx>=COUNT_SEQ.length){ flashWhite(); setTimeout(resolve,150); return; }
@@ -232,10 +233,10 @@
   }
 
   function decide(){
-    const success = Math.random() < SUCCESS_PROB; // ★ 1/20 で成功
+    const success = Math.random() < SUCCESS_PROB; // 1/20 成功
     resultText.textContent = success ? '脱獄成功！！' : '脱獄失敗…';
     resultText.className = 'result ' + (success ? 'success' : 'fail');
-    show(screenResult);
+    show(screenResultEl);
 
     if (navigator.vibrate) navigator.vibrate(success ? [30,50,90] : [120,60,40]);
 
@@ -252,13 +253,13 @@
   async function startGame(){ ensureAudio(); await playCountdown(); decide(); }
 
   startBtn.addEventListener('click', startGame);
-  retryBtn.addEventListener('click', ()=> show(screenTitle));
+  retryBtn.addEventListener('click', ()=> show(screenTitleEl));
   window.addEventListener('keydown', async (e)=>{
-    if((e.key==='Enter'||e.key===' ') && !screenTitle.classList.contains('hidden')){ ensureAudio(); await startGame(); }
-    else if((e.key==='r'||e.key==='R') && !screenResult.classList.contains('hidden')) show(screenTitle);
+    if((e.key==='Enter'||e.key===' ') && !screenTitleEl.classList.contains('hidden')){ ensureAudio(); await startGame(); }
+    else if((e.key==='r'||e.key==='R') && !screenResultEl.classList.contains('hidden')) show(screenTitleEl);
   });
 
-  show(screenTitle);
+  show(screenTitleEl);
 </script>
 </body>
 </html>
