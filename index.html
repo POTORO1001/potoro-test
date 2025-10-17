@@ -39,7 +39,7 @@
 
   /* 俳優（SVGイラスト） */
   .actors{position:absolute;left:0;right:0;bottom:26%;height:0;}
-  .char{position:absolute;width:300px;height:300px;}
+  .char{position:absolute;width:300px;height:300px;transform-origin:50% 50%;overflow:visible;bottom:0;} 
   .teacher{left:10%;transform:translateY(-95%);}  
   .student{right:10%;transform:translateY(-95%) scaleX(-1);} /* 右を向かせるため反転 */
 
@@ -81,7 +81,8 @@
   <div class="stage">
     <div class="scene">
       <div class="wall"></div><div class="baseboard"></div><div class="floor"></div>
-      <div class="blackboard"><div class="lines">ポ・トロの萌えセレクトについて</div><div class="tray"></div></div>
+      <div class="blackboard"><div class="lines">ポ・トロの
+萌えセレクトについて</div><div class="tray"></div></div>
       <div class="window wl"></div><div class="window wr"></div>
 
       <div class="lectern"></div>
