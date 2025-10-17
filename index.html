@@ -3,44 +3,47 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>学校ドット会話シーン（先生→生徒：萌えセレクト講義）</title>
+<title>学校会話シーン（アニメ風／先生×生徒イラスト版）</title>
 <style>
   :root{
-    --wall1:#f2f6ff;
-    --wall2:#e8f0ff;
-    --floor:#e3d7c8;
-    --board:#2f3a4a;
-    --chalk:#ff6ea3;
-    --frame:#caa56a;
-    --desk:#b68755;
-    --deskTop:#d6a972;
-    --text:#222;
+    --wall1:#f2f6ff; --wall2:#e8f0ff; --floor:#e3d7c8;
+    --board:#2f3a4a; --chalk:#ff6ea3; --frame:#caa56a;
+    --desk:#b68755; --deskTop:#d6a972; --metal:#8a8f98; --text:#222;
+    --shadow:rgba(0,0,0,.18);
   }
   html,body{height:100%;margin:0;}
-  body{
-    font-family:"Zen Maru Gothic","M PLUS Rounded 1c",system-ui;
-    color:var(--text);
-    background:linear-gradient(180deg,var(--wall1),var(--wall2));
-  }
+  body{font-family:"Zen Maru Gothic","M PLUS Rounded 1c",system-ui; color:var(--text); background:linear-gradient(180deg,var(--wall1),var(--wall2));}
   .stage{max-width:980px;margin:16px auto;padding:12px;}
-  .scene{position:relative;width:100%;height:78svh;overflow:hidden;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.12);}  
+  .scene{position:relative;width:100%;height:78svh;overflow:hidden;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.12);background:radial-gradient(80% 80% at 50% 0%, rgba(255,255,255,.6), transparent 60%);} 
   .wall{position:absolute;inset:0 0 36% 0;}
-  .floor{position:absolute;left:0;right:0;bottom:0;height:36%;background:repeating-linear-gradient(90deg,#d8c7b1 0 28px,#e9daca 28px 56px);} 
-  .blackboard{position:absolute;left:50%;transform:translateX(-50%);top:7%;width:70%;height:28%;background:var(--board);border:10px solid var(--frame);border-radius:6px;}
-  .blackboard .lines{position:absolute;inset:10% 8%;color:var(--chalk);font-size:13px;line-height:1.7;opacity:.95;white-space:pre-line;}
+  .baseboard{position:absolute;left:0;right:0;bottom:36%;height:10px;background:#c8cfd8;box-shadow:0 -2px 0 rgba(0,0,0,.06) inset, 0 2px 4px rgba(0,0,0,.05);} 
+  .floor{position:absolute;left:0;right:0;bottom:0;height:36%;background:linear-gradient(to top, rgba(0,0,0,.05), transparent 40%),repeating-linear-gradient(90deg,#d8c7b1 0 28px,#e9daca 28px 56px);} 
+
+  /* 黒板 */
+  .blackboard{position:absolute;left:50%;transform:translateX(-50%);top:6%;width:72%;height:28%;background:var(--board);border:10px solid var(--frame);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.15);} 
+  .blackboard .lines{position:absolute;inset:12% 8% 22% 8%;color:var(--chalk);font-size:20px;font-weight:700;line-height:1.7;white-space:pre-line;text-align:center;letter-spacing:.03em;}
+  .blackboard .tray{position:absolute;left:0;right:0;bottom:0;height:14%;background:linear-gradient(#cfa872,#b78a57);box-shadow:0 -2px 0 rgba(0,0,0,.25) inset;}
+  .blackboard .tray::after{content:"";position:absolute;right:18px;bottom:4px;width:44px;height:6px;border-radius:3px;background:#f2f2f2;box-shadow:22px 0 0 #ffdede;opacity:.9;}
+
   .window{position:absolute;top:8%;width:16%;height:24%;background:linear-gradient(180deg,#d9efff,#b9deff);border:8px solid var(--frame);border-radius:6px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);} 
   .window.wl{left:4%;}.window.wr{right:4%;}
-  .lectern{position:absolute;left:18%;bottom:30%;width:16%;height:14%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset;border-radius:4px;}
-  .desks{position:absolute;right:8%;bottom:28%;width:28%;height:16%;}
-  .desk{position:absolute;width:40%;height:100%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset;border-radius:4px;}
+
+  /* 机・演台 */
+  .lectern{position:absolute;left:18%;bottom:30%;width:18%;height:16%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset, 0 10px 18px var(--shadow);border-radius:6px;}
+  .lectern::after{content:"";position:absolute;left:10%;right:10%;bottom:-10px;height:10px;background:var(--shadow);filter:blur(6px);border-radius:50%;}
+  .desks{position:absolute;right:8%;bottom:28%;width:32%;height:16%;}
+  .desk{position:absolute;width:44%;height:100%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset, 0 10px 18px var(--shadow);border-radius:6px;}
   .desk.d1{left:0;}.desk.d2{right:0;}
-  .lamp{position:absolute;width:70px;height:70px;border-radius:50% 50% 12% 12%/60% 60% 20% 20%;background:#222;top:-20px;box-shadow:0 50px 80px rgba(255,255,200,.28);} 
-  .lamp::after{content:"";position:absolute;left:50%;transform:translateX(-50%);top:-40px;width:4px;height:40px;background:#222;}
-  .lamp.l1{left:30%;}.lamp.l2{right:30%;}
-  .actors{position:absolute;left:0;right:0;bottom:28%;height:0;}
-  canvas.sprite{position:absolute;image-rendering:pixelated;width:300px;height:300px;outline:2px solid rgba(0,0,0,.06);}
+  .desk::before{content:"";position:absolute;left:10%;right:10%;bottom:-10px;height:10px;background:var(--shadow);filter:blur(6px);border-radius:50%;}
+  .desk::after{content:"";position:absolute;left:12%;bottom:-16px;width:76%;height:6px;background:var(--metal);border-radius:3px;}
+
+  /* 俳優（SVGイラスト） */
+  .actors{position:absolute;left:0;right:0;bottom:26%;height:0;}
+  .char{position:absolute;width:300px;height:300px;}
   .teacher{left:10%;transform:translateY(-95%);}  
-  .student{right:10%;transform:translateY(-95%) scaleX(-1);} 
+  .student{right:10%;transform:translateY(-95%) scaleX(-1);} /* 右を向かせるため反転 */
+
+  /* 吹き出し */
   .bubble{position:absolute;max-width:56%;padding:14px 16px;font-size:18px;line-height:1.7;background:#fff;border:3px solid #222;border-radius:14px;box-shadow:4px 6px 0 #222;}
   .bubble p{margin:0;white-space:pre-line;}
   .bubble small{display:block;font-size:13px;opacity:.7;margin-bottom:6px;}
@@ -49,23 +52,26 @@
   .bubble.left::after,.bubble.right::after{content:"";position:absolute;width:0;height:0;border:12px solid transparent;bottom:-22px;}
   .bubble.left::after{left:24px;border-top-color:#fff;filter:drop-shadow(2px 3px 0 #222);} 
   .bubble.right::after{right:24px;border-top-color:#fff;filter:drop-shadow(-2px 3px 0 #222);} 
+
+  /* HUD */
   .hud{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:14px;flex-wrap:wrap;}
   button{appearance:none;border:3px solid #222;background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:3px 4px 0 #222;font-weight:700;}
   button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #222;}
   .tag{background:#222;color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;}
+
+  /* iPhone 縦持ち調整 */
   @media (max-width: 430px){
     .stage{margin:8px auto;padding:8px;}
     .scene{height:86svh;border-radius:12px;}
     .actors{bottom:22%;}
-    canvas.sprite{width:180px;height:180px;}
+    .char{width:180px;height:180px;}
     .bubble{font-size:14px;max-width:88%;}
-    .bubble.left{bottom:62%;}
-    .bubble.right{bottom:62%;}
+    .bubble.left{bottom:60%;}
+    .bubble.right{bottom:60%;}
     .blackboard{top:4%;width:86%;height:20%;}
-    .window{display:none;} /* 窓は省略して縦画面に収める */
+    .window{display:none;}
     .lectern{left:8%;bottom:30%;width:22%;height:12%;}
     .desks{right:4%;bottom:26%;width:40%;height:14%;}
-    .hud{gap:6px;}
     button{padding:8px 10px;font-size:14px;}
     .tag{font-size:11px;padding:4px 8px;}
   }
@@ -74,60 +80,135 @@
 <body>
   <div class="stage">
     <div class="scene">
-      <div class="wall"></div><div class="floor"></div>
-      <div class="blackboard"><div class="lines">ポ・トロの萌えセレクトについて</div></div>
+      <div class="wall"></div><div class="baseboard"></div><div class="floor"></div>
+      <div class="blackboard"><div class="lines">ポ・トロの萌えセレクトについて</div><div class="tray"></div></div>
       <div class="window wl"></div><div class="window wr"></div>
-      <div class="lectern"></div><div class="desks"><div class="desk d1"></div><div class="desk d2"></div></div>
-      <div class="lamp l1"></div><div class="lamp l2"></div>
-      <div class="actors">
-        <canvas id="teacher" class="sprite teacher" width="64" height="64"></canvas>
-        <canvas id="student" class="sprite student" width="64" height="64"></canvas>
-      </div>
+
+      <div class="lectern"></div>
+      <div class="desks"><div class="desk d1"></div><div class="desk d2"></div></div>
+
+      <!-- ▼ アニメ風イラスト（SVG）：先生（左） -->
+      <svg class="char teacher" viewBox="0 0 300 300" aria-label="先生(メガネ・スーツ)">
+        <defs>
+          <linearGradient id="skinT" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffd9c7"/><stop offset="1" stop-color="#f7bfa6"/>
+          </linearGradient>
+          <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2a2f3a"/><stop offset="1" stop-color="#1c2028"/>
+          </linearGradient>
+        </defs>
+        <!-- 影 -->
+        <ellipse cx="150" cy="280" rx="80" ry="12" fill="rgba(0,0,0,.14)"/>
+        <!-- 髪 -->
+        <path d="M210 88c0 38-40 54-60 54s-60-16-60-54c0-30 26-50 60-50s60 20 60 50z" fill="#1f1f1f"/>
+        <!-- 顔 -->
+        <ellipse cx="150" cy="120" rx="46" ry="42" fill="url(#skinT)"/>
+        <!-- メガネ -->
+        <g fill="none" stroke="#3b3f46" stroke-width="3">
+          <rect x="115" y="112" width="30" height="16" rx="4"/>
+          <rect x="155" y="112" width="30" height="16" rx="4"/>
+          <path d="M145 120h10"/>
+        </g>
+        <!-- 目・口 -->
+        <circle cx="130" cy="120" r="3" fill="#2a2a2a"/>
+        <circle cx="170" cy="120" r="3" fill="#2a2a2a"/>
+        <path d="M136 138c10 6 18 6 28 0" stroke="#b36b6b" stroke-width="3" fill="none"/>
+        <!-- スーツ -->
+        <path d="M80 260c10-60 20-120 70-120s60 60 70 120H80z" fill="url(#suit)"/>
+        <!-- シャツ・ネクタイ -->
+        <path d="M140 152l10 0 10 16-30 0z" fill="#e8f0ff"/>
+        <path d="M150 168l12 40h-24z" fill="#3f5d8e"/>
+        <!-- 手（チョーク持ち風の白） -->
+        <circle cx="108" cy="210" r="8" fill="#ffffff" stroke="#d0d0d0"/>
+      </svg>
+
+      <!-- ▼ アニメ風イラスト（SVG）：生徒（右・セーラー服） -->
+      <svg class="char student" viewBox="0 0 300 300" aria-label="生徒(セーラー服)">
+        <defs>
+          <linearGradient id="skinS" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffd9c7"/><stop offset="1" stop-color="#f7bfa6"/>
+          </linearGradient>
+          <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#21306a"/><stop offset="1" stop-color="#15214f"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="150" cy="280" rx="78" ry="12" fill="rgba(0,0,0,.14)"/>
+        <!-- 髪（茶） -->
+        <path d="M210 95c0 40-40 58-60 58s-60-18-60-58c0-28 24-48 60-48s60 20 60 48z" fill="#5b2b20"/>
+        <!-- 顔 -->
+        <ellipse cx="150" cy="128" rx="44" ry="40" fill="url(#skinS)"/>
+        <!-- 目・口（アニメ風） -->
+        <ellipse cx="132" cy="128" rx="5" ry="7" fill="#2a2a2a"/>
+        <ellipse cx="168" cy="128" rx="5" ry="7" fill="#2a2a2a"/>
+        <path d="M135 146c8 6 22 6 30 0" stroke="#b36b6b" stroke-width="3" fill="none"/>
+        <!-- セーラー襟＆服 -->
+        <path d="M90 260c10-60 22-118 60-118s50 58 60 118H90z" fill="url(#navy)"/>
+        <path d="M120 168h60l-18 18h-24z" fill="#ffffff"/>
+        <path d="M120 186h60l-12 12h-36z" fill="#d6ecff"/>
+        <!-- 赤いリボン -->
+        <g fill="#c62828">
+          <circle cx="150" cy="188" r="7"/>
+          <path d="M150 188l-18 10 6-16z"/>
+          <path d="M150 188l18 10-6-16z"/>
+        </g>
+      </svg>
+
       <div class="bubble left" id="bubble"><small id="speaker">Teacher</small><p id="line">みなさん、今日は「萌えセレクト」について学びます。</p></div>
     </div>
+
     <div class="hud">
-      <div><button id="prev">◀︎ 前へ</button><button id="next">次へ ▶︎</button><button id="auto">⏵ オート</button><button id="redraw">↺ 再描画</button><span class="tag" id="progress">1 / 1</span><button id="toggle-sfx">🔔 チャイム ON</button></div>
+      <div>
+        <button id="prev">◀︎ 前へ</button>
+        <button id="next">次へ ▶︎</button>
+        <button id="auto">⏵ オート</button>
+        <span class="tag" id="progress">1 / 1</span>
+      </div>
     </div>
   </div>
+
 <script>
-function drawSprite(canvas, grid, palette){
-  const ctx = canvas.getContext('2d');
-  const h = grid.length, w = grid[0].length;
-  const px = Math.floor(canvas.width / w);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const k=grid[y][x];if(!k||k==='.')continue;ctx.fillStyle=palette[k]||'#000';ctx.fillRect(x*px,y*px,px,px);}
+// 会話データ（そのまま編集OK）
+const DIALOGUE = [
+  { speaker: 'teacher', text: 'おかえりなさい…ではなく、授業開始です。今日は「萌えセレクト」について学びましょう！' },
+  { speaker: 'student', text: '先生、萌えセレクトとはなんですか？' },
+  { speaker: 'teacher', text: 'いい質問ですね！萌えセレクトとは、お気に入りのメイドさんを独占してお話できるシステムです！' },
+  { speaker: 'student', text: '先生、萌えセレクトの時間と料金を教えてください。' },
+  { speaker: 'teacher', text: '30分／2,000円(税込)。席料＋指名料も込みで、追加料金はありません。' },
+  { speaker: 'student', text: `長く話したい場合はどうしたらいいですか？\n延長は可能ですか？` },
+  { speaker: 'teacher', text: '事前に利用したい時間の長さで予約すればＯＫ。延長もOKですが、混雑状況によってはお断りされる場合がありますので、長めに予約されることをおすすめします。' },
+  { speaker: 'student', text: '遠方でも利用できる方法はありますか？' },
+  { speaker: 'teacher', text: 'それなら萌えセレクトのオンライン版「どこでもポトロ」がおすすめです。萌えセレクト、どこでもポトロともに、事前予約はXのDMで受け付けています。' },
+  { speaker: 'student', text: 'ほかに注意することはありますか？' },
+  { speaker: 'teacher', text: `萌えセレクト中は、メイドさんと一緒にお食事ができます。\n飲食物については以下の点に注意してください。\n1) 手作り以外の持ち込みはOK\n2) UberEATSも利用可能！\n3) メイドさんはアルコール飲料は飲めません！` },
+  { speaker: 'student', text: 'わかりました！さっそく利用してみようと思います' }
+];
+
+let idx=0, timer=null; const AUTO_MS=3300;
+const bubble=document.getElementById('bubble');
+const lineEl=document.getElementById('line');
+const spEl=document.getElementById('speaker');
+const progress=document.getElementById('progress');
+
+function renderLine(){
+  const cur = DIALOGUE[idx];
+  const left = (cur.speaker === 'teacher');
+  bubble.classList.toggle('left', left);
+  bubble.classList.toggle('right', !left);
+  spEl.textContent = left ? 'Teacher' : 'Student';
+  lineEl.textContent = cur.text;
+  progress.textContent = `${idx+1} / ${DIALOGUE.length}`;
 }
-const TEACHER_GRID=["................","......HHHH......",".....HHHHHH.....","....HHffffHH....","...HffpffpffH...","...HffffffffH...","....HffwwffH....",".....HwwwwH.....",".....bbbbbb.....","....bbddddbb....",".....bdbdb......","......bbbb......",".....b.wb.......",".....b..b.......","................","................"].map(r=>r.split(""));
-const STUDENT_GRID=["................","......hhhh......",".....hhhhhhh....","....hhffffhh....","...hffpffpfh....","...hfffffffh....","....hfwWwfh.....",".....hwwwfh.....","....bbbAAbbb....","....bbbbbbbb....",".....bdbdb......","......bbbb......",".......bb.......","................","................","................"].map(r=>r.split(""));
-const PAL_TEACHER={'H':'#1f1f1f','f':'#ffd7c2','p':'#ff99aa','w':'#e7f2ff','b':'#2a2a2a','d':'#6f95c8'};
-const PAL_STUDENT={'h':'#5b2b20','f':'#ffd7c2','p':'#ff8fbf','w':'#ffffff','W':'#d6ecff','A':'#c62828','b':'#1e2a6d','d':'#0f1950'};
-function initSprites(){drawSprite(document.getElementById('teacher'),TEACHER_GRID,PAL_TEACHER);drawSprite(document.getElementById('student'),STUDENT_GRID,PAL_STUDENT);}
-const DIALOGUE=[
-{speaker:'teacher',text:'おかえりなさい…ではなく、授業開始です。今日は「萌えセレクト」について学びましょう！'},
-{speaker:'student',text:'先生、萌えセレクトとはなんですか？'},
-{speaker:'teacher',text:'いい質問ですね！萌えセレクトとは、お気に入りのメイドさんを独占してお話できるシステムです！'},
-{speaker:'student',text:'先生、萌えセレクトの時間と料金を教えてください。'},
-{speaker:'teacher',text:'30分／2,000円(税込)。席料＋指名料も込みで、追加料金はありません。'},
-{speaker:'student',text:`長く話したい場合はどうしたらいいですか？\n延長は可能ですか？`},
-{speaker:'teacher',text:'事前に利用したい時間の長さで予約すればＯＫ。延長もOKですが、混雑状況によってはお断りされる場合がありますので、長めに予約されることをおすすめします。'},
-{speaker:'student',text:'遠方でも利用できる方法はありますか？'},
-{speaker:'teacher',text:'それなら萌えセレクトのオンライン版「どこでもポトロ」がおすすめです。萌えセレクト、どこでもポトロともに、事前予約はXのDMで受け付けています。'},
-{speaker:'student',text:'ほかに注意することはありますか？'},
-{speaker:'teacher',text:`萌えセレクト中は、メイドさんと一緒にお食事ができます。\n飲食物については以下の点に注意してください。\n1) 手作り以外の持ち込みはOK\n2) UberEATSも利用可能！\n3) メイドさんはアルコール飲料は飲めません！`},
-{speaker:'student',text:'わかりました！さっそく利用してみようと思います',sfx:'chime'}];
-let idx=0,timer=null;const AUTO_MS=3300;const bubble=document.getElementById('bubble');const lineEl=document.getElementById('line');const spEl=document.getElementById('speaker');const progress=document.getElementById('progress');let sfxOn=true,chimePlayedOnce=false,sfxTimerId=null,autoStopTimerId=null;
-function renderLine(){const cur=DIALOGUE[idx];const left=(cur.speaker==='teacher');bubble.classList.toggle('left',left);bubble.classList.toggle('right',!left);spEl.textContent=left?'Teacher':'Student';lineEl.textContent=cur.text;progress.textContent=`${idx+1} / ${DIALOGUE.length}`;if(sfxTimerId){clearTimeout(sfxTimerId);sfxTimerId=null;}if(autoStopTimerId){clearTimeout(autoStopTimerId);autoStopTimerId=null;}const isChime=(cur.sfx==='chime'||cur.sfx==='school');if(isChime&&sfxOn){sfxTimerId=setTimeout(()=>{playSchoolChimeOnce();},500);const isLast=(idx===DIALOGUE.length-1);if(isLast){const totalMs=500+(CHIME_SEQ.length*(CHIME_STEP+CHIME_GAP))*1000;autoStopTimerId=setTimeout(()=>{stopAuto();},totalMs);}}}
-function next(){idx=(idx+1)%DIALOGUE.length;renderLine();}
-function prev(){idx=(idx-1+DIALOGUE.length)%DIALOGUE.length;renderLine();}
-function autoPlay(){if(timer)return;timer=setInterval(next,AUTO_MS);}
-function stopAuto(){clearInterval(timer);timer=null;}
-const bPrev=document.getElementById('prev'),bNext=document.getElementById('next'),bAuto=document.getElementById('auto'),bRedraw=document.getElementById('redraw'),bSfx=document.getElementById('toggle-sfx');
-bPrev.addEventListener('click',()=>{stopAuto();prev();});bNext.addEventListener('click',()=>{stopAuto();next();});bAuto.addEventListener('click',()=>{if(timer){stopAuto();bAuto.textContent='⏵ オート';}else{autoPlay();bAuto.textContent='⏸ 停止';}});bRedraw.addEventListener('click',()=>{initSprites();});
-window.addEventListener('load',()=>{initSprites();renderLine();});
-let _audioCtx;function ac(){return _audioCtx||=new (window.AudioContext||window.webkitAudioContext)();}
-function bell(freq,t0,dur,gain){const ctx=ac();const o1=ctx.createOscillator();const o2=ctx.createOscillator();const g=ctx.createGain();o1.type='sine';o2.type='sine';o1.frequency.value=freq;o2.frequency.value=freq*2;g.gain.setValueAtTime(0.0001,ctx.currentTime+t0);g.gain.linearRampToValueAtTime(gain,ctx.currentTime+t0+0.01);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+t0+dur);o1.connect(g);o2.connect(g);g.connect(ctx.destination);o1.start(ctx.currentTime+t0);o2.start(ctx.currentTime+t0);o1.stop(ctx.currentTime+t0+dur+0.05);o2.stop(ctx.currentTime+t0+dur+0.05);}
-const CHIME_SEQ=[784.0,659.25,587.33,523.25];const CHIME_STEP=0.45;const CHIME_GAP=0.06;function playSchoolChime(){for(let i=0;i<CHIME_SEQ.length;i++){bell(CHIME_SEQ[i],i*(CHIME_STEP+CHIME_GAP),CHIME_STEP,0.22);}}
-function playSchoolChimeOnce(){if(!sfxOn||chimePlayedOnce)return;chimePlayedOnce=true;playSchoolChime();}
+function next(){ idx = (idx + 1) % DIALOGUE.length; renderLine(); }
+function prev(){ idx = (idx - 1 + DIALOGUE.length) % DIALOGUE.length; renderLine(); }
+function autoPlay(){ if(timer) return; timer = setInterval(next, AUTO_MS); }
+function stopAuto(){ clearInterval(timer); timer=null; }
+
+const bPrev=document.getElementById('prev'), bNext=document.getElementById('next'), bAuto=document.getElementById('auto');
+bPrev.addEventListener('click', ()=>{ stopAuto(); prev(); });
+bNext.addEventListener('click', ()=>{ stopAuto(); next(); });
+bAuto.addEventListener('click', ()=>{ if(timer){ stopAuto(); bAuto.textContent='⏵ オート'; } else { autoPlay(); bAuto.textContent='⏸ 停止'; } });
+
+window.addEventListener('load', ()=>{ renderLine(); });
 </script>
 </body>
 </html>
