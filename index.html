@@ -3,90 +3,64 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ナースメイドにたどり着け！<br>ポトロクリニックであみだくじ♡</title>
+<title>ナースメイドにたどり着け！ポトロクリニックであみだくじ♡</title>
 <style>
-  :root{
-    --bg:#fff7fb;
-    --pink:#ff7eb6;
-    --aqua:#79d1e3;
-    --deep:#333;
-    --win:#ff4fb0;
-    --lose:#888;
-  }
+  :root{ --bg:#fff7fb; --pink:#ff7eb6; --aqua:#79d1e3; --deep:#333; }
   html,body{height:100%;}
-  body{
-    margin:0; padding:0; background:var(--bg);
-    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    color:var(--deep);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .frame{
-    width:min(94vw, 430px);
-    aspect-ratio:9/16;
-    background:linear-gradient(180deg, #fff 0%, #fff0fa 100%);
-    border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08);
-    position:relative; overflow:hidden;
-  }
-  header{
-    text-align:center; padding:10px 8px 6px;
-  }
-  .tag{
-    display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db;
-  }
-  h1{
-    margin:6px 10px 0; font-size: clamp(16px, 4.5vw, 20px); line-height:1.3; font-weight:800;
-    letter-spacing:.02em;
-  }
+  body{ margin:0; padding:0; background:var(--bg); font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--deep); display:flex; align-items:center; justify-content:center; }
+  .frame{ width:min(94vw,430px); aspect-ratio:9/16; background:linear-gradient(180deg,#fff 0%,#fff0fa 100%); border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); position:relative; overflow:hidden; }
+  header{ text-align:center; padding:10px 8px 6px; }
+  .tag{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db; }
+  h1{ margin:6px 10px 0; font-size:clamp(16px,4.5vw,20px); line-height:1.3; font-weight:800; letter-spacing:.02em; }
   .sub{font-size:12px; color:#666;}
 
-  .canvasWrap{ position:absolute; inset:120px 10px 90px; border-radius:16px; background:#fff; border:2px dashed #ffd2ea; overflow:hidden;}
-  canvas{ display:block; width:100%; height:100%;}
+  .canvasWrap{ position:absolute; inset:120px 10px 90px; border-radius:16px; background:#fff; border:2px dashed #ffd2ea; overflow:hidden; z-index:1; }
+  canvas{ display:block; width:100%; height:100%; }
 
-  .topChoices{ position:absolute; left:0; right:0; top:88px; display:flex; justify-content:center; gap:8px;}
-  .choiceBtn{
-    min-width:44px; padding:6px 10px; font-weight:700; font-size:14px; border-radius:999px;
-    background:linear-gradient(180deg, #ffb9db, #ff89c3); color:#fff; border:none; box-shadow:0 3px 0 #d45095;
-  }
-  .choiceBtn[disabled]{ opacity:.6; filter:grayscale(.2);}
+  .topChoices{ position:absolute; left:0; right:0; top:88px; display:flex; justify-content:center; gap:8px; z-index:3; }
+  .choiceBtn{ min-width:44px; padding:6px 10px; font-weight:700; font-size:14px; border-radius:999px; background:linear-gradient(180deg,#ffb9db,#ff89c3); color:#fff; border:none; box-shadow:0 3px 0 #d45095; position:relative; animation:pulse 1.2s ease-in-out infinite alternate; }
+  .choiceBtn[disabled]{ opacity:.6; filter:grayscale(.2); }
+  @keyframes pulse{ from{ transform:translateY(0) } to{ transform:translateY(-2px) } }
 
-  footer.controls{
-    position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px;
-  }
-  .btn{
-    padding:10px 14px; border-radius:12px; border:none; font-weight:800; font-size:14px;
-    box-shadow:0 4px 0 rgba(0,0,0,.08);
-  }
-  .primary{ background:linear-gradient(180deg, #a1e7f3, #6ad0e7); color:#0b4c5a; box-shadow:0 4px 0 #3a9fb1; }
+  /* 共通押下エフェクト用 */
+  .pressable{ position:relative; overflow:hidden; transition: transform .06s ease, box-shadow .06s ease; }
+  .pressable.pressed{ transform: translateY(2px) scale(0.98); box-shadow:0 1px 0 rgba(0,0,0,.12) !important; filter: saturate(1.05); }
+  .pressable .ripple{ position:absolute; pointer-events:none; border-radius:999px; transform:scale(0); opacity:0.35; background:#ffffff; mix-blend-mode:overlay; animation:ripple .45s ease-out; }
+  @keyframes ripple{ to{ transform:scale(6); opacity:0; } }
+
+  footer.controls{ position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px; }
+  .btn{ padding:10px 14px; border-radius:12px; border:none; font-weight:800; font-size:14px; box-shadow:0 4px 0 rgba(0,0,0,.08); }
+  .primary{ background:linear-gradient(180deg,#a1e7f3,#6ad0e7); color:#0b4c5a; box-shadow:0 4px 0 #3a9fb1; }
   .secondary{ background:#ffe6f3; color:#b02a7b; border:1px solid #ffc3e2; }
   .ghost{ background:#fff; color:#555; border:1px solid #ddd; }
 
-  .overlay{
-    position:absolute; inset:120px 10px 90px; display:flex; align-items:center; justify-content:center;
-    pointer-events:none; opacity:0; transition:opacity .35s ease;
-  }
+  .overlay{ position:absolute; inset:120px 10px 90px; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .35s ease; z-index:4; }
   .overlay.show{ opacity:1; }
-  .resultCard{
-    background:#fff; border:3px solid #ffd2ea; border-radius:18px; padding:18px 16px; text-align:center; width:min(88%, 340px);
-    box-shadow:0 20px 40px rgba(255, 71, 165, .18);
-  }
+  .resultCard{ background:#fff; border:3px solid #ffd2ea; border-radius:18px; padding:18px 16px; text-align:center; width:min(88%,340px); box-shadow:0 20px 40px rgba(255,71,165,.18); }
   .resultCard h2{ margin:0 0 8px; font-size:22px; }
   .resultCard p{ margin:0; font-size:14px; color:#555; }
   .badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; margin-bottom:8px; }
   .badge.win{ background:#ffe3f3; color:#c1006c; border:1px solid #ffb6de; }
   .badge.lose{ background:#eef6ff; color:#1b4aa0; border:1px solid #c6e0ff; }
 
-  .brand{
-    position:absolute; right:10px; top:10px; font-size:12px; color:#777;
-  }
-  .brand b{color:#c1006c}
+  .brand{ position:absolute; right:10px; top:10px; font-size:12px; color:#777; }
+  .brand b{ color:#c1006c }
+  .muteLamp{ position:absolute; left:10px; top:10px; font-size:12px; color:#777; }
 
-  .muteLamp{ position:absolute; left:10px; top:10px; font-size:12px; color:#777;}
+  /* 前面演出レイヤとエフェクト */
+  .fxLayer{ position:absolute; inset:120px 10px 90px; pointer-events:none; z-index:5; overflow:visible; }
+  .heart{ position:absolute; left:50%; top:0; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); background:#ff7eb6; border-radius:2px; opacity:0; animation:fallHeart 1.4s ease-in forwards; }
+  .heart::before,.heart::after{ content:""; position:absolute; width:12px; height:12px; border-radius:50%; background:inherit; }
+  .heart::before{ left:0; top:-6px; }
+  .heart::after{ left:-6px; top:0; }
+  @keyframes fallHeart{ 0%{opacity:0; transform:translate(-50%,-10%) rotate(45deg) scale(.6);} 10%{opacity:1;} 100%{opacity:0; transform:translate(-50%,110%) rotate(45deg) scale(1);} }
+  .glowBurst{ position:absolute; width:60px; height:60px; border-radius:50%; box-shadow:0 0 20px 8px rgba(255,136,200,.7), 0 0 40px 14px rgba(255,136,200,.35); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:glowPop .8s ease-out forwards; }
+  @keyframes glowPop{ to{ opacity:0; transform:translate(-50%,-50%) scale(1.6);} }
+  /* 変身用：煙エフェクト */
+  .smoke{ position:absolute; width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.9) 0%, rgba(233,233,233,.6) 50%, rgba(200,200,200,.0) 70%); filter:blur(1px); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:puff .7s ease-out forwards; }
+  @keyframes puff{ 0%{ opacity:0; transform:translate(-50%,-30%) scale(.4); } 15%{ opacity:.9; } 100%{ opacity:0; transform:translate(-50%,-110%) scale(1.6); } }
 
-  /* small phones safety */
-  @media (max-height: 640px){
-    .canvasWrap{ inset:110px 8px 86px; }
-    .topChoices{ top:84px; }
-  }
+  @media (max-height:640px){ .canvasWrap{ inset:110px 8px 86px; } .topChoices{ top:84px; } }
 </style>
 </head>
 <body>
@@ -95,30 +69,45 @@
     <div class="muteLamp" id="muteLamp">🔊 サウンドON</div>
     <header>
       <span class="tag">🩺 ポ・トロクリニック</span>
-      <h1>ナースメイドにたどり着け！<br>ポトロクリニックであみだくじ♡</h1>
+      <h1>ナースメイドにたどり着け！ポトロクリニックであみだくじ♡</h1>
       <div class="sub">患者ご主人様は、運命のナースさんに出会えるか…？</div>
     </header>
 
     <div class="topChoices" id="choiceRow"></div>
-
     <div class="canvasWrap"><canvas id="amida"></canvas></div>
-
     <div class="overlay" id="resultOverlay" aria-live="polite"></div>
+    <div class="fxLayer" id="fxLayer"></div>
 
     <footer class="controls">
-      <button class="btn primary" id="startBtn">診察開始♡</button>
-      <button class="btn secondary" id="retryBtn" disabled>もう一回</button>
-      <button class="btn ghost" id="muteBtn" aria-pressed="false">🔊 サウンド</button>
+      <button class="btn primary pressable" id="startBtn">診察開始♡</button>
+      <button class="btn ghost pressable" id="muteBtn" aria-pressed="false">🔊 サウンド</button>
     </footer>
   </div>
 
 <script>
 (() => {
+  // ---- Global error trap: 画面にJSエラー内容を表示 ----
+  window.addEventListener('error', function(ev){
+    try{
+      var ov=document.getElementById('resultOverlay');
+      if(!ov) return;
+      var msg = 'unknown';
+      if (ev && ev.error && ev.error.message) msg = ev.error.message; else if (ev && ev.message) msg = ev.message;
+      ov.innerHTML = '<div class="resultCard"><span class="badge lose">デバッグ</span><h2>スクリプトエラー</h2><p style="word-break:break-all">'+msg+'</p></div>';
+      ov.classList.add('show');
+    }catch(e){/* ignore */}
+  });
+  'use strict';
+
+  // ===== Audio unlock (iOS/Edge 対策) =====
+  const unlock = function(){ try{ setupAudio(); if(audio.ctx && audio.ctx.resume){ audio.ctx.resume(); } }catch(e){} window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
+  window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
+
   // ====== CONFIG ======
-  const COLS = 4;              // 本数（3〜5推奨）
-  const BAR_COUNT = 18;        // 横線の候補数（自動で重なり回避）
-  const SPEED_Y = 2.2;         // 縦の移動速度(px/frame)
-  const SPEED_X = 3.0;         // 横移動速度
+  const COLS = 5;              // 本数
+  const BAR_COUNT = 18;        // 横線候補数
+  const SPEED_Y = 2.2;         // 縦移動(px/frame)
+  const SPEED_X = 3.0;         // 横移動
   const REVEAL_BUFFER = 28;    // 見えていく余白
 
   // ====== STATE ======
@@ -126,398 +115,347 @@
   const ctx = canvas.getContext('2d');
   let W = 360, H = 560;
   let topMargin = 24, bottomMargin = 36, leftMargin = 28, rightMargin = 28;
-  let colX = []; // 各縦線のx座標
-  let bars = []; // {y, from}  from=左の列index (0..COLS-2)
-  let chosenIndex = null; // ユーザが選んだ列
+  let colX = []; // 縦線x座標
+  let bars = []; // {y, from}
+  let chosenIndex = null; // 選択列
   let running = false;
   let revealY = 0; // ここまで下が見える
-  let player = null; // {x,y,col,phase}
-  let goals = []; // 長さCOLS, 値: 'win' or 'lose'
+  let player = null; // {x,y,col,phase,targetX}
+  let goals = []; // 長さCOLS, 値: 'win'|'lose'
   let animId = null;
 
-  // ====== AUDIO (WebAudioでBGM/SE生成) ======
+  // ====== AUDIO ======
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   const audio = { ctx:null, master:null, muted:false, bgm:null, bgmGain:null };
-  function setupAudio(){
-    if(audio.ctx) return;
-    audio.ctx = new AudioCtx();
-    audio.master = audio.ctx.createGain();
-    audio.master.gain.value = 0.8;
-    audio.master.connect(audio.ctx.destination);
-  }
-  function playBGM(){
-    if(audio.muted) return;
-    setupAudio();
-    stopBGM();
-    // シンプルな待合室ループ（和音アルペジオ）
-    const ctx = audio.ctx;
-    const tempo = 108; // bpm
-    const beat = 60/tempo;
-    audio.bgmGain = ctx.createGain();
-    audio.bgmGain.gain.value = 0.06; // 小さめ
-    audio.bgmGain.connect(audio.master);
-
-    const notes = [262, 330, 392, 523]; // C E G C
-    const start = ctx.currentTime + 0.05;
-    const length = 8; // 小節長(秒)目安
-
-    audio.bgm = { timers:[] };
-    function scheduleLoop(){
-      let t = ctx.currentTime;
-      for(let i=0;i<64;i++){
-        const n = notes[i % notes.length];
-        const when = start + i*beat*0.5;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'triangle';
-        o.frequency.value = n;
-        g.gain.setValueAtTime(0, when);
-        g.gain.linearRampToValueAtTime(0.15, when+0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, when+beat*0.45);
-        o.connect(g).connect(audio.bgmGain);
-        o.start(when);
-        o.stop(when+beat*0.5);
-        audio.bgm.timers.push(o);
-      }
-      // ループ
-      audio.bgm.loopTimer = setTimeout(scheduleLoop, length*1000);
-    }
-    scheduleLoop();
-  }
-  function stopBGM(){
-    if(audio.bgm){
-      if(audio.bgm.loopTimer) clearTimeout(audio.bgm.loopTimer);
-      if(audio.bgm.timers){ audio.bgm.timers.forEach(o=>{ try{o.stop();}catch(e){} }); }
-    }
-    if(audio.bgmGain){ audio.bgmGain.disconnect(); audio.bgmGain=null; }
-    audio.bgm=null;
-  }
-  function seChime(win=true){ if(audio.muted) return; setupAudio(); const ctx=audio.ctx;
-    const base = win? 880: 220; // win高め、lose低め
-    const now = ctx.currentTime + 0.02;
-    for(let i=0;i<3;i++){
-      const o = ctx.createOscillator(); const g=ctx.createGain();
-      o.type = win? 'sine':'square';
-      o.frequency.setValueAtTime(base*(i+1), now+i*0.09);
-      g.gain.setValueAtTime(0, now+i*0.09);
-      g.gain.linearRampToValueAtTime(0.25, now+i*0.09+0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, now+i*0.09+0.25);
-      o.connect(g).connect(audio.master); o.start(now); o.stop(now+0.5);
-    }
-  }
-  function seStep(){ if(audio.muted) return; setupAudio(); const ctx=audio.ctx;
-    const o = ctx.createOscillator(); const g=ctx.createGain();
-    o.type='square'; o.frequency.value=600;
-    g.gain.value=0.0001; g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.12);
-    o.connect(g).connect(audio.master); o.start(); o.stop(ctx.currentTime+0.13);
-  }
+  function setupAudio(){ if(audio.ctx) return; audio.ctx = new AudioCtx(); audio.master = audio.ctx.createGain(); audio.master.gain.value = 0.8; audio.master.connect(audio.ctx.destination); }
+  function playBGM(){ if(audio.muted) return; setupAudio(); stopBGM(); const c = audio.ctx; const tempo=108, beat=60/tempo; audio.bgmGain=c.createGain(); audio.bgmGain.gain.value=0.06; audio.bgmGain.connect(audio.master); const notes=[262,330,392,523]; const start=c.currentTime+0.05; const length=8; audio.bgm={timers:[]}; function scheduleLoop(){ for(let i=0;i<64;i++){ const n=notes[i%notes.length]; const when=start+i*beat*0.5; const o=c.createOscillator(); const g=c.createGain(); o.type='triangle'; o.frequency.value=n; g.gain.setValueAtTime(0,when); g.gain.linearRampToValueAtTime(0.15,when+0.01); g.gain.exponentialRampToValueAtTime(0.0001,when+beat*0.45); o.connect(g).connect(audio.bgmGain); o.start(when); o.stop(when+beat*0.5); audio.bgm.timers.push(o);} audio.bgm.loopTimer=setTimeout(scheduleLoop,length*1000);} scheduleLoop(); }
+  function stopBGM(){ if(audio.bgm){ if(audio.bgm.loopTimer) clearTimeout(audio.bgm.loopTimer); if(audio.bgm.timers){ audio.bgm.timers.forEach(o=>{try{o.stop();}catch(e){}});} } if(audio.bgmGain){ try{audio.bgmGain.disconnect();}catch(e){} audio.bgmGain=null; } audio.bgm=null; }
+  function seChime(win=true){ if(audio.muted) return; setupAudio(); const c=audio.ctx, base=win?880:220, now=c.currentTime+0.02; for(let i=0;i<3;i++){ const o=c.createOscillator(), g=c.createGain(); o.type=win?'sine':'square'; o.frequency.setValueAtTime(base*(i+1), now+i*0.09); g.gain.setValueAtTime(0, now+i*0.09); g.gain.linearRampToValueAtTime(0.25, now+i*0.09+0.01); g.gain.exponentialRampToValueAtTime(0.0001, now+i*0.09+0.25); o.connect(g).connect(audio.master); o.start(now); o.stop(now+0.5);} }
+  function seStep(){ if(audio.muted) return; setupAudio(); const c=audio.ctx, o=c.createOscillator(), g=c.createGain(); o.type='square'; o.frequency.value=600; g.gain.value=0.0001; g.gain.exponentialRampToValueAtTime(0.15, c.currentTime+0.01); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime+0.12); o.connect(g).connect(audio.master); o.start(); o.stop(c.currentTime+0.13); }
+  function seFanfare(){ if(audio.muted) return; setupAudio(); const c=audio.ctx; const now=c.currentTime+0.03; const seq=[261.6,329.6,392.0,523.3]; seq.forEach(function(f,i){ const o=c.createOscillator(), g=c.createGain(); o.type='sine'; o.frequency.value=f; const t=now+i*0.18; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.3,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.35); o.connect(g).connect(audio.master); o.start(t); o.stop(t+0.4); }); }
+  function sePop(){ if(audio.muted) return; setupAudio(); const c=audio.ctx, o=c.createOscillator(), g=c.createGain(); o.type='triangle'; o.frequency.value=500; g.gain.setValueAtTime(0,c.currentTime); g.gain.linearRampToValueAtTime(0.2,c.currentTime+0.01); g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.18); o.connect(g).connect(audio.master); o.start(); o.stop(c.currentTime+0.2); }
 
   // ====== LAYOUT ======
-  function resize(){
-    const wrap = document.querySelector('.canvasWrap');
-    const rect = wrap.getBoundingClientRect();
-    const ratio = window.devicePixelRatio || 1;
-    W = Math.floor(rect.width * ratio);
-    H = Math.floor(rect.height * ratio);
-    canvas.width = W; canvas.height = H; canvas.style.width = rect.width+'px'; canvas.style.height = rect.height+'px';
-
-    topMargin = Math.round(24*ratio);
-    bottomMargin = Math.round(36*ratio);
-    leftMargin = Math.round(28*ratio);
-    rightMargin = Math.round(28*ratio);
-
-    computeCols();
-    draw();
-  }
-  window.addEventListener('resize', () => { resize(); });
-
-  function computeCols(){
-    colX = [];
-    const innerW = W - leftMargin - rightMargin;
-    for(let i=0;i<COLS;i++){
-      const x = leftMargin + (innerW) * (i/(COLS-1));
-      colX.push(x);
-    }
-  }
+  function resize(){ const wrap=document.querySelector('.canvasWrap'); const rect=wrap.getBoundingClientRect(); const ratio=window.devicePixelRatio||1; W=Math.floor(rect.width*ratio); H=Math.floor(rect.height*ratio); canvas.width=W; canvas.height=H; canvas.style.width=rect.width+'px'; canvas.style.height=rect.height+'px'; topMargin=Math.round(24*ratio); bottomMargin=Math.round(36*ratio); leftMargin=Math.round(28*ratio); rightMargin=Math.round(28*ratio); computeCols(); draw(); }
+  window.addEventListener('resize', resize);
+  function computeCols(){ colX=[]; const innerW=W-leftMargin-rightMargin; for(let i=0;i<COLS;i++){ const x=leftMargin+innerW*(i/(COLS-1)); colX.push(x);} }
 
   // ====== GAME GEN ======
-  function genBars(){
-    const minGap = 18 * (window.devicePixelRatio||1);
-    const ys = [];
-    const usableTop = topMargin + 12;
-    const usableBottom = H - bottomMargin - 12;
-    while(ys.length < BAR_COUNT){
-      const y = Math.round( usableTop + Math.random()*(usableBottom-usableTop) );
-      if(ys.every(v => Math.abs(v - y) > minGap)) ys.push(y);
-    }
-    ys.sort((a,b)=>a-b);
-
-    bars = [];
-    for(const y of ys){
-      // どこに横線を置くか（左端〜右端-1のいずれか）
-      const from = Math.floor(Math.random()*(COLS-1));
-      // 直前の同じ高さ近辺＆同じ列を避ける
-      const tooClose = bars.some(b => Math.abs(b.y - y) < minGap && Math.abs(b.from - from) < 1);
-      if(!tooClose){ bars.push({y, from}); }
-    }
-  }
-
+  function genBars(){ const minGap=18*(window.devicePixelRatio||1); const ys=[]; const usableTop=topMargin+12; const usableBottom=H-bottomMargin-12; while(ys.length<BAR_COUNT){ const y=Math.round(usableTop+Math.random()*(usableBottom-usableTop)); if(ys.every(function(v){return Math.abs(v-y)>minGap;})) ys.push(y);} ys.sort(function(a,b){return a-b;}); bars=[]; for(const y of ys){ const from=Math.floor(Math.random()*(COLS-1)); const tooClose=bars.some(function(b){return Math.abs(b.y-y)<minGap && Math.abs(b.from-from)<1;}); if(!tooClose) bars.push({y:y,from:from}); } }
   function genGoals(){
-    goals = new Array(COLS).fill('lose');
-    const winIndex = Math.floor(Math.random()*COLS);
-    goals[winIndex] = 'win';
+    // B案: 毎ラウンド必ず当たり1本（見た目）。
+    goals = new Array(COLS);
+    for(let i=0;i<COLS;i++){ goals[i] = 'lose'; }
+    let winIndex = Math.floor(Math.random() * COLS);
+    // 極稀に外部からの書き換えや NaN を防止
+    if(!(winIndex>=0 && winIndex<COLS)) winIndex = 0;
+    for(let i=0;i<COLS;i++){ goals[i] = (i===winIndex) ? 'win' : 'lose'; }
+    // 追加の防御：念のため1本化を強制
+    const winCount = goals.reduce(function(acc,v){ return acc + (v==='win'?1:0); }, 0);
+    if(winCount !== 1){ for(let i=0;i<COLS;i++) goals[i] = 'lose'; goals[winIndex] = 'win'; }
   }
 
   function resetGame(){
-    chosenIndex = null; running=false; revealY = topMargin;
+    chosenIndex = null; running = false; revealY = topMargin;
     genBars(); genGoals();
-    buildChoiceButtons();
-    stopAnim();
-    player = null;
-    document.getElementById('retryBtn').disabled = true;
-    document.getElementById('resultOverlay').innerHTML = '';
-    document.getElementById('resultOverlay').classList.remove('show');
+    buildChoiceButtons(); setupPressable();
+    stopAnim(); player = null;
+    const ov=document.getElementById('resultOverlay'); ov.innerHTML=''; ov.classList.remove('show');
     draw();
   }
 
   // ====== CHOICES ======
   function buildChoiceButtons(){
-    const row = document.getElementById('choiceRow');
-    row.innerHTML = '';
+    const row=document.getElementById('choiceRow'); row.innerHTML='';
     for(let i=0;i<COLS;i++){
-      const b = document.createElement('button');
-      b.className = 'choiceBtn';
-      b.textContent = `入口${i+1}`;
-      b.onclick = () => choose(i);
-      if(running) b.disabled = true;
+      const b=document.createElement('button');
+      b.className='choiceBtn pressable';
+      b.textContent='診察'+(i+1);
+      b.onclick=function(){ choose(i); };
+      if(running) b.disabled=true;
       row.appendChild(b);
     }
   }
-
   function choose(idx){
     if(running) return;
-    chosenIndex = idx;
-    player = { x: colX[idx], y: topMargin, col: idx, phase: 'down', targetX: colX[idx] };
-    revealY = topMargin + REVEAL_BUFFER;
-    running = true; animate();
-    // ボタンロック
-    [...document.querySelectorAll('.choiceBtn')].forEach(b=> b.disabled = true);
-    seStep(); // 開始SE
+    if(!audio.muted){ try{ setupAudio(); if(audio.ctx && audio.ctx.resume){ audio.ctx.resume(); } }catch(e){} }
+    chosenIndex=idx;
+    player={ x:colX[idx], y:topMargin, col:idx, phase:'down', targetX:colX[idx] };
+    revealY=topMargin+REVEAL_BUFFER;
+    // 結果が出るまで「診察開始♡」は押せない
+    const sb=document.getElementById('startBtn'); if(sb) sb.disabled=true;
+    running=true; animate();
+    document.querySelectorAll('.choiceBtn').forEach(function(b){ b.disabled=true; });
+    if(!audio.muted){ playBGM(); }
+    seStep();
   }
 
   // ====== DRAW ======
   function draw(){
     ctx.clearRect(0,0,W,H);
-    // 背景格子
     drawBackdrop();
-    // 縦線
-    ctx.lineWidth = 3 * (window.devicePixelRatio||1);
-    ctx.strokeStyle = '#ffb6de';
-    for(let i=0;i<COLS;i++){
-      line(colX[i], topMargin, colX[i], H-bottomMargin);
-    }
-    // 横線（revealまで）
-    ctx.strokeStyle = '#79d1e3';
-    for(const b of bars){
-      if(b.y <= revealY){
-        line(colX[b.from], b.y, colX[b.from+1], b.y);
-      }
-    }
-    // プレイヤー
-    if(player){ drawPatient(player.x, player.y); }
-
-    // 目隠し（下側を白で覆う）
-    ctx.fillStyle = '#ffffff';
-    ctx.globalAlpha = 1.0;
-    ctx.fillRect(0, revealY, W, H - revealY);
-
-    // 目隠しの境界に淡いグラデ
-    const g = ctx.createLinearGradient(0, revealY-14, 0, revealY+2);
-    g.addColorStop(0, 'rgba(255,255,255,0)');
-    g.addColorStop(1, 'rgba(255,255,255,1)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, revealY-14, W, 16);
-
-    // ゴール（到達直前まで非表示、reveal次第で少しずつ見える）
-    if(revealY > H - bottomMargin - 26){
-      for(let i=0;i<COLS;i++){
-        const cx = colX[i];
-        const ty = H - bottomMargin + 8;
-        if(goals[i]==='win') drawNurse(cx, ty, 0.85);
-        else drawSyringe(cx, ty, 0.85);
-      }
-    }
+    ctx.lineWidth=3*(window.devicePixelRatio||1);
+    ctx.strokeStyle='#ffb6de';
+    for(let i=0;i<COLS;i++){ line(colX[i],topMargin,colX[i],H-bottomMargin); }
+    ctx.strokeStyle='#79d1e3';
+    for(const b of bars){ if(b.y<=revealY){ line(colX[b.from],b.y,colX[b.from+1],b.y); } }
+    if(player){ drawPatient(player.x,player.y); }
+    ctx.fillStyle='#ffffff'; ctx.globalAlpha=1.0; ctx.fillRect(0,revealY,W,H-revealY);
+    const g=ctx.createLinearGradient(0,revealY-14,0,revealY+2); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(1,'rgba(255,255,255,1)'); ctx.fillStyle=g; ctx.fillRect(0,revealY-14,W,16);
+    if(revealY>H-bottomMargin-26){ for(let i=0;i<COLS;i++){ const cx=colX[i]; const ty=H-bottomMargin+8; if(goals[i]==='win') drawNurse(cx,ty,0.85); else drawBandAidCross(cx,ty,0.9); } }
   }
-
   function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+  function drawBackdrop(){ ctx.save(); const r=(window.devicePixelRatio||1); for(let y=topMargin; y<H-bottomMargin; y+=40*r){ for(let x=leftMargin; x<W-rightMargin; x+=40*r){ ctx.globalAlpha=0.05; ctx.fillStyle='#ff7eb6'; drawHeart(x,y,6*r); ctx.fillStyle='#79d1e3'; drawPlus(x+14*r,y+12*r,6*r);} } ctx.restore(); }
+  function drawHeart(cx,cy,s){ ctx.beginPath(); for(let a=0;a<=Math.PI*2;a+=0.1){ const x=s*16*Math.pow(Math.sin(a),3)/16; const y=-s*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16; if(a===0) ctx.moveTo(cx+x,cy+y); else ctx.lineTo(cx+x,cy+y);} ctx.closePath(); ctx.fill(); }
+  function drawPlus(cx,cy,s){ ctx.save(); ctx.translate(cx,cy); ctx.beginPath(); ctx.rect(-s/2,-s*1.6,s,s*3.2); ctx.rect(-s*1.6,-s/2,s*3.2,s); ctx.fill(); ctx.restore(); }
+  function drawPatient(x,y){ ctx.save(); ctx.translate(x,y); const r=10*(window.devicePixelRatio||1); ctx.fillStyle='#ffe9c9'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill(); ctx.fillStyle = '#f0f0f0'; ctx.strokeStyle='#cfcfcf'; ctx.lineWidth=1*(window.devicePixelRatio||1); ctx.beginPath(); ctx.moveTo(-r,-4); ctx.lineTo(r,-1); ctx.lineTo(r,3); ctx.lineTo(-r,0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(-4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill(); ctx.fillStyle='#c0e9f5'; ctx.beginPath(); ctx.moveTo(-6,r); ctx.lineTo(6,r); ctx.lineTo(0,r+10); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  function drawNurse(x,y,scale=1){ const r=9*(window.devicePixelRatio||1)*scale; ctx.save(); ctx.translate(x,y); ctx.fillStyle='#ffe9f1'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.ellipse(0,-r*0.9,r*0.9,r*0.55,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#ff78b4'; drawPlus(0,-r*0.9,6*(window.devicePixelRatio||1)*scale); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(-3,-1,1.1*(window.devicePixelRatio||1)*scale,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(3,-1,1.1*(window.devicePixelRatio||1)*scale,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#ff4fae'; ctx.lineWidth=1.3*(window.devicePixelRatio||1)*scale; ctx.beginPath(); ctx.arc(0,3,3*scale,0,Math.PI); ctx.stroke(); ctx.restore(); }
+  function drawBandAidCross(x,y,scale=1){
+    // ハズレ：バンドエイドのクロス（X）
+    const dpr = (window.devicePixelRatio||1); const s = dpr * scale; ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/4);
+    const w = 36 * s, h = 10 * s, r = 5 * s;
+    // 影
+    ctx.save(); ctx.rotate(-Math.PI/4); ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.beginPath(); ctx.ellipse(0,(w/2+h/2)*0.4,(w*0.55),3*s,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    const base='#ffe0b3', edge='#e6be86', hole='#f3c992';
+    drawPill(0,0,w,h,r,base,edge); drawHoles(0,0,w,h,hole);
+    ctx.save(); ctx.rotate(Math.PI/2); drawPill(0,0,w,h,r,base,edge); drawHoles(0,0,w,h,hole); ctx.restore();
+    ctx.restore();
+    function drawPill(cx,cy,w,h,r, fill, stroke){ ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1.5*s; roundRectCenter(cx,cy,w,h,r); ctx.fill(); ctx.stroke(); const pw=w*0.36, ph=h*0.7, pr=3*s; ctx.fillStyle='#fff4e2'; ctx.strokeStyle='#f2d7ad'; ctx.lineWidth=1*s; roundRectCenter(cx,cy,pw,ph,pr); ctx.fill(); ctx.stroke(); }
+    function drawHoles(cx,cy,w,h,color){ ctx.fillStyle=color; const gx=w*0.22, gy=h*0.26, rDot=0.9*s; for(let j=-1;j<=1;j+=2){ for(let i=-1.5;i<=1.5;i+=1){ const px=cx+i*gx, py=cy+j*gy; ctx.beginPath(); ctx.arc(px,py,rDot,0,Math.PI*2); ctx.fill(); } } }
+    function roundRectCenter(cx,cy,w,h,r){ const x=cx-w/2, y=cy-h/2; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); }
+  }
 
-  function drawBackdrop(){
-    // 柔らかいハート/十字背景
-    ctx.save();
-    const r = (window.devicePixelRatio||1);
-    for(let y=topMargin; y<H-bottomMargin; y+=40*r){
-      for(let x=leftMargin; x<W-rightMargin; x+=40*r){
-        ctx.globalAlpha = 0.05;
-        ctx.fillStyle = '#ff7eb6';
-        drawHeart(x, y, 6*r);
-        ctx.fillStyle = '#79d1e3';
-        drawPlus(x+14*r, y+12*r, 6*r);
-      }
+  // ====== FX HELPERS (front-layer & canvas) ======
+  function fxCanvasToLayerPos(cx, cy){
+    const dpr = (window.devicePixelRatio||1);
+    const fx = document.getElementById('fxLayer');
+    const fxRect = fx.getBoundingClientRect();
+    const cvRect = canvas.getBoundingClientRect();
+    const xCss = cx/dpr + (cvRect.left - fxRect.left);
+    const yCss = cy/dpr + (cvRect.top  - fxRect.top);
+    return {x:xCss, y:yCss};
+  }
+  function confettiHeartsFrontLayer(count){ if(count==null) count=18;
+    const fx=document.getElementById('fxLayer');
+    const colors=['#ff7eb6','#79d1e3','#ffd166','#95d47a'];
+    const width=fx.clientWidth;
+    for(let i=0;i<count;i++){
+      const h=document.createElement('div'); h.className='heart';
+      h.style.left = (Math.random()*width)+'px';
+      h.style.animationDuration = (1100 + Math.random()*700)+'ms';
+      h.style.background = colors[i%colors.length];
+      fx.appendChild(h);
+      h.addEventListener('animationend', function(){ h.remove(); });
     }
-    ctx.restore();
   }
-  function drawHeart(cx, cy, s){
-    ctx.beginPath();
-    for(let a=0;a<=Math.PI*2;a+=0.1){
-      const x = s*16*Math.pow(Math.sin(a),3)/16;
-      const y = -s*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16;
-      if(a===0) ctx.moveTo(cx+x, cy+y); else ctx.lineTo(cx+x, cy+y);
+  function showGlowAtColumn(col){
+    const fx=document.getElementById('fxLayer');
+    const pos = fxCanvasToLayerPos(colX[col], H - bottomMargin + 8);
+    const el=document.createElement('div'); el.className='glowBurst';
+    el.style.left = pos.x+'px'; el.style.top = pos.y+'px';
+    fx.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 900);
+  }
+  function smokePuffAtColumn(col, count){ if(count==null) count=10;
+    const fx=document.getElementById('fxLayer');
+    const pos = fxCanvasToLayerPos(colX[col], H - bottomMargin + 8);
+    for(let i=0;i<count;i++){
+      const s=document.createElement('div'); s.className='smoke';
+      s.style.left = (pos.x + (Math.random()*24-12)) + 'px';
+      s.style.top  = (pos.y + (Math.random()*8-4)) + 'px';
+      s.style.animationDuration = (600 + Math.random()*300) + 'ms';
+      fx.appendChild(s);
+      s.addEventListener('animationend', function(){ s.remove(); });
     }
-    ctx.closePath(); ctx.fill();
   }
-  function drawPlus(cx, cy, s){
-    ctx.save(); ctx.translate(cx,cy);
-    ctx.beginPath();
-    ctx.rect(-s/2, -s*1.6, s, s*3.2);
-    ctx.rect(-s*1.6, -s/2, s*3.2, s);
-    ctx.fill(); ctx.restore();
-  }
-
-  function drawPatient(x, y){
-    // 患者アイコン：包帯＋顔
-    ctx.save();
-    ctx.translate(x,y);
-    const r = 10*(window.devicePixelRatio||1);
-    // 顔
-    ctx.fillStyle = '#ffe9c9'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
-    // 包帯
-    ctx.fillStyle = '#f0f0f0'; ctx.strokeStyle = '#cfcfcf'; ctx.lineWidth = 1*(window.devicePixelRatio||1);
-    ctx.beginPath(); ctx.moveTo(-r, -4); ctx.lineTo(r, -1); ctx.lineTo(r, 3); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
-    // 目
-    ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(-4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill();
-    // 体
-    ctx.fillStyle = '#c0e9f5'; ctx.beginPath(); ctx.moveTo(-6, r); ctx.lineTo(6, r); ctx.lineTo(0, r+10); ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
-  function drawNurse(x, y, scale=1){
-    const r = 9*(window.devicePixelRatio||1)*scale;
-    ctx.save(); ctx.translate(x,y);
-    // 顔
-    ctx.fillStyle = '#ffe9f1'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
-    // ナース帽
-    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, -r*0.9, r*0.9, r*0.55, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff78b4'; drawPlus(0, -r*0.9, 6*(window.devicePixelRatio||1)*scale);
-    // 目＆口
-    ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(-3, -1, 1.1*(window.devicePixelRatio||1)*scale, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(3, -1, 1.1*(window.devicePixelRatio||1)*scale, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#ff4fae'; ctx.lineWidth = 1.3*(window.devicePixelRatio||1)*scale; ctx.beginPath(); ctx.arc(0,3,3*scale, 0, Math.PI); ctx.stroke();
-    ctx.restore();
-  }
-  function drawSyringe(x, y, scale=1){
-    const s = 1*(window.devicePixelRatio||1)*scale;
-    ctx.save(); ctx.translate(x,y);
-    // 簡易注射器
-    ctx.fillStyle = '#dff6ff'; ctx.strokeStyle = '#79d1e3'; ctx.lineWidth = 1*s;
-    ctx.beginPath(); ctx.rect(-10*s,-4*s, 20*s, 8*s); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(10*s,0); ctx.lineTo(16*s,0); ctx.stroke();
-    ctx.restore();
-  }
-
-  // ====== ANIMATION / TRAVERSE ======
-  function stopAnim(){ if(animId) cancelAnimationFrame(animId); animId=null; }
-  function animate(){
-    stopAnim();
-    const step = () => {
-      if(!running){ draw(); return; }
-      advancePlayer();
+  function animateNurseToPatient(col, duration){ if(duration==null) duration=600;
+    const start=performance.now();
+    const x=colX[col], y=H - bottomMargin + 8;
+    function step(now){
+      const t=Math.min(1,(now-start)/duration);
       draw();
-      animId = requestAnimationFrame(step);
-    };
-    animId = requestAnimationFrame(step);
+      ctx.save();
+      const s = 0.85 * (1 + 0.03*Math.sin(t*10));
+      ctx.globalAlpha = 1-t; drawNurse(x,y,s);
+      ctx.globalAlpha = t;   drawPatient(x,y);
+      ctx.globalAlpha = 1; ctx.restore();
+      if(t<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
+  // ====== ANIMATION ======
+  function stopAnim(){ if(animId) cancelAnimationFrame(animId); animId=null; }
+  function animate(){ stopAnim(); const step=function(){ if(!running){ draw(); return; } advancePlayer(); draw(); animId=requestAnimationFrame(step); }; animId=requestAnimationFrame(step); }
   function advancePlayer(){
     if(!player) return;
-
-    if(player.phase === 'down'){
-      // 次の横棒があるかチェック
+    const EPS = 0.5 * (window.devicePixelRatio||1);
+    if(player.phase==='down'){
+      // 次の横棒は現在位置より下にあるものだけ
       const nextBar = bars
-        .filter(b => b.y > player.y-1 && Math.abs(b.y - player.y) < 9999)
-        .sort((a,b)=>a.y-b.y)
-        .find(b => b.y >= player.y && (b.from === player.col-1 || b.from === player.col));
-
+        .filter(function(b){ return b.y > player.y + EPS && (b.from===player.col-1 || b.from===player.col); })
+        .sort(function(a,b){ return a.y - b.y; })[0];
       const nextY = nextBar ? nextBar.y : (H - bottomMargin);
-      const dy = Math.min(SPEED_Y, nextY - player.y);
+      const dy = Math.max(0, Math.min(SPEED_Y, nextY - player.y));
       player.y += dy;
       revealY = Math.min(player.y + REVEAL_BUFFER, H - bottomMargin + 12);
 
-      if(Math.abs(player.y - nextY) < 0.5 && nextBar){
-        // 横移動に切替
-        if(nextBar.from === player.col){ // 右へ
+      if(nextBar && Math.abs(player.y - nextY) <= EPS){
+        if(nextBar.from === player.col){
           player.phase = 'right';
           player.targetX = colX[player.col+1];
-        }else{ // 左へ
+        } else {
           player.phase = 'left';
           player.targetX = colX[player.col-1];
         }
         seStep();
       }
 
-      // ゴール判定
-      if(player.y >= H - bottomMargin){
+      if(player.y >= H - bottomMargin - EPS){
         running=false;
         endResult(goals[player.col] === 'win');
       }
-    } else if(player.phase === 'right' || player.phase === 'left'){
-      const dir = (player.phase === 'right') ? 1 : -1;
+    } else if(player.phase==='right' || player.phase==='left'){
+      const dir = (player.phase==='right') ? 1 : -1;
       const vx = dir * SPEED_X;
       const nx = player.x + vx;
       if( (dir>0 && nx >= player.targetX) || (dir<0 && nx <= player.targetX) ){
         player.x = player.targetX;
         player.col += dir;
         player.phase = 'down';
+        player.y += EPS; // 同じ棒を再検出しないよう微小に下げる
       } else {
         player.x = nx;
       }
     }
   }
-
-  function endResult(isWin){
+  function endResult(isVisibleWin){
     stopBGM();
-    seChime(isWin);
+    let isTrueWin = false;
+    if(isVisibleWin){ isTrueWin = Math.random() < (1/3); }
 
-    const overlay = document.getElementById('resultOverlay');
-    const badge = isWin ? '<span class="badge win">大当たり💖</span>' : '<span class="badge lose">診察中…💊</span>';
-    const title = isWin ? 'ナースさんに診てもらえた♡' : '残念…また診察に来てね';
-    const note = isWin ? '本日のご主人様は超ラッキー！受付で画面を見せてね♪' : '入り口を変えると運命が変わるかも？';
-    overlay.innerHTML = `<div class="resultCard">${badge}<h2>${title}</h2><p>${note}</p></div>`;
-    overlay.classList.add('show');
+    const showCard = function(kind){
+      const overlay=document.getElementById('resultOverlay');
+      let badge,title,note;
+      if(kind==='win'){
+        badge='<span class="badge win">大当たり💖</span>';
+        title='ナースさんに診てもらえた♡';
+        note='本日のご主人様は超ラッキー！受付で画面を見せてね♪';
+      }else if(kind==='fake'){
+        badge='<span class="badge lose">偽ナースだった…💊</span>';
+        title='残念…';
+        note='再診予約をおすすめします。';
+      }else{ // lose: バンドエイドに当たった
+        badge='<span class="badge lose">診察中…💊</span>';
+        title='残念…診察延期です…';
+        note='再診予約をおすすめします。';
+      }
+      overlay.innerHTML='<div class="resultCard">'+badge+'<h2>'+title+'</h2><p>'+note+'</p></div>';
+      overlay.classList.add('show');
+      const sb=document.getElementById('startBtn'); if(sb) sb.disabled=false;
+    };
 
-    document.getElementById('retryBtn').disabled = false;
+    if(isTrueWin){
+      seFanfare();
+      try{ showGlowAtColumn(player.col); confettiHeartsFrontLayer(20); }catch(e){ }
+      setTimeout(function(){ showCard('win'); }, 350);
+    } else if(isVisibleWin){
+      // 偽当たり: ナース→患者に変わる + 煙
+      sePop();
+      try{ animateNurseToPatient(player.col, 650); smokePuffAtColumn(player.col, 14); }catch(e){ }
+      setTimeout(function(){ showCard('fake'); }, 700);
+    } else {
+      // 見た目もハズレ（バンドエイド）
+      seChime(false);
+      showCard('lose');
+    }
   }
 
   // ====== UI BUTTONS ======
-  document.getElementById('startBtn').addEventListener('click', () => {
+  function setupPressable(){
+    const addRipple = function(btn, x, y){
+      const r = document.createElement('span'); r.className = 'ripple';
+      const rect = btn.getBoundingClientRect(); const d = Math.max(rect.width, rect.height);
+      r.style.width = r.style.height = d + 'px';
+      r.style.left = (x - rect.left - d/2) + 'px';
+      r.style.top  = (y - rect.top  - d/2) + 'px';
+      btn.appendChild(r); r.addEventListener('animationend', function(){ r.remove(); });
+    };
+    const press = function(e){ const btn = e.currentTarget; btn.classList.add('pressed'); const t = e.touches && e.touches[0]; const px = t? t.clientX : (e.clientX || (btn.getBoundingClientRect().left + btn.offsetWidth/2)); const py = t? t.clientY : (e.clientY || (btn.getBoundingClientRect().top + btn.offsetHeight/2)); addRipple(btn, px, py); };
+    const release = function(e){ e.currentTarget.classList.remove('pressed'); };
+    document.querySelectorAll('.pressable').forEach(function(btn){
+      btn.removeEventListener('pointerdown', press); btn.removeEventListener('pointerup', release);
+      btn.removeEventListener('pointerleave', release); btn.removeEventListener('pointercancel', release);
+      btn.addEventListener('pointerdown', press, {passive:true});
+      btn.addEventListener('pointerup', release); btn.addEventListener('pointerleave', release); btn.addEventListener('pointercancel', release);
+    });
+  }
+  document.getElementById('startBtn').addEventListener('click', function(){
     resetGame();
-    if(!audio.muted){ playBGM(); }
+    try{ if(!audio.muted){ setupAudio(); if(audio.ctx && audio.ctx.resume){ audio.ctx.resume(); } playBGM(); } }catch(e){}
   });
-  document.getElementById('retryBtn').addEventListener('click', () => {
-    resetGame(); if(!audio.muted){ playBGM(); }
-  });
-  document.getElementById('muteBtn').addEventListener('click', (e) => {
-    audio.muted = !audio.muted;
-    e.currentTarget.setAttribute('aria-pressed', audio.muted? 'true':'false');
-    document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON';
-    if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } }
-  });
+  document.getElementById('muteBtn').addEventListener('click', function(e){ audio.muted=!audio.muted; e.currentTarget.setAttribute('aria-pressed', audio.muted?'true':'false'); document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON'; if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } } });
 
-  // 初期化
-  resize();
-  computeCols();
-  genBars(); genGoals();
-  buildChoiceButtons();
+  // ====== INIT ======
+  resize(); computeCols(); genBars(); genGoals(); buildChoiceButtons(); setupPressable();
+  const sbInit=document.getElementById('startBtn'); if(sbInit) sbInit.disabled=false;
   draw();
+
+  // ====== TESTS (コンソール用) ======
+  function assert(name, cond){ if(!cond){ console.error('[TEST FAIL]', name); throw new Error(name); } else { console.log('%c[TEST PASS] '+name,'color:green'); } }
+  try{
+    // 既存テスト
+    assert('COLS>=3 && <=6 想定 (現状5)', COLS>=3 && COLS<=6);
+    assert('縦線配列準備', Array.isArray(colX));
+    assert('goals 長さ==COLS', goals.length===COLS);
+    buildChoiceButtons();
+    const wins = goals.filter(function(g){return g==='win';}).length;
+    assert('選択ボタン==COLS', document.querySelectorAll('.choiceBtn').length===COLS);
+    assert('当たり本数は常に1', wins===1);
+
+    // 追加テスト
+    resetGame();
+    assert('reset後 running==false', running===false);
+    assert('reset後 chosenIndex==null', chosenIndex===null);
+    const labels=Array.prototype.slice.call(document.querySelectorAll('.choiceBtn')).map(function(b){return b.textContent.trim();});
+    assert('ボタン名が診察1〜5', labels.length===COLS && labels.every(function(t,i){return t==='診察'+(i+1);}));
+    assert('全ボタンにpressable付与', document.querySelectorAll('.pressable').length >= COLS+2);
+
+    assert('演出用関数が存在(confetti)', typeof confettiHeartsFrontLayer === 'function');
+    assert('演出用関数が存在(glow)', typeof showGlowAtColumn === 'function');
+    assert('演出用関数が存在(smoke)', typeof smokePuffAtColumn === 'function');
+
+    // ピンポンしないテスト
+    const saved = {bars:[].concat(bars), goals:[].concat(goals), player: player? {x:player.x,y:player.y,col:player.col,phase:player.phase,targetX:player.targetX}:null, running:running};
+    genBars(); const testY = topMargin + 50; bars = [{y:testY, from:2}];
+    player = { x: colX[2], y: topMargin + 10, col: 2, phase: 'down', targetX: colX[2] };
+    running = true; let progressed = false;
+    for(let i=0;i<400;i++){ advancePlayer(); if(player.y > testY + 4) { progressed = true; break; } }
+    assert('横棒通過後に下へ進む', progressed===true);
+    for(let i=0;i<4000 && running; i++){ advancePlayer(); }
+    assert('無限ピンポンしない（終了するか十分下へ）', (!running) || (player.y >= H - bottomMargin - 2));
+
+    // 追加テスト: スクリプト内に fillStyle: の誤記が無いこと
+    var scriptText = document.currentScript && document.currentScript.textContent || '';
+    assert('誤った fillStyle: 構文が無い', scriptText.indexOf('fillStyle:') === -1);
+    assert('誤った strokeStyle: 構文が無い', scriptText.indexOf('strokeStyle:') === -1);
+
+    // 余計なリトライボタンが無い
+    assert('retryBtn が存在しない', !document.getElementById('retryBtn'));
+
+    // 追加テスト: 100回のゴール生成で常に win=1
+    let ok = true; for(let t=0;t<100;t++){ genGoals(); const c = goals.reduce(function(a,v){return a+(v==='win'?1:0);},0); if(c!==1){ ok=false; break; } }
+    assert('100回生成でも当たり本数は常に1', ok===true);
+
+    // 状態復元
+    bars = saved.bars; goals = saved.goals; player = saved.player; running = saved.running;
+
+    console.log('%c[Smoke] 初期化テストOK','color:#0a7');
+  }catch(e){
+    const ov=document.getElementById('resultOverlay');
+    ov.innerHTML = '<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>';
+    ov.classList.add('show');
+  }
 })();
 </script>
 </body>
