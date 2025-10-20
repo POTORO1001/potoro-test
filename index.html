@@ -191,22 +191,50 @@
   document.getElementById('muteBtn').addEventListener('click', function(e){ audio.muted=!audio.muted; e.currentTarget.setAttribute('aria-pressed', audio.muted?'true':'false'); document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON'; if(audio.muted){ stopBGM(); } else { playBGM(); } });
 
   // ===== INIT =====
-  fixFrameHeight(); resize();
-  // iOSのアドレスバー表示/非表示で高さがずれることがあるので遅延再補正
-  setTimeout(function(){ fixFrameHeight(); resize(); }, 300);
-  genBars(); genGoals(); buildChoiceButtons(); setupPressable(); const sbInit=document.getElementById('startBtn'); if(sbInit) sbInit.disabled=false; draw();
+  // 初期化は rAF 後に実行（iOS Safari で初回 clientWidth==0 になることがある）
+  function mount(){
+    const frame = document.getElementById('frame');
+    let tries = 0;
+    const boot = function(){
+      tries++;
+      fixFrameHeight();
+      const w = frame && frame.clientWidth || 0;
+      if(w < 10 && tries < 10){
+        // レイアウトがまだ安定していない → 次フレームで再試行
+        return requestAnimationFrame(boot);
+      }
+      try{
+        resize();
+        genBars();
+        genGoals();
+        buildChoiceButtons();
+        setupPressable();
+        const sbInit=document.getElementById('startBtn'); if(sbInit) sbInit.disabled=false;
+        draw();
+      }catch(e){
+        const ov=document.getElementById('resultOverlay');
+        if(ov){ ov.innerHTML='<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>'; ov.classList.add('show'); }
+      }
+    };
+    requestAnimationFrame(boot);
+  }
+  // iOS の bfcache 復帰や初回読み込みの揺れに対応
+  window.addEventListener('pageshow', function(){ mount(); });
+  mount();
 
-  // ===== TESTS =====
+  // ====== TESTS (コンソール用) ======
   function assert(name, cond){ if(!cond){ console.error('[TEST FAIL]', name); throw new Error(name); } else { console.log('%c[TEST PASS] '+name,'color:green'); } }
   try{
+    // 既存テスト
     assert('COLS>=3 && <=6 想定 (現状5)', COLS>=3 && COLS<=6);
     assert('縦線配列準備', Array.isArray(colX));
     assert('goals 長さ==COLS', goals.length===COLS);
     buildChoiceButtons();
-    const wins=goals.filter(function(g){return g==='win';}).length;
+    const wins = goals.filter(function(g){return g==='win';}).length;
     assert('選択ボタン==COLS', document.querySelectorAll('.choiceBtn').length===COLS);
     assert('当たり本数は常に1', wins===1);
 
+    // 追加テスト
     resetGame();
     assert('reset後 running==false', running===false);
     assert('reset後 chosenIndex==null', chosenIndex===null);
@@ -214,16 +242,41 @@
     assert('ボタン名が診察1〜5', labels.length===COLS && labels.every(function(t,i){return t==='診察'+(i+1);}));
     assert('全ボタンにpressable付与', document.querySelectorAll('.pressable').length >= COLS+2);
 
-    let ok=true; for(let t=0;t<60;t++){ genGoals(); const c=goals.reduce(function(a,v){return a+(v==='win'?1:0);},0); if(c!==1){ ok=false; break; } }
-    assert('多回生成でも当たりは常に1', ok===true);
+    assert('演出用関数が存在(confetti)', typeof confettiHeartsFrontLayer === 'function');
+    assert('演出用関数が存在(glow)', typeof showGlowAtColumn === 'function');
+    assert('演出用関数が存在(smoke)', typeof smokePuffAtColumn === 'function');
 
+    // ピンポンしないテスト
+    const saved = {bars:[].concat(bars), goals:[].concat(goals), player: player? {x:player.x,y:player.y,col:player.col,phase:player.phase,targetX:player.targetX}:null, running:running};
+    genBars(); const testY = topMargin + 50; bars = [{y:testY, from:2}];
+    player = { x: colX[2], y: topMargin + 10, col: 2, phase: 'down', targetX: colX[2] };
+    running = true; let progressed = false;
+    for(let i=0;i<400;i++){ advancePlayer(); if(player.y > testY + 4) { progressed = true; break; } }
+    assert('横棒通過後に下へ進む', progressed===true);
+    for(let i=0;i<4000 && running; i++){ advancePlayer(); }
+    assert('無限ピンポンしない（終了するか十分下へ）', (!running) || (player.y >= H - bottomMargin - 2));
+
+    // 追加テスト: スクリプト内に fillStyle: の誤記が無いこと
     var scriptText = document.currentScript && document.currentScript.textContent || '';
     assert('誤った fillStyle: 構文が無い', scriptText.indexOf('fillStyle:') === -1);
     assert('誤った strokeStyle: 構文が無い', scriptText.indexOf('strokeStyle:') === -1);
 
+    // 余計なリトライボタンが無い
     assert('retryBtn が存在しない', !document.getElementById('retryBtn'));
 
-    console.log('%c[Smoke] 初期化テストOK (iOS対応版)','color:#0a7');
+    // 追加テスト: 100回のゴール生成で常に win=1
+    let ok = true; for(let t=0;t<100;t++){ genGoals(); const c = goals.reduce(function(a,v){return a+(v==='win'?1:0);},0); if(c!==1){ ok=false; break; } }
+    assert('100回生成でも当たり本数は常に1', ok===true);
+
+    // 状態復元
+    bars = saved.bars; goals = saved.goals; player = saved.player; running = saved.running;
+
+    console.log('%c[Smoke] 初期化テストOK','color:#0a7');
+  }catch(e){
+    const ov=document.getElementById('resultOverlay');
+    ov.innerHTML = '<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>';
+    ov.classList.add('show');
+  } (iOS対応版)','color:#0a7');
   }catch(e){ const ov=document.getElementById('resultOverlay'); ov.innerHTML='<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>'; ov.classList.add('show'); }
 })();
 </script>
