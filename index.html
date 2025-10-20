@@ -2,214 +2,523 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>学校会話シーン（アニメ風／先生×生徒イラスト版）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ナースメイドにたどり着け！<br>ポトロクリニックであみだくじ♡</title>
 <style>
   :root{
-    --wall1:#f2f6ff; --wall2:#e8f0ff; --floor:#e3d7c8;
-    --board:#2f3a4a; --chalk:#ff6ea3; --frame:#caa56a;
-    --desk:#b68755; --deskTop:#d6a972; --metal:#8a8f98; --text:#222;
-    --shadow:rgba(0,0,0,.18);
+    --bg:#fff7fb;
+    --pink:#ff7eb6;
+    --aqua:#79d1e3;
+    --deep:#333;
+    --win:#ff4fb0;
+    --lose:#888;
   }
-  html,body{height:100%;margin:0;}
-  body{font-family:"Zen Maru Gothic","M PLUS Rounded 1c",system-ui; color:var(--text); background:linear-gradient(180deg,var(--wall1),var(--wall2));}
-  .stage{max-width:980px;margin:16px auto;padding:12px;}
-  .scene{position:relative;width:100%;height:78svh;overflow:hidden;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.12);background:radial-gradient(80% 80% at 50% 0%, rgba(255,255,255,.6), transparent 60%);} 
-  .wall{position:absolute;inset:0 0 36% 0;}
-  .baseboard{position:absolute;left:0;right:0;bottom:36%;height:10px;background:#c8cfd8;box-shadow:0 -2px 0 rgba(0,0,0,.06) inset, 0 2px 4px rgba(0,0,0,.05);} 
-  .floor{position:absolute;left:0;right:0;bottom:0;height:36%;background:linear-gradient(to top, rgba(0,0,0,.05), transparent 40%),repeating-linear-gradient(90deg,#d8c7b1 0 28px,#e9daca 28px 56px);} 
+  html,body{height:100%;}
+  body{
+    margin:0; padding:0; background:var(--bg);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color:var(--deep);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .frame{
+    width:min(94vw, 430px);
+    aspect-ratio:9/16;
+    background:linear-gradient(180deg, #fff 0%, #fff0fa 100%);
+    border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+    position:relative; overflow:hidden;
+  }
+  header{
+    text-align:center; padding:10px 8px 6px;
+  }
+  .tag{
+    display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db;
+  }
+  h1{
+    margin:6px 10px 0; font-size: clamp(16px, 4.5vw, 20px); line-height:1.3; font-weight:800;
+    letter-spacing:.02em;
+  }
+  .sub{font-size:12px; color:#666;}
 
-  /* 黒板 */
-  .blackboard{position:absolute;left:50%;transform:translateX(-50%);top:6%;width:72%;height:28%;background:var(--board);border:10px solid var(--frame);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.15);} 
-  .blackboard .lines{position:absolute;inset:12% 8% 22% 8%;color:var(--chalk);font-size:20px;font-weight:700;line-height:1.7;white-space:pre-line;text-align:center;letter-spacing:.03em;}
-  .blackboard .tray{position:absolute;left:0;right:0;bottom:0;height:14%;background:linear-gradient(#cfa872,#b78a57);box-shadow:0 -2px 0 rgba(0,0,0,.25) inset;}
-  .blackboard .tray::after{content:"";position:absolute;right:18px;bottom:4px;width:44px;height:6px;border-radius:3px;background:#f2f2f2;box-shadow:22px 0 0 #ffdede;opacity:.9;}
+  .canvasWrap{ position:absolute; inset:120px 10px 90px; border-radius:16px; background:#fff; border:2px dashed #ffd2ea; overflow:hidden;}
+  canvas{ display:block; width:100%; height:100%;}
 
-  .window{position:absolute;top:8%;width:16%;height:24%;background:linear-gradient(180deg,#d9efff,#b9deff);border:8px solid var(--frame);border-radius:6px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);} 
-  .window.wl{left:4%;}.window.wr{right:4%;}
+  .topChoices{ position:absolute; left:0; right:0; top:88px; display:flex; justify-content:center; gap:8px;}
+  .choiceBtn{
+    min-width:44px; padding:6px 10px; font-weight:700; font-size:14px; border-radius:999px;
+    background:linear-gradient(180deg, #ffb9db, #ff89c3); color:#fff; border:none; box-shadow:0 3px 0 #d45095;
+  }
+  .choiceBtn[disabled]{ opacity:.6; filter:grayscale(.2);}
 
-  /* 机・演台 */
-  .lectern{position:absolute;left:18%;bottom:30%;width:18%;height:16%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset, 0 10px 18px var(--shadow);border-radius:6px;}
-  .lectern::after{content:"";position:absolute;left:10%;right:10%;bottom:-10px;height:10px;background:var(--shadow);filter:blur(6px);border-radius:50%;}
-  .desks{position:absolute;right:8%;bottom:28%;width:32%;height:16%;}
-  .desk{position:absolute;width:44%;height:100%;background:var(--desk);box-shadow:0 -6px 0 var(--deskTop) inset, 0 10px 18px var(--shadow);border-radius:6px;}
-  .desk.d1{left:0;}.desk.d2{right:0;}
-  .desk::before{content:"";position:absolute;left:10%;right:10%;bottom:-10px;height:10px;background:var(--shadow);filter:blur(6px);border-radius:50%;}
-  .desk::after{content:"";position:absolute;left:12%;bottom:-16px;width:76%;height:6px;background:var(--metal);border-radius:3px;}
+  footer.controls{
+    position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px;
+  }
+  .btn{
+    padding:10px 14px; border-radius:12px; border:none; font-weight:800; font-size:14px;
+    box-shadow:0 4px 0 rgba(0,0,0,.08);
+  }
+  .primary{ background:linear-gradient(180deg, #a1e7f3, #6ad0e7); color:#0b4c5a; box-shadow:0 4px 0 #3a9fb1; }
+  .secondary{ background:#ffe6f3; color:#b02a7b; border:1px solid #ffc3e2; }
+  .ghost{ background:#fff; color:#555; border:1px solid #ddd; }
 
-  /* 俳優（SVGイラスト） */
-  .actors{position:absolute;left:0;right:0;bottom:26%;height:0;}
-  .char{position:absolute;width:300px;height:300px;transform-origin:50% 50%;overflow:visible;bottom:0;} 
-  .teacher{left:10%;transform:translateY(-95%);}  
-  .student{right:10%;transform:translateY(-95%) scaleX(-1);} /* 右を向かせるため反転 */
+  .overlay{
+    position:absolute; inset:120px 10px 90px; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; opacity:0; transition:opacity .35s ease;
+  }
+  .overlay.show{ opacity:1; }
+  .resultCard{
+    background:#fff; border:3px solid #ffd2ea; border-radius:18px; padding:18px 16px; text-align:center; width:min(88%, 340px);
+    box-shadow:0 20px 40px rgba(255, 71, 165, .18);
+  }
+  .resultCard h2{ margin:0 0 8px; font-size:22px; }
+  .resultCard p{ margin:0; font-size:14px; color:#555; }
+  .badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; margin-bottom:8px; }
+  .badge.win{ background:#ffe3f3; color:#c1006c; border:1px solid #ffb6de; }
+  .badge.lose{ background:#eef6ff; color:#1b4aa0; border:1px solid #c6e0ff; }
 
-  /* 吹き出し */
-  .bubble{position:absolute;max-width:56%;padding:14px 16px;font-size:18px;line-height:1.7;background:#fff;border:3px solid #222;border-radius:14px;box-shadow:4px 6px 0 #222;}
-  .bubble p{margin:0;white-space:pre-line;}
-  .bubble small{display:block;font-size:13px;opacity:.7;margin-bottom:6px;}
-  .bubble.left{left:8%;bottom:64%;}
-  .bubble.right{right:8%;bottom:64%;}
-  .bubble.left::after,.bubble.right::after{content:"";position:absolute;width:0;height:0;border:12px solid transparent;bottom:-22px;}
-  .bubble.left::after{left:24px;border-top-color:#fff;filter:drop-shadow(2px 3px 0 #222);} 
-  .bubble.right::after{right:24px;border-top-color:#fff;filter:drop-shadow(-2px 3px 0 #222);} 
+  .brand{
+    position:absolute; right:10px; top:10px; font-size:12px; color:#777;
+  }
+  .brand b{color:#c1006c}
 
-  /* HUD */
-  .hud{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:14px;flex-wrap:wrap;}
-  button{appearance:none;border:3px solid #222;background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:3px 4px 0 #222;font-weight:700;}
-  button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #222;}
-  .tag{background:#222;color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;}
+  .muteLamp{ position:absolute; left:10px; top:10px; font-size:12px; color:#777;}
 
-  /* iPhone 縦持ち調整 */
-  @media (max-width: 430px){
-    .stage{margin:8px auto;padding:8px;}
-    .scene{height:86svh;border-radius:12px;}
-    .actors{bottom:22%;}
-    .char{width:180px;height:180px;}
-    .bubble{font-size:14px;max-width:88%;}
-    .bubble.left{bottom:60%;}
-    .bubble.right{bottom:60%;}
-    .blackboard{top:4%;width:86%;height:20%;}
-    .window{display:none;}
-    .lectern{left:8%;bottom:30%;width:22%;height:12%;}
-    .desks{right:4%;bottom:26%;width:40%;height:14%;}
-    button{padding:8px 10px;font-size:14px;}
-    .tag{font-size:11px;padding:4px 8px;}
+  /* small phones safety */
+  @media (max-height: 640px){
+    .canvasWrap{ inset:110px 8px 86px; }
+    .topChoices{ top:84px; }
   }
 </style>
 </head>
 <body>
-  <div class="stage">
-    <div class="scene">
-      <div class="wall"></div><div class="baseboard"></div><div class="floor"></div>
-      <div class="blackboard"><div class="lines">ポ・トロの
-萌えセレクトについて</div><div class="tray"></div></div>
-      <div class="window wl"></div><div class="window wr"></div>
+  <div class="frame" role="application" aria-label="ナースにたどり着け！あみだくじゲーム">
+    <div class="brand">concept cafe <b>PO・TORO</b></div>
+    <div class="muteLamp" id="muteLamp">🔊 サウンドON</div>
+    <header>
+      <span class="tag">🩺 ポ・トロクリニック</span>
+      <h1>ナースメイドにたどり着け！<br>ポトロクリニックであみだくじ♡</h1>
+      <div class="sub">患者ご主人様は、運命のナースさんに出会えるか…？</div>
+    </header>
 
-      <div class="lectern"></div>
-      <div class="desks"><div class="desk d1"></div><div class="desk d2"></div></div>
+    <div class="topChoices" id="choiceRow"></div>
 
-      <!-- ▼ アニメ風イラスト（SVG）：先生（左） -->
-      <svg class="char teacher" viewBox="0 0 300 300" aria-label="先生(メガネ・スーツ)">
-        <defs>
-          <linearGradient id="skinT" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#ffd9c7"/><stop offset="1" stop-color="#f7bfa6"/>
-          </linearGradient>
-          <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#2a2f3a"/><stop offset="1" stop-color="#1c2028"/>
-          </linearGradient>
-        </defs>
-        <!-- 影 -->
-        <ellipse cx="150" cy="280" rx="80" ry="12" fill="rgba(0,0,0,.14)"/>
-        <!-- 髪 -->
-        <path d="M210 88c0 38-40 54-60 54s-60-16-60-54c0-30 26-50 60-50s60 20 60 50z" fill="#1f1f1f"/>
-        <!-- 顔 -->
-        <ellipse cx="150" cy="120" rx="46" ry="42" fill="url(#skinT)"/>
-        <!-- メガネ -->
-        <g fill="none" stroke="#3b3f46" stroke-width="3">
-          <rect x="115" y="112" width="30" height="16" rx="4"/>
-          <rect x="155" y="112" width="30" height="16" rx="4"/>
-          <path d="M145 120h10"/>
-        </g>
-        <!-- 目・口 -->
-        <circle cx="130" cy="120" r="3" fill="#2a2a2a"/>
-        <circle cx="170" cy="120" r="3" fill="#2a2a2a"/>
-        <path d="M136 138c10 6 18 6 28 0" stroke="#b36b6b" stroke-width="3" fill="none"/>
-        <!-- スーツ -->
-        <path d="M80 260c10-60 20-120 70-120s60 60 70 120H80z" fill="url(#suit)"/>
-        <!-- シャツ・ネクタイ -->
-        <path d="M140 152l10 0 10 16-30 0z" fill="#e8f0ff"/>
-        <path d="M150 168l12 40h-24z" fill="#3f5d8e"/>
-        <!-- 手（チョーク持ち風の白） -->
-        <circle cx="108" cy="210" r="8" fill="#ffffff" stroke="#d0d0d0"/>
-      </svg>
+    <div class="canvasWrap"><canvas id="amida"></canvas></div>
 
-      <!-- ▼ アニメ風イラスト（SVG）：生徒（右・セーラー服） -->
-      <svg class="char student" viewBox="0 0 300 300" aria-label="生徒(セーラー服)">
-        <defs>
-          <linearGradient id="skinS" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#ffd9c7"/><stop offset="1" stop-color="#f7bfa6"/>
-          </linearGradient>
-          <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#21306a"/><stop offset="1" stop-color="#15214f"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="150" cy="280" rx="78" ry="12" fill="rgba(0,0,0,.14)"/>
-        <!-- 髪（茶） -->
-        <path d="M210 95c0 40-40 58-60 58s-60-18-60-58c0-28 24-48 60-48s60 20 60 48z" fill="#5b2b20"/>
-        <!-- 顔 -->
-        <ellipse cx="150" cy="128" rx="44" ry="40" fill="url(#skinS)"/>
-        <!-- 目・口（アニメ風） -->
-        <ellipse cx="132" cy="128" rx="5" ry="7" fill="#2a2a2a"/>
-        <ellipse cx="168" cy="128" rx="5" ry="7" fill="#2a2a2a"/>
-        <path d="M135 146c8 6 22 6 30 0" stroke="#b36b6b" stroke-width="3" fill="none"/>
-        <!-- セーラー襟＆服 -->
-        <path d="M90 260c10-60 22-118 60-118s50 58 60 118H90z" fill="url(#navy)"/>
-        <path d="M120 168h60l-18 18h-24z" fill="#ffffff"/>
-        <path d="M120 186h60l-12 12h-36z" fill="#d6ecff"/>
-        <!-- 赤いリボン -->
-        <g fill="#c62828">
-          <circle cx="150" cy="188" r="7"/>
-          <path d="M150 188l-18 10 6-16z"/>
-          <path d="M150 188l18 10-6-16z"/>
-        </g>
-      </svg>
+    <div class="overlay" id="resultOverlay" aria-live="polite"></div>
 
-      <div class="bubble left" id="bubble"><small id="speaker">Teacher</small><p id="line">みなさん、今日は「萌えセレクト」について学びます。</p></div>
-    </div>
-
-    <div class="hud">
-      <div>
-        <button id="prev">◀︎ 前へ</button>
-        <button id="next">次へ ▶︎</button>
-        <button id="auto">⏵ オート</button>
-        <span class="tag" id="progress">1 / 1</span>
-      </div>
-    </div>
+    <footer class="controls">
+      <button class="btn primary" id="startBtn">診察開始♡</button>
+      <button class="btn secondary" id="retryBtn" disabled>もう一回</button>
+      <button class="btn ghost" id="muteBtn" aria-pressed="false">🔊 サウンド</button>
+    </footer>
   </div>
 
 <script>
-// 会話データ（そのまま編集OK）
-const DIALOGUE = [
-  { speaker: 'teacher', text: 'おかえりなさい…ではなく、授業開始です。今日は「萌えセレクト」について学びましょう！' },
-  { speaker: 'student', text: '先生、萌えセレクトとはなんですか？' },
-  { speaker: 'teacher', text: 'いい質問ですね！萌えセレクトとは、お気に入りのメイドさんを独占してお話できるシステムです！' },
-  { speaker: 'student', text: '先生、萌えセレクトの時間と料金を教えてください。' },
-  { speaker: 'teacher', text: '30分／2,000円(税込)。席料＋指名料も込みで、追加料金はありません。' },
-  { speaker: 'student', text: `長く話したい場合はどうしたらいいですか？\n延長は可能ですか？` },
-  { speaker: 'teacher', text: '事前に利用したい時間の長さで予約すればＯＫ。延長もOKですが、混雑状況によってはお断りされる場合がありますので、長めに予約されることをおすすめします。' },
-  { speaker: 'student', text: '遠方でも利用できる方法はありますか？' },
-  { speaker: 'teacher', text: 'それなら萌えセレクトのオンライン版「どこでもポトロ」がおすすめです。萌えセレクト、どこでもポトロともに、事前予約はXのDMで受け付けています。' },
-  { speaker: 'student', text: 'ほかに注意することはありますか？' },
-  { speaker: 'teacher', text: `萌えセレクト中は、メイドさんと一緒にお食事ができます。\n飲食物については以下の点に注意してください。\n1) 手作り以外の持ち込みはOK\n2) UberEATSも利用可能！\n3) メイドさんはアルコール飲料は飲めません！` },
-  { speaker: 'student', text: 'わかりました！さっそく利用してみようと思います' }
-];
+(() => {
+  // ====== CONFIG ======
+  const COLS = 4;              // 本数（3〜5推奨）
+  const BAR_COUNT = 18;        // 横線の候補数（自動で重なり回避）
+  const SPEED_Y = 2.2;         // 縦の移動速度(px/frame)
+  const SPEED_X = 3.0;         // 横移動速度
+  const REVEAL_BUFFER = 28;    // 見えていく余白
 
-let idx=0, timer=null; const AUTO_MS=3300;
-const bubble=document.getElementById('bubble');
-const lineEl=document.getElementById('line');
-const spEl=document.getElementById('speaker');
-const progress=document.getElementById('progress');
+  // ====== STATE ======
+  const canvas = document.getElementById('amida');
+  const ctx = canvas.getContext('2d');
+  let W = 360, H = 560;
+  let topMargin = 24, bottomMargin = 36, leftMargin = 28, rightMargin = 28;
+  let colX = []; // 各縦線のx座標
+  let bars = []; // {y, from}  from=左の列index (0..COLS-2)
+  let chosenIndex = null; // ユーザが選んだ列
+  let running = false;
+  let revealY = 0; // ここまで下が見える
+  let player = null; // {x,y,col,phase}
+  let goals = []; // 長さCOLS, 値: 'win' or 'lose'
+  let animId = null;
 
-function renderLine(){
-  const cur = DIALOGUE[idx];
-  const left = (cur.speaker === 'teacher');
-  bubble.classList.toggle('left', left);
-  bubble.classList.toggle('right', !left);
-  spEl.textContent = left ? 'Teacher' : 'Student';
-  lineEl.textContent = cur.text;
-  progress.textContent = `${idx+1} / ${DIALOGUE.length}`;
-}
-function next(){ idx = (idx + 1) % DIALOGUE.length; renderLine(); }
-function prev(){ idx = (idx - 1 + DIALOGUE.length) % DIALOGUE.length; renderLine(); }
-function autoPlay(){ if(timer) return; timer = setInterval(next, AUTO_MS); }
-function stopAuto(){ clearInterval(timer); timer=null; }
+  // ====== AUDIO (WebAudioでBGM/SE生成) ======
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audio = { ctx:null, master:null, muted:false, bgm:null, bgmGain:null };
+  function setupAudio(){
+    if(audio.ctx) return;
+    audio.ctx = new AudioCtx();
+    audio.master = audio.ctx.createGain();
+    audio.master.gain.value = 0.8;
+    audio.master.connect(audio.ctx.destination);
+  }
+  function playBGM(){
+    if(audio.muted) return;
+    setupAudio();
+    stopBGM();
+    // シンプルな待合室ループ（和音アルペジオ）
+    const ctx = audio.ctx;
+    const tempo = 108; // bpm
+    const beat = 60/tempo;
+    audio.bgmGain = ctx.createGain();
+    audio.bgmGain.gain.value = 0.06; // 小さめ
+    audio.bgmGain.connect(audio.master);
 
-const bPrev=document.getElementById('prev'), bNext=document.getElementById('next'), bAuto=document.getElementById('auto');
-bPrev.addEventListener('click', ()=>{ stopAuto(); prev(); });
-bNext.addEventListener('click', ()=>{ stopAuto(); next(); });
-bAuto.addEventListener('click', ()=>{ if(timer){ stopAuto(); bAuto.textContent='⏵ オート'; } else { autoPlay(); bAuto.textContent='⏸ 停止'; } });
+    const notes = [262, 330, 392, 523]; // C E G C
+    const start = ctx.currentTime + 0.05;
+    const length = 8; // 小節長(秒)目安
 
-window.addEventListener('load', ()=>{ renderLine(); });
+    audio.bgm = { timers:[] };
+    function scheduleLoop(){
+      let t = ctx.currentTime;
+      for(let i=0;i<64;i++){
+        const n = notes[i % notes.length];
+        const when = start + i*beat*0.5;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = n;
+        g.gain.setValueAtTime(0, when);
+        g.gain.linearRampToValueAtTime(0.15, when+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, when+beat*0.45);
+        o.connect(g).connect(audio.bgmGain);
+        o.start(when);
+        o.stop(when+beat*0.5);
+        audio.bgm.timers.push(o);
+      }
+      // ループ
+      audio.bgm.loopTimer = setTimeout(scheduleLoop, length*1000);
+    }
+    scheduleLoop();
+  }
+  function stopBGM(){
+    if(audio.bgm){
+      if(audio.bgm.loopTimer) clearTimeout(audio.bgm.loopTimer);
+      if(audio.bgm.timers){ audio.bgm.timers.forEach(o=>{ try{o.stop();}catch(e){} }); }
+    }
+    if(audio.bgmGain){ audio.bgmGain.disconnect(); audio.bgmGain=null; }
+    audio.bgm=null;
+  }
+  function seChime(win=true){ if(audio.muted) return; setupAudio(); const ctx=audio.ctx;
+    const base = win? 880: 220; // win高め、lose低め
+    const now = ctx.currentTime + 0.02;
+    for(let i=0;i<3;i++){
+      const o = ctx.createOscillator(); const g=ctx.createGain();
+      o.type = win? 'sine':'square';
+      o.frequency.setValueAtTime(base*(i+1), now+i*0.09);
+      g.gain.setValueAtTime(0, now+i*0.09);
+      g.gain.linearRampToValueAtTime(0.25, now+i*0.09+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+i*0.09+0.25);
+      o.connect(g).connect(audio.master); o.start(now); o.stop(now+0.5);
+    }
+  }
+  function seStep(){ if(audio.muted) return; setupAudio(); const ctx=audio.ctx;
+    const o = ctx.createOscillator(); const g=ctx.createGain();
+    o.type='square'; o.frequency.value=600;
+    g.gain.value=0.0001; g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.12);
+    o.connect(g).connect(audio.master); o.start(); o.stop(ctx.currentTime+0.13);
+  }
+
+  // ====== LAYOUT ======
+  function resize(){
+    const wrap = document.querySelector('.canvasWrap');
+    const rect = wrap.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    W = Math.floor(rect.width * ratio);
+    H = Math.floor(rect.height * ratio);
+    canvas.width = W; canvas.height = H; canvas.style.width = rect.width+'px'; canvas.style.height = rect.height+'px';
+
+    topMargin = Math.round(24*ratio);
+    bottomMargin = Math.round(36*ratio);
+    leftMargin = Math.round(28*ratio);
+    rightMargin = Math.round(28*ratio);
+
+    computeCols();
+    draw();
+  }
+  window.addEventListener('resize', () => { resize(); });
+
+  function computeCols(){
+    colX = [];
+    const innerW = W - leftMargin - rightMargin;
+    for(let i=0;i<COLS;i++){
+      const x = leftMargin + (innerW) * (i/(COLS-1));
+      colX.push(x);
+    }
+  }
+
+  // ====== GAME GEN ======
+  function genBars(){
+    const minGap = 18 * (window.devicePixelRatio||1);
+    const ys = [];
+    const usableTop = topMargin + 12;
+    const usableBottom = H - bottomMargin - 12;
+    while(ys.length < BAR_COUNT){
+      const y = Math.round( usableTop + Math.random()*(usableBottom-usableTop) );
+      if(ys.every(v => Math.abs(v - y) > minGap)) ys.push(y);
+    }
+    ys.sort((a,b)=>a-b);
+
+    bars = [];
+    for(const y of ys){
+      // どこに横線を置くか（左端〜右端-1のいずれか）
+      const from = Math.floor(Math.random()*(COLS-1));
+      // 直前の同じ高さ近辺＆同じ列を避ける
+      const tooClose = bars.some(b => Math.abs(b.y - y) < minGap && Math.abs(b.from - from) < 1);
+      if(!tooClose){ bars.push({y, from}); }
+    }
+  }
+
+  function genGoals(){
+    goals = new Array(COLS).fill('lose');
+    const winIndex = Math.floor(Math.random()*COLS);
+    goals[winIndex] = 'win';
+  }
+
+  function resetGame(){
+    chosenIndex = null; running=false; revealY = topMargin;
+    genBars(); genGoals();
+    buildChoiceButtons();
+    stopAnim();
+    player = null;
+    document.getElementById('retryBtn').disabled = true;
+    document.getElementById('resultOverlay').innerHTML = '';
+    document.getElementById('resultOverlay').classList.remove('show');
+    draw();
+  }
+
+  // ====== CHOICES ======
+  function buildChoiceButtons(){
+    const row = document.getElementById('choiceRow');
+    row.innerHTML = '';
+    for(let i=0;i<COLS;i++){
+      const b = document.createElement('button');
+      b.className = 'choiceBtn';
+      b.textContent = `入口${i+1}`;
+      b.onclick = () => choose(i);
+      if(running) b.disabled = true;
+      row.appendChild(b);
+    }
+  }
+
+  function choose(idx){
+    if(running) return;
+    chosenIndex = idx;
+    player = { x: colX[idx], y: topMargin, col: idx, phase: 'down', targetX: colX[idx] };
+    revealY = topMargin + REVEAL_BUFFER;
+    running = true; animate();
+    // ボタンロック
+    [...document.querySelectorAll('.choiceBtn')].forEach(b=> b.disabled = true);
+    seStep(); // 開始SE
+  }
+
+  // ====== DRAW ======
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // 背景格子
+    drawBackdrop();
+    // 縦線
+    ctx.lineWidth = 3 * (window.devicePixelRatio||1);
+    ctx.strokeStyle = '#ffb6de';
+    for(let i=0;i<COLS;i++){
+      line(colX[i], topMargin, colX[i], H-bottomMargin);
+    }
+    // 横線（revealまで）
+    ctx.strokeStyle = '#79d1e3';
+    for(const b of bars){
+      if(b.y <= revealY){
+        line(colX[b.from], b.y, colX[b.from+1], b.y);
+      }
+    }
+    // プレイヤー
+    if(player){ drawPatient(player.x, player.y); }
+
+    // 目隠し（下側を白で覆う）
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 1.0;
+    ctx.fillRect(0, revealY, W, H - revealY);
+
+    // 目隠しの境界に淡いグラデ
+    const g = ctx.createLinearGradient(0, revealY-14, 0, revealY+2);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(1, 'rgba(255,255,255,1)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, revealY-14, W, 16);
+
+    // ゴール（到達直前まで非表示、reveal次第で少しずつ見える）
+    if(revealY > H - bottomMargin - 26){
+      for(let i=0;i<COLS;i++){
+        const cx = colX[i];
+        const ty = H - bottomMargin + 8;
+        if(goals[i]==='win') drawNurse(cx, ty, 0.85);
+        else drawSyringe(cx, ty, 0.85);
+      }
+    }
+  }
+
+  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+
+  function drawBackdrop(){
+    // 柔らかいハート/十字背景
+    ctx.save();
+    const r = (window.devicePixelRatio||1);
+    for(let y=topMargin; y<H-bottomMargin; y+=40*r){
+      for(let x=leftMargin; x<W-rightMargin; x+=40*r){
+        ctx.globalAlpha = 0.05;
+        ctx.fillStyle = '#ff7eb6';
+        drawHeart(x, y, 6*r);
+        ctx.fillStyle = '#79d1e3';
+        drawPlus(x+14*r, y+12*r, 6*r);
+      }
+    }
+    ctx.restore();
+  }
+  function drawHeart(cx, cy, s){
+    ctx.beginPath();
+    for(let a=0;a<=Math.PI*2;a+=0.1){
+      const x = s*16*Math.pow(Math.sin(a),3)/16;
+      const y = -s*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16;
+      if(a===0) ctx.moveTo(cx+x, cy+y); else ctx.lineTo(cx+x, cy+y);
+    }
+    ctx.closePath(); ctx.fill();
+  }
+  function drawPlus(cx, cy, s){
+    ctx.save(); ctx.translate(cx,cy);
+    ctx.beginPath();
+    ctx.rect(-s/2, -s*1.6, s, s*3.2);
+    ctx.rect(-s*1.6, -s/2, s*3.2, s);
+    ctx.fill(); ctx.restore();
+  }
+
+  function drawPatient(x, y){
+    // 患者アイコン：包帯＋顔
+    ctx.save();
+    ctx.translate(x,y);
+    const r = 10*(window.devicePixelRatio||1);
+    // 顔
+    ctx.fillStyle = '#ffe9c9'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    // 包帯
+    ctx.fillStyle = '#f0f0f0'; ctx.strokeStyle = '#cfcfcf'; ctx.lineWidth = 1*(window.devicePixelRatio||1);
+    ctx.beginPath(); ctx.moveTo(-r, -4); ctx.lineTo(r, -1); ctx.lineTo(r, 3); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // 目
+    ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(-4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill();
+    // 体
+    ctx.fillStyle = '#c0e9f5'; ctx.beginPath(); ctx.moveTo(-6, r); ctx.lineTo(6, r); ctx.lineTo(0, r+10); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  function drawNurse(x, y, scale=1){
+    const r = 9*(window.devicePixelRatio||1)*scale;
+    ctx.save(); ctx.translate(x,y);
+    // 顔
+    ctx.fillStyle = '#ffe9f1'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    // ナース帽
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, -r*0.9, r*0.9, r*0.55, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff78b4'; drawPlus(0, -r*0.9, 6*(window.devicePixelRatio||1)*scale);
+    // 目＆口
+    ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(-3, -1, 1.1*(window.devicePixelRatio||1)*scale, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -1, 1.1*(window.devicePixelRatio||1)*scale, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ff4fae'; ctx.lineWidth = 1.3*(window.devicePixelRatio||1)*scale; ctx.beginPath(); ctx.arc(0,3,3*scale, 0, Math.PI); ctx.stroke();
+    ctx.restore();
+  }
+  function drawSyringe(x, y, scale=1){
+    const s = 1*(window.devicePixelRatio||1)*scale;
+    ctx.save(); ctx.translate(x,y);
+    // 簡易注射器
+    ctx.fillStyle = '#dff6ff'; ctx.strokeStyle = '#79d1e3'; ctx.lineWidth = 1*s;
+    ctx.beginPath(); ctx.rect(-10*s,-4*s, 20*s, 8*s); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(10*s,0); ctx.lineTo(16*s,0); ctx.stroke();
+    ctx.restore();
+  }
+
+  // ====== ANIMATION / TRAVERSE ======
+  function stopAnim(){ if(animId) cancelAnimationFrame(animId); animId=null; }
+  function animate(){
+    stopAnim();
+    const step = () => {
+      if(!running){ draw(); return; }
+      advancePlayer();
+      draw();
+      animId = requestAnimationFrame(step);
+    };
+    animId = requestAnimationFrame(step);
+  }
+
+  function advancePlayer(){
+    if(!player) return;
+
+    if(player.phase === 'down'){
+      // 次の横棒があるかチェック
+      const nextBar = bars
+        .filter(b => b.y > player.y-1 && Math.abs(b.y - player.y) < 9999)
+        .sort((a,b)=>a.y-b.y)
+        .find(b => b.y >= player.y && (b.from === player.col-1 || b.from === player.col));
+
+      const nextY = nextBar ? nextBar.y : (H - bottomMargin);
+      const dy = Math.min(SPEED_Y, nextY - player.y);
+      player.y += dy;
+      revealY = Math.min(player.y + REVEAL_BUFFER, H - bottomMargin + 12);
+
+      if(Math.abs(player.y - nextY) < 0.5 && nextBar){
+        // 横移動に切替
+        if(nextBar.from === player.col){ // 右へ
+          player.phase = 'right';
+          player.targetX = colX[player.col+1];
+        }else{ // 左へ
+          player.phase = 'left';
+          player.targetX = colX[player.col-1];
+        }
+        seStep();
+      }
+
+      // ゴール判定
+      if(player.y >= H - bottomMargin){
+        running=false;
+        endResult(goals[player.col] === 'win');
+      }
+    } else if(player.phase === 'right' || player.phase === 'left'){
+      const dir = (player.phase === 'right') ? 1 : -1;
+      const vx = dir * SPEED_X;
+      const nx = player.x + vx;
+      if( (dir>0 && nx >= player.targetX) || (dir<0 && nx <= player.targetX) ){
+        player.x = player.targetX;
+        player.col += dir;
+        player.phase = 'down';
+      } else {
+        player.x = nx;
+      }
+    }
+  }
+
+  function endResult(isWin){
+    stopBGM();
+    seChime(isWin);
+
+    const overlay = document.getElementById('resultOverlay');
+    const badge = isWin ? '<span class="badge win">大当たり💖</span>' : '<span class="badge lose">診察中…💊</span>';
+    const title = isWin ? 'ナースさんに診てもらえた♡' : '残念…また診察に来てね';
+    const note = isWin ? '本日のご主人様は超ラッキー！受付で画面を見せてね♪' : '入り口を変えると運命が変わるかも？';
+    overlay.innerHTML = `<div class="resultCard">${badge}<h2>${title}</h2><p>${note}</p></div>`;
+    overlay.classList.add('show');
+
+    document.getElementById('retryBtn').disabled = false;
+  }
+
+  // ====== UI BUTTONS ======
+  document.getElementById('startBtn').addEventListener('click', () => {
+    resetGame();
+    if(!audio.muted){ playBGM(); }
+  });
+  document.getElementById('retryBtn').addEventListener('click', () => {
+    resetGame(); if(!audio.muted){ playBGM(); }
+  });
+  document.getElementById('muteBtn').addEventListener('click', (e) => {
+    audio.muted = !audio.muted;
+    e.currentTarget.setAttribute('aria-pressed', audio.muted? 'true':'false');
+    document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON';
+    if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } }
+  });
+
+  // 初期化
+  resize();
+  computeCols();
+  genBars(); genGoals();
+  buildChoiceButtons();
+  draw();
+})();
 </script>
 </body>
 </html>
