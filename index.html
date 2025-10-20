@@ -28,7 +28,7 @@
   .pressable .ripple{ position:absolute; pointer-events:none; border-radius:999px; transform:scale(0); opacity:0.35; background:#ffffff; mix-blend-mode:overlay; animation:ripple .45s ease-out; }
   @keyframes ripple{ to{ transform:scale(6); opacity:0; } }
 
-  footer.controls{ position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px; }
+  footer.controls{ position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px; z-index:6; }
   .btn{ padding:10px 14px; border-radius:12px; border:none; font-weight:800; font-size:14px; box-shadow:0 4px 0 rgba(0,0,0,.08); }
   .primary{ background:linear-gradient(180deg,#a1e7f3,#6ad0e7); color:#0b4c5a; box-shadow:0 4px 0 #3a9fb1; }
   .secondary{ background:#ffe6f3; color:#b02a7b; border:1px solid #ffc3e2; }
@@ -188,6 +188,8 @@
     });
   }
   document.getElementById('startBtn').addEventListener('click', function(){ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
+  // iOS Safari: clickが飛ばない端末向けフォールバック
+  document.getElementById('startBtn').addEventListener('touchstart', function(){ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } }, {passive:true}); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
   document.getElementById('muteBtn').addEventListener('click', function(e){ audio.muted=!audio.muted; e.currentTarget.setAttribute('aria-pressed', audio.muted?'true':'false'); document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON'; if(audio.muted){ stopBGM(); } else { playBGM(); } });
 
   // ===== INIT =====
