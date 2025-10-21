@@ -15,20 +15,21 @@
     -webkit-user-select:none; user-select:none; touch-action:manipulation;
   }
 
+  /* CSSだけで確実に高さを確保（iOSで真っ白を防止） */
   .frame{
     width:min(94vw,430px);
-    aspect-ratio: 9 / 16; /* Safari対応。非対応環境は下のフォールバック */
+    aspect-ratio: 9 / 16;
     background:linear-gradient(180deg,#fff 0%,#fff0fa 100%);
     border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08);
     position:relative; overflow:hidden;
   }
   @supports not (aspect-ratio: 1 / 1) { .frame{ height: 88vh; } }
 
+  .brand{ position:absolute; left:8px; top:8px; font-size:12px; color:#777; z-index:1000; }
   .lamp{ position:absolute; right:8px; top:8px; z-index:1000; font:12px/1.2 system-ui;
          background:#fff; border:1px solid #ddd; border-radius:10px; padding:4px 8px; }
   .ok{ color:#0a7; font-weight:700; } .ng{ color:#b00; font-weight:700; }
 
-  .brand{ position:absolute; left:8px; top:8px; font-size:12px; color:#777; z-index:1000; }
   header{ text-align:center; padding:28px 8px 6px; position:relative; z-index:900; }
   .tag{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db; }
   h1{ margin:6px 10px 0; font-size:clamp(16px,4.5vw,20px); line-height:1.3; font-weight:800; }
@@ -97,9 +98,17 @@
 (function(){
   'use strict';
 
-  /* ====== Audio（iOS対応。ユーザー操作後に必ずresume） ====== */
+  /* -------------------------
+     軽量起動スイッチ
+  ------------------------- */
+  const PERF_LAZY_INIT = true;
+  let gameInitialized = false;
+
+  /* -------------------------
+     Audio（iOS対応）
+  ------------------------- */
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const audio = { ctx:null, master:null, muted:false, bgm:null, bgmGain:null, loopTimer:null, tones:[] };
+  const audio = { ctx:null, master:null, muted:false, bgmGain:null, loopTimer:null, tones:[] };
 
   function setupAudio(){
     if(audio.ctx) return;
@@ -113,53 +122,41 @@
   function resumeAudio(){
     try{ if(audio.ctx && audio.ctx.state==='suspended' && audio.ctx.resume){ audio.ctx.resume(); } }catch(e){}
   }
+  window.addEventListener('touchstart', ()=>{ setupAudio(); resumeAudio(); }, {passive:true});
+  window.addEventListener('pointerdown', ()=>{ setupAudio(); resumeAudio(); }, {passive:true});
 
-  // 簡易BGM：小音量の三角波アルペジオをループ
+  // BGM
   function playBGM(){
     if(audio.muted) return;
     setupAudio(); resumeAudio();
     stopBGM();
     if(!audio.ctx) return;
-
-    const c = audio.ctx;
-    const tempo = 108;
-    const beat = 60/tempo;            // 1拍
-    audio.bgmGain = c.createGain();
-    audio.bgmGain.gain.value = 0.06;  // 小さめ
-    audio.bgmGain.connect(audio.master);
-
+    const c = audio.ctx, tempo = 108, beat = 60/tempo;
+    audio.bgmGain = c.createGain(); audio.bgmGain.gain.value = 0.06; audio.bgmGain.connect(audio.master);
     function schedule(){
       const notes = [262, 330, 392, 523]; // C-E-G-C
       const t0 = c.currentTime + 0.05;
-      // 2小節分
       for(let i=0;i<64;i++){
-        const when = t0 + i * beat * 0.5; // 8分
-        const o = c.createOscillator();
-        const g = c.createGain();
-        o.type = 'triangle';
-        o.frequency.value = notes[i % notes.length];
+        const when = t0 + i * beat * 0.5;
+        const o = c.createOscillator(), g = c.createGain();
+        o.type='triangle'; o.frequency.value=notes[i%notes.length];
         g.gain.setValueAtTime(0, when);
-        g.gain.linearRampToValueAtTime(0.15, when + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, when + beat*0.45);
+        g.gain.linearRampToValueAtTime(0.15, when+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, when+beat*0.45);
         o.connect(g).connect(audio.bgmGain);
-        o.start(when);
-        o.stop(when + beat*0.5);
+        o.start(when); o.stop(when+beat*0.5);
         audio.tones.push(o);
       }
-      audio.loopTimer = setTimeout(schedule, 8000); // 8秒毎に組み直し
+      audio.loopTimer = setTimeout(schedule, 8000);
     }
     schedule();
   }
   function stopBGM(){
     if(audio.loopTimer) { clearTimeout(audio.loopTimer); audio.loopTimer=null; }
-    if(audio.tones && audio.tones.length){
-      audio.tones.forEach(o=>{ try{o.stop();}catch(e){} });
-      audio.tones.length = 0;
-    }
+    if(audio.tones.length){ audio.tones.forEach(o=>{ try{o.stop();}catch(e){} }); audio.tones.length=0; }
     if(audio.bgmGain){ try{audio.bgmGain.disconnect();}catch(e){} audio.bgmGain=null; }
   }
-
-  // 効果音
+  // SE
   function sePop(){ if(audio.muted) return; setupAudio(); resumeAudio(); if(!audio.ctx) return;
     const c=audio.ctx, o=c.createOscillator(), g=c.createGain();
     o.type='triangle'; o.frequency.value=500;
@@ -172,40 +169,34 @@
   function seFanfare(){ if(audio.muted) return; setupAudio(); resumeAudio(); if(!audio.ctx) return;
     const c=audio.ctx; const now=c.currentTime+0.02; const seq=[261.6,329.6,392.0,523.3];
     seq.forEach((f,i)=>{ const o=c.createOscillator(), g=c.createGain();
-      o.type='sine'; o.frequency.value=f;
-      const t=now+i*0.18;
-      g.gain.setValueAtTime(0,t);
-      g.gain.linearRampToValueAtTime(0.3,t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
-      o.connect(g).connect(audio.master);
-      o.start(t); o.stop(t+0.4);
+      o.type='sine'; o.frequency.value=f; const t=now+i*0.18;
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.3,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
+      o.connect(g).connect(audio.master); o.start(t); o.stop(t+0.4);
     });
   }
   function seChime(good){ if(audio.muted) return; setupAudio(); resumeAudio(); if(!audio.ctx) return;
     const c=audio.ctx; const base=good?880:220; const now=c.currentTime+0.02;
-    for(let i=0;i<3;i++){
-      const o=c.createOscillator(), g=c.createGain();
-      o.type=good?'sine':'square';
-      o.frequency.value=base*(i+1);
+    for(let i=0;i<3;i++){ const o=c.createOscillator(), g=c.createGain();
+      o.type=good?'sine':'square'; o.frequency.value=base*(i+1);
       g.gain.setValueAtTime(0, now+i*0.09);
       g.gain.linearRampToValueAtTime(0.25, now+i*0.09+0.01);
       g.gain.exponentialRampToValueAtTime(0.0001, now+i*0.09+0.25);
-      o.connect(g).connect(audio.master);
-      o.start(now); o.stop(now+0.5);
+      o.connect(g).connect(audio.master); o.start(now); o.stop(now+0.5);
     }
   }
 
-  // 初回タップで必ずAudioを解放
-  window.addEventListener('touchstart', ()=>{ setupAudio(); resumeAudio(); }, {passive:true});
-  window.addEventListener('pointerdown', ()=>{ setupAudio(); resumeAudio(); }, {passive:true});
-
-  /* ====== ゲーム本体（描画などは前回安定版のまま） ====== */
+  /* -------------------------
+     ゲーム定数・状態
+  ------------------------- */
   const COLS=5, BAR_COUNT=18, SPEED_Y=2.2, SPEED_X=3.0, REVEAL_BUFFER=28;
   const canvas=document.getElementById('amida');
   const ctx=canvas.getContext('2d');
   let W=360,H=560, topMargin=24,bottomMargin=36,leftMargin=28,rightMargin=28;
   let colX=[], bars=[], goals=[], chosenIndex=null, running=false, revealY=0, player=null, animId=null;
 
+  /* -------------------------
+     レイアウト・描画
+  ------------------------- */
   function computeCols(){ colX=[]; const innerW=W-leftMargin-rightMargin; for(let i=0;i<COLS;i++){ colX.push(leftMargin + innerW*(i/(COLS-1))); } }
   function resize(){
     const wrap=document.querySelector('.canvasWrap'); const rect=wrap.getBoundingClientRect();
@@ -219,57 +210,6 @@
   }
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', ()=>setTimeout(resize,250));
-
-  function genBars(){
-    const minGap=18*(window.devicePixelRatio||1), ys=[];
-    const usableTop=topMargin+12, usableBottom=H-bottomMargin-12;
-    while(ys.length<BAR_COUNT){
-      const y=Math.round(usableTop+Math.random()*(usableBottom-usableTop));
-      if(ys.every(v=>Math.abs(v-y)>minGap)) ys.push(y);
-    }
-    ys.sort((a,b)=>a-b);
-    bars=[];
-    for(const y of ys){
-      const from=Math.floor(Math.random()*(COLS-1));
-      const tooClose=bars.some(b=>Math.abs(b.y-y)<minGap && Math.abs(b.from-from)<1);
-      if(!tooClose) bars.push({y, from});
-    }
-  }
-  function genGoals(){
-    goals = new Array(COLS).fill('lose');
-    let winIndex=Math.floor(Math.random()*COLS);
-    if(!(winIndex>=0 && winIndex<COLS)) winIndex=0;
-    goals[winIndex]='win'; // 見た目当たりは毎回1本
-  }
-
-  function buildChoiceButtons(){
-    const row=document.getElementById('choiceRow'); row.innerHTML='';
-    for(let i=0;i<COLS;i++){
-      const b=document.createElement('button');
-      b.className='choiceBtn pressable'; b.id='choice'+i;
-      b.textContent='診察'+(i+1);
-      b.addEventListener('touchstart', ()=>{ choose(i); }, {passive:true});
-      b.addEventListener('click', ()=>{ choose(i); });
-      if(running) b.disabled=true;
-      row.appendChild(b);
-    }
-  }
-  function setupPressable(){
-    const addRipple=(btn,x,y)=>{
-      const r=document.createElement('span'); r.className='ripple';
-      const rect=btn.getBoundingClientRect(); const d=Math.max(rect.width,rect.height);
-      r.style.width=r.style.height=d+'px';
-      r.style.left=(x-rect.left-d/2)+'px'; r.style.top=(y-rect.top-d/2)+'px';
-      btn.appendChild(r); r.addEventListener('animationend', ()=>r.remove());
-    };
-    const press=(e)=>{ const btn=e.currentTarget; btn.classList.add('pressed'); const t=e.touches && e.touches[0]; const px=t? t.clientX : (e.clientX || (btn.getBoundingClientRect().left + btn.offsetWidth/2)); const py=t? t.clientY : (e.clientY || (btn.getBoundingClientRect().top + btn.offsetHeight/2)); addRipple(btn,px,py); };
-    const release=(e)=>{ e.currentTarget.classList.remove('pressed'); };
-    document.querySelectorAll('.pressable').forEach(btn=>{
-      btn.addEventListener('touchstart', press, {passive:true});
-      btn.addEventListener('touchend', release, {passive:true});
-      btn.addEventListener('click', release);
-    });
-  }
 
   function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
   function drawBackdrop(){ ctx.save(); const r=(window.devicePixelRatio||1);
@@ -300,6 +240,34 @@
     if(revealY>H-bottomMargin-26){ for(let i=0;i<COLS;i++){ const cx=colX[i]; const ty=H-bottomMargin+8; if(goals[i]==='win') drawNurse(cx,ty,0.85); else drawBandAidCross(cx,ty,0.9); } }
   }
 
+  /* -------------------------
+     盤面生成
+  ------------------------- */
+  function genBars(){
+    const minGap=18*(window.devicePixelRatio||1), ys=[];
+    const usableTop=topMargin+12, usableBottom=H-bottomMargin-12;
+    while(ys.length<BAR_COUNT){
+      const y=Math.round(usableTop+Math.random()*(usableBottom-usableTop));
+      if(ys.every(v=>Math.abs(v-y)>minGap)) ys.push(y);
+    }
+    ys.sort((a,b)=>a-b);
+    bars=[];
+    for(const y of ys){
+      const from=Math.floor(Math.random()*(COLS-1));
+      const tooClose=bars.some(b=>Math.abs(b.y-y)<minGap && Math.abs(b.from-from)<1);
+      if(!tooClose) bars.push({y, from});
+    }
+  }
+  function genGoals(){
+    goals = new Array(COLS).fill('lose');
+    let winIndex=Math.floor(Math.random()*COLS);
+    if(!(winIndex>=0 && winIndex<COLS)) winIndex=0;
+    goals[winIndex]='win'; // 見た目の当たりは常に1本
+  }
+
+  /* -------------------------
+     進行
+  ------------------------- */
   function advancePlayer(){
     if(!player) return;
     const EPS=0.5*(window.devicePixelRatio||1);
@@ -323,14 +291,16 @@
   function stopAnim(){ if(animId) cancelAnimationFrame(animId); animId=null; }
   function animate(){ stopAnim(); const step=()=>{ if(!running){ draw(); return; } advancePlayer(); draw(); animId=requestAnimationFrame(step); }; animId=requestAnimationFrame(step); }
 
-  // 前面演出
+  /* -------------------------
+     演出（真当たり/偽当たり/通常）
+  ------------------------- */
   function confettiHeartsFrontLayer(count=18){ const fx=document.getElementById('fxLayer'); const colors=['#ff7eb6','#79d1e3','#ffd166','#95d47a']; const width=fx.clientWidth; for(let i=0;i<count;i++){ const h=document.createElement('div'); h.className='heart'; h.style.left=(Math.random()*width)+'px'; h.style.animationDuration=(1100+Math.random()*700)+'ms'; h.style.background=colors[i%colors.length]; fx.appendChild(h); h.addEventListener('animationend', ()=>h.remove()); } }
   function showGlowAtColumn(col){ const fx=document.getElementById('fxLayer'); const cv=canvas.getBoundingClientRect(); const fxr=fx.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; const x=colX[col]/dpr + (cv.left - fxr.left); const y=(H-bottomMargin+8)/dpr + (cv.top - fxr.top); const el=document.createElement('div'); el.className='glowBurst'; el.style.left=x+'px'; el.style.top=y+'px'; fx.appendChild(el); setTimeout(()=>el.remove(),900); }
   function smokePuffAtColumn(col,count=14){ const fx=document.getElementById('fxLayer'); const cv=canvas.getBoundingClientRect(); const fxr=fx.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; const baseX=colX[col]/dpr + (cv.left - fxr.left); const baseY=(H-bottomMargin+8)/dpr + (cv.top - fxr.top); for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='smoke'; s.style.left=(baseX + (Math.random()*24-12))+'px'; s.style.top=(baseY + (Math.random()*8-4))+'px'; s.style.animationDuration=(600+Math.random()*300)+'ms'; fx.appendChild(s); s.addEventListener('animationend', ()=>s.remove()); } }
   function animateNurseToPatient(col,duration=650){ const start=performance.now(); const x=colX[col], y=H-bottomMargin+8; function step(now){ const t=Math.min(1,(now-start)/duration); draw(); ctx.save(); const s=0.85*(1+0.03*Math.sin(t*10)); ctx.globalAlpha=1-t; drawNurse(x,y,s); ctx.globalAlpha=t; drawPatient(x,y); ctx.globalAlpha=1; ctx.restore(); if(t<1) requestAnimationFrame(step); } requestAnimationFrame(step); }
 
   function endResult(isVisibleWin){
-    stopBGM(); // まずBGM停止
+    stopBGM();
     let isTrueWin = isVisibleWin && (Math.random() < (1/3)); // B案
     const overlay=document.getElementById('resultOverlay');
     function show(kind){
@@ -342,35 +312,64 @@
       overlay.classList.add('show');
       const sb=document.getElementById('startBtn'); if(sb) sb.disabled=false;
     }
-    if(isTrueWin){
-      seFanfare(); showGlowAtColumn(player.col); confettiHeartsFrontLayer(20);
-      setTimeout(()=>show('win'), 350);
-    } else if(isVisibleWin){
-      sePop(); animateNurseToPatient(player.col, 650); smokePuffAtColumn(player.col, 14);
-      setTimeout(()=>show('fake'), 700);
-    } else {
-      seChime(false); show('lose');
+    if(isTrueWin){ seFanfare(); showGlowAtColumn(player.col); confettiHeartsFrontLayer(20); setTimeout(()=>show('win'), 350); }
+    else if(isVisibleWin){ sePop(); animateNurseToPatient(player.col, 650); smokePuffAtColumn(player.col, 14); setTimeout(()=>show('fake'), 700); }
+    else { seChime(false); show('lose'); }
+  }
+
+  /* -------------------------
+     UI・入力
+  ------------------------- */
+  function buildChoiceButtons(){
+    const row=document.getElementById('choiceRow'); row.innerHTML='';
+    for(let i=0;i<COLS;i++){
+      const b=document.createElement('button');
+      b.className='choiceBtn pressable'; b.id='choice'+i;
+      b.textContent='診察'+(i+1);
+      b.addEventListener('touchstart', ()=>{ choose(i); }, {passive:true});
+      b.addEventListener('click', ()=>{ choose(i); });
+      if(running) b.disabled=true;
+      row.appendChild(b);
     }
   }
-
-  function resetGame(){
-    chosenIndex=null; running=false; revealY=topMargin;
-    genBars(); genGoals(); buildChoiceButtons(); setupPressable();
-    stopAnim(); player=null;
-    const ov=document.getElementById('resultOverlay'); ov.innerHTML=''; ov.classList.remove('show');
-    draw();
+  function setupPressable(){
+    const addRipple=(btn,x,y)=>{
+      const r=document.createElement('span'); r.className='ripple';
+      const rect=btn.getBoundingClientRect(); const d=Math.max(rect.width,rect.height);
+      r.style.width=r.style.height=d+'px';
+      r.style.left=(x-rect.left-d/2)+'px'; r.style.top=(y-rect.top-d/2)+'px';
+      btn.appendChild(r); r.addEventListener('animationend', ()=>r.remove());
+    };
+    const press=(e)=>{ const btn=e.currentTarget; btn.classList.add('pressed'); const t=e.touches && e.touches[0]; const px=t? t.clientX : (e.clientX || (btn.getBoundingClientRect().left + btn.offsetWidth/2)); const py=t? t.clientY : (e.clientY || (btn.getBoundingClientRect().top + btn.offsetHeight/2)); addRipple(btn,px,py); };
+    const release=(e)=>{ e.currentTarget.classList.remove('pressed'); };
+    document.querySelectorAll('.pressable').forEach(btn=>{
+      btn.addEventListener('touchstart', press, {passive:true});
+      btn.addEventListener('touchend', release, {passive:true});
+      btn.addEventListener('click', release);
+    });
   }
 
-  // ボタン類
+  // 遅延初期化関連
+  function mountLight(){ buildChoiceButtons(); setupPressable(); }
+  function mountHeavy(){
+    resize(); genBars(); genGoals(); draw();
+  }
+  function ensureInitialized(){
+    if(!gameInitialized){ mountHeavy(); gameInitialized = true; }
+  }
+
+  // 操作系
   const sb=document.getElementById('startBtn');
   const mb=document.getElementById('muteBtn');
-  sb.addEventListener('touchstart', ()=>{ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } }, {passive:true});
-  sb.addEventListener('click', ()=>{ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
-  mb.addEventListener('touchstart', ()=>{ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } } }, {passive:true});
-  mb.addEventListener('click', ()=>{ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } } });
 
-  // 診察ルート選択でBGM確実スタート & SE
+  sb.addEventListener('touchstart', ()=>{ ensureInitialized(); resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } }, {passive:true});
+  sb.addEventListener('click',      ()=>{ ensureInitialized(); resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
+
+  mb.addEventListener('touchstart', ()=>{ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } } }, {passive:true});
+  mb.addEventListener('click',      ()=>{ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); if(audio.muted){ stopBGM(); } else { if(running || chosenIndex===null){ playBGM(); } } });
+
   function choose(idx){
+    ensureInitialized();
     if(running) return;
     setupAudio(); resumeAudio();
     if(!audio.muted){ playBGM(); }
@@ -378,21 +377,32 @@
     chosenIndex=idx;
     player={ x:colX[idx], y:topMargin, col:idx, phase:'down', targetX:colX[idx] };
     revealY=topMargin+REVEAL_BUFFER;
-    const sb=document.getElementById('startBtn'); if(sb) sb.disabled=true;
+    const sb=document.getElementById('startBtn'); if(sb) sb.disabled=true; // 結果が出るまで無効
     running=true; animate();
     document.querySelectorAll('.choiceBtn').forEach(b=>b.disabled=true);
   }
 
-  // 初期描画
-  function mount(){
-    try{ resize(); genBars(); genGoals(); buildChoiceButtons(); setupPressable(); draw(); }
-    catch(e){
-      const ov=document.getElementById('resultOverlay');
-      ov.innerHTML='<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>'; ov.classList.add('show');
+  function resetGame(){
+    chosenIndex=null; running=false; revealY=topMargin;
+    genBars(); genGoals(); buildChoiceButtons(); setupPressable();
+    stopAnim(); player=null;
+    const ov=document.getElementById('resultOverlay'); ov.innerHTML=''; ov.classList.remove('show');
+    // 背景パターンを1フレーム遅らせて体感を軽く（任意）
+    setTimeout(draw, 0);
+  }
+
+  // 起動：軽量 or 従来
+  function boot(){
+    if(PERF_LAZY_INIT){
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mountLight, {once:true}); }
+      else { mountLight(); }
+    }else{
+      const heavy = ()=>{ resize(); genBars(); genGoals(); draw(); buildChoiceButtons(); setupPressable(); };
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', heavy, {once:true}); }
+      else { heavy(); }
     }
   }
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount, {once:true}); }
-  else { mount(); }
+  boot();
 })();
 </script>
 </body>
