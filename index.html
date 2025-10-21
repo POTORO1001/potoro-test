@@ -2,409 +2,48 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-<title>あみだくじでナースメイドにたどり着け♡</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>可視性プローブ</title>
 <style>
-  :root{ --bg:#fff7fb; --deep:#333; }
-  html,body{height:100%;}
-  body{
-    margin:0; padding:0; background:var(--bg);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    color:var(--deep); display:flex; align-items:center; justify-content:center;
-    -webkit-user-select:none; user-select:none; touch-action:manipulation;
-  }
-
-  /* ここが重要：CSSだけで確実に高さを作る */
-  .frame{
-    width:min(94vw,430px);
-    aspect-ratio: 9 / 16;           /* Safari 14+ は対応 */
-    background:linear-gradient(180deg,#fff 0%,#fff0fa 100%);
-    border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08);
-    position:relative; overflow:hidden;
-  }
-  /* 古いWebKitなど aspect-ratio 非対応フォールバック */
-  @supports not (aspect-ratio: 1 / 1) {
-    .frame { height: 88vh; }
-  }
-
-  /* JS 生存ランプ（JSが動いていないと「NG」のまま） */
-  .lamp{ position:absolute; right:8px; top:8px; z-index:1000; font:12px/1.2 system-ui;
-         background:#fff; border:1px solid #ddd; border-radius:10px; padding:4px 8px; }
-  .ok{ color:#0a7; font-weight:700; } .ng{ color:#b00; font-weight:700; }
-
-  .brand{ position:absolute; left:8px; top:8px; font-size:12px; color:#777; z-index:1000; }
-  header{ text-align:center; padding:28px 8px 6px; position:relative; z-index:900; }
-  .tag{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db; }
-  h1{ margin:6px 10px 0; font-size:clamp(16px,4.5vw,20px); line-height:1.3; font-weight:800; }
-  .sub{font-size:12px; color:#666;}
-
-  .topChoices{ position:absolute; left:0; right:0; top:88px; display:flex; justify-content:center; gap:8px; z-index:900; }
-  .choiceBtn{ min-width:44px; padding:6px 10px; font-weight:700; font-size:14px; border-radius:999px; background:linear-gradient(180deg,#ffb9db,#ff89c3); color:#fff; border:none; box-shadow:0 3px 0 #d45095; position:relative; -webkit-tap-highlight-color: transparent; }
-  .choiceBtn[disabled]{ opacity:.6; filter:grayscale(.2); }
-  .pressable{ position:relative; overflow:hidden; transition: transform .06s ease, box-shadow .06s ease; -webkit-tap-highlight-color: transparent; }
-  .pressable.pressed{ transform: translateY(2px) scale(0.98); box-shadow:0 1px 0 rgba(0,0,0,.12) !important; filter: saturate(1.05); }
-  .pressable .ripple{ position:absolute; pointer-events:none; border-radius:999px; transform:scale(0); opacity:0.35; background:#ffffff; mix-blend-mode:overlay; animation:ripple .45s ease-out; }
-  @keyframes ripple{ to{ transform:scale(6); opacity:0; } }
-
-  .canvasWrap{ position:absolute; top:120px; left:10px; right:10px; bottom:90px;
-    border-radius:16px; background:#fff; border:2px dashed #ffd2ea; overflow:hidden; z-index:100; }
-  canvas{ display:block; width:100%; height:100%; }
-
-  .overlay{ position:absolute; top:120px; left:10px; right:10px; bottom:90px; display:flex; align-items:center; justify-content:center; pointer-events:none !important; opacity:0; transition:opacity .35s ease; z-index:400; }
-  .overlay.show{ opacity:1; }
-  .resultCard{ background:#fff; border:3px solid #ffd2ea; border-radius:18px; padding:18px 16px; text-align:center; width:min(88%,340px); box-shadow:0 20px 40px rgba(255,71,165,.18); }
-  .resultCard h2{ margin:0 0 8px; font-size:22px; }
-  .resultCard p{ margin:0; font-size:14px; color:#555; }
-  .badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; margin-bottom:8px; }
-  .badge.win{ background:#ffe3f3; color:#c1006c; border:1px solid #ffb6de; }
-  .badge.lose{ background:#eef6ff; color:#1b4aa0; border:1px solid #c6e0ff; }
-
-  .fxLayer{ position:absolute; top:120px; left:10px; right:10px; bottom:90px; pointer-events:none !important; z-index:300; overflow:visible; }
-  .heart{ position:absolute; left:50%; top:0; width:12px; height:12px; transform:translate(-50%,-50%) rotate(45deg); background:#ff7eb6; border-radius:2px; opacity:0; animation:fallHeart 1.4s ease-in forwards; }
-  .heart::before,.heart::after{ content:""; position:absolute; width:12px; height:12px; border-radius:50%; background:inherit; }
-  .heart::before{ left:0; top:-6px; } .heart::after{ left:-6px; top:0; }
-  @keyframes fallHeart{ 0%{opacity:0; transform:translate(-50%,-10%) rotate(45deg) scale(.6);} 10%{opacity:1;} 100%{opacity:0; transform:translate(-50%,110%) rotate(45deg) scale(1);} }
-  .glowBurst{ position:absolute; width:60px; height:60px; border-radius:50%; box-shadow:0 0 20px 8px rgba(255,136,200,.7), 0 0 40px 14px rgba(255,136,200,.35); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:glowPop .8s ease-out forwards; }
-  @keyframes glowPop{ to{ opacity:0; transform:translate(-50%,-50%) scale(1.6);} }
-  .smoke{ position:absolute; width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.9) 0%, rgba(233,233,233,.6) 50%, rgba(200,200,200,.0) 70%); filter:blur(1px); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:puff .7s ease-out forwards; }
-  @keyframes puff{ 0%{ opacity:0; transform:translate(-50%,-30%) scale(.4); } 15%{ opacity:.9; } 100%{ opacity:0; transform:translate(-50%,-110%) scale(1.6); } }
-
-  footer.controls{ position:absolute; left:0; right:0; bottom:6px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; padding:6px 10px; z-index:900; }
-  .btn{ padding:10px 14px; border-radius:12px; border:none; font-weight:800; font-size:14px; box-shadow:0 4px 0 rgba(0,0,0,.08); }
-  .primary{ background:linear-gradient(180deg,#a1e7f3,#6ad0e7); color:#0b4c5a; box-shadow:0 4px 0 #3a9fb1; }
-  .ghost{ background:#fff; color:#555; border:1px solid #ddd; }
+  /* できるだけ単純なCSS。これで何も表示されない場合は、描画自体が止まっています。*/
+  html,body{height:100%;margin:0;padding:0;background:#fff7fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;}
+  .wrap{width:min(94vw,430px);margin:0 auto;/* 中央寄せ */}
+  /* Safariでも確実に高さができるよう、aspect-ratioとフォールバック */
+  .frame{background:#fff;border:4px solid #ffd2ea;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.08);overflow:hidden;min-height:70vh;aspect-ratio:9/16;}
+  @supports not (aspect-ratio: 1/1){ .frame{ height:88vh; } }
+  .pad{padding:16px;}
+  h1{font-size:20px;margin:12px 0;}
+  .card{background:#fff;border:2px dashed #ffd2ea;border-radius:12px;padding:16px;margin:12px 0;}
+  .btn{display:inline-block;padding:12px 16px;border-radius:12px;border:0;background:linear-gradient(180deg,#a1e7f3,#6ad0e7);color:#0b4c5a;font-weight:800;}
 </style>
 </head>
 <body>
-  <div class="frame" id="frame" role="application" aria-label="ナースにたどり着け！あみだくじゲーム">
-    <div class="brand">concept cafe <b>PO・TORO</b></div>
-    <div class="lamp">JS: <span class="ng" id="lampState">NG</span></div>
+  <div class="wrap">
+    <div class="frame" role="application" aria-label="可視性テスト">
+      <div class="pad">
+        <div style="font-size:12px;color:#777">診断A</div>
+        <h1>① 画面が見えていますか？（テキストだけ）</h1>
+        <div class="card">
+          <p>このカードが見えれば、HTML/CSSの描画は生きています。</p>
+          <p><b>見える/見えない</b>を教えてください。</p>
+        </div>
 
-    <header>
-      <span class="tag">🩺 ポ・トロクリニック</span>
-      <h1>ナースメイドにたどり着け！ポトロクリニックであみだくじ♡</h1>
-      <div class="sub">患者ご主人様は、運命のナースさんに出会えるか…？</div>
-    </header>
+        <div style="font-size:12px;color:#777">診断B</div>
+        <h1>② ボタンが見えますか？（JSなし）</h1>
+        <button class="btn" type="button">（反応しなくてOK）診察開始♡</button>
 
-    <div class="topChoices" id="choiceRow"></div>
-    <div class="canvasWrap"><canvas id="amida"></canvas></div>
-    <div class="overlay" id="resultOverlay" aria-live="polite"></div>
-    <div class="fxLayer" id="fxLayer"></div>
-
-    <footer class="controls">
-      <button class="btn primary pressable" id="startBtn">診察開始♡</button>
-      <button class="btn ghost pressable" id="muteBtn" aria-pressed="false">🔊 サウンド</button>
-    </footer>
+        <div style="font-size:12px;color:#777;margin-top:16px">診断C</div>
+        <h1>③ JSの簡易実行</h1>
+        <div id="lamp" class="card">JS: <span id="lampState" style="color:#b00;font-weight:700">NG</span></div>
+      </div>
+    </div>
   </div>
 
-<script>
-/* —— この短いセットで「JSが生きているか」をまず表示 —— */
-(function(){
-  var lamp = document.getElementById('lampState');
-  if(lamp){ lamp.textContent='OK'; lamp.className='ok'; }
-})();
-</script>
-
-<script>
-/* ====== ゲーム本体（Safariでも落ちない保守的実装） ====== */
-(function(){
-  'use strict';
-
-  // 例外で全落ちしないように
-  window.addEventListener('error', function(ev){
-    try{
-      var ov=document.getElementById('resultOverlay');
-      if(!ov) return;
-      var msg = (ev && (ev.message || (ev.error && ev.error.message))) || 'unknown';
-      ov.innerHTML = '<div class="resultCard"><span class="badge lose">デバッグ</span><h2>スクリプトエラー</h2><p style="word-break:break-all">'+msg+'</p></div>';
-      ov.classList.add('show');
-    }catch(e){}
-  });
-
-  // ====== 基本定数・状態 ======
-  var COLS=5, BAR_COUNT=18, SPEED_Y=2.2, SPEED_X=3.0, REVEAL_BUFFER=28;
-  var canvas=document.getElementById('amida');
-  var ctx=canvas.getContext('2d');
-  var W=360, H=560;
-  var topMargin=24, bottomMargin=36, leftMargin=28, rightMargin=28;
-  var colX=[], bars=[], goals=[], chosenIndex=null, running=false, revealY=0, player=null, animId=null;
-
-  // ====== Audio（失敗しても無視） ======
-  var AudioCtx = window.AudioContext || window.webkitAudioContext;
-  var audio = { ctx:null, master:null, muted:false, bgm:null, bgmGain:null };
-  function setupAudio(){ if(audio.ctx) return; try{ audio.ctx=new AudioCtx(); audio.master=audio.ctx.createGain(); audio.master.gain.value=0.8; audio.master.connect(audio.ctx.destination);}catch(e){} }
-  function resumeAudio(){ try{ if(audio.ctx && audio.ctx.state==='suspended' && audio.ctx.resume){ audio.ctx.resume(); } }catch(e){} }
-
-  // ====== レイアウト ======
-  function computeCols(){ colX=[]; var innerW=W-leftMargin-rightMargin; for(var i=0;i<COLS;i++){ colX.push(leftMargin + innerW*(i/(COLS-1))); } }
-  function resize(){
-    var wrap=document.querySelector('.canvasWrap');
-    var rect=wrap.getBoundingClientRect();
-    var ratio=window.devicePixelRatio||1;
-    W=Math.floor(rect.width*ratio); H=Math.floor(rect.height*ratio);
-    canvas.width=W; canvas.height=H;
-    canvas.style.width=rect.width+'px'; canvas.style.height=rect.height+'px';
-    topMargin=Math.round(24*ratio); bottomMargin=Math.round(36*ratio);
-    leftMargin=Math.round(28*ratio); rightMargin=Math.round(28*ratio);
-    computeCols(); draw();
-  }
-  window.addEventListener('resize', resize);
-  window.addEventListener('orientationchange', function(){ setTimeout(resize,250); });
-
-  // ====== ゲーム生成 ======
-  function genBars(){
-    var minGap=18*(window.devicePixelRatio||1), ys=[];
-    var usableTop=topMargin+12, usableBottom=H-bottomMargin-12;
-    while(ys.length<BAR_COUNT){
-      var y=Math.round(usableTop+Math.random()*(usableBottom-usableTop));
-      var ok=true; for(var i=0;i<ys.length;i++){ if(Math.abs(ys[i]-y)<=minGap){ ok=false; break; } }
-      if(ok) ys.push(y);
-    }
-    ys.sort(function(a,b){return a-b;});
-    bars=[];
-    for(var k=0;k<ys.length;k++){
-      var yy=ys[k];
-      var from=Math.floor(Math.random()*(COLS-1));
-      var tooClose=false;
-      for(var j=0;j<bars.length;j++){
-        if(Math.abs(bars[j].y-yy)<minGap && Math.abs(bars[j].from-from)<1){ tooClose=true; break; }
-      }
-      if(!tooClose) bars.push({y:yy, from:from});
-    }
-  }
-  function genGoals(){
-    goals = new Array(COLS);
-    for(var i=0;i<COLS;i++) goals[i]='lose';
-    var winIndex = Math.floor(Math.random()*COLS);
-    if(!(winIndex>=0 && winIndex<COLS)) winIndex=0;
-    goals[winIndex]='win';
-  }
-
-  // ====== 入力 ======
-  function buildChoiceButtons(){
-    var row=document.getElementById('choiceRow'); row.innerHTML='';
-    for(var i=0;i<COLS;i++){
-      var b=document.createElement('button');
-      b.className='choiceBtn pressable'; b.id='choice'+i;
-      b.textContent='診察'+(i+1);
-      (function(idx){
-        b.addEventListener('touchstart', function(){ choose(idx); }, {passive:true});
-        b.addEventListener('click', function(){ choose(idx); });
-      })(i);
-      row.appendChild(b);
-    }
-  }
-  function setupPressable(){
-    function addRipple(btn,x,y){
-      var r=document.createElement('span'); r.className='ripple';
-      var rect=btn.getBoundingClientRect(); var d=Math.max(rect.width,rect.height);
-      r.style.width=r.style.height=d+'px';
-      r.style.left=(x-rect.left-d/2)+'px'; r.style.top=(y-rect.top-d/2)+'px';
-      btn.appendChild(r); r.addEventListener('animationend', function(){ r.remove(); });
-    }
-    function press(e){
-      var btn=e.currentTarget; btn.classList.add('pressed');
-      var t=e.touches && e.touches[0]; var px=t? t.clientX : (e.clientX || (btn.getBoundingClientRect().left + btn.offsetWidth/2));
-      var py=t? t.clientY : (e.clientY || (btn.getBoundingClientRect().top + btn.offsetHeight/2));
-      addRipple(btn,px,py);
-    }
-    function release(e){ e.currentTarget.classList.remove('pressed'); }
-    var list=document.querySelectorAll('.pressable');
-    for(var i=0;i<list.length;i++){
-      var el=list[i];
-      el.addEventListener('touchstart', press, {passive:true});
-      el.addEventListener('touchend', release, {passive:true});
-      el.addEventListener('click', release);
-    }
-  }
-
-  // ====== 進行 ======
-  function choose(idx){
-    if(running) return;
-    setupAudio(); resumeAudio();
-    chosenIndex=idx;
-    player={ x:colX[idx], y:topMargin, col:idx, phase:'down', targetX:colX[idx] };
-    revealY=topMargin+REVEAL_BUFFER;
-    var sb=document.getElementById('startBtn'); if(sb) sb.disabled=true;
-    running=true; animate();
-    var btns=document.querySelectorAll('.choiceBtn'); for(var i=0;i<btns.length;i++){ btns[i].disabled=true; }
-  }
-
-  function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
-  function drawBackdrop(){
-    ctx.save(); var r=(window.devicePixelRatio||1);
-    for(var y=topMargin; y<H-bottomMargin; y+=40*r){
-      for(var x=leftMargin; x<W-rightMargin; x+=40*r){
-        ctx.globalAlpha=0.05; ctx.fillStyle='#ff7eb6'; drawHeart(x,y,6*r);
-        ctx.fillStyle='#79d1e3'; drawPlus(x+14*r,y+12*r,6*r);
-      }
-    } ctx.restore();
-  }
-  function drawHeart(cx,cy,s){
-    ctx.beginPath();
-    for(var a=0;a<=Math.PI*2;a+=0.1){
-      var x=s*16*Math.pow(Math.sin(a),3)/16;
-      var y=-s*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16;
-      if(a===0) ctx.moveTo(cx+x,cy+y); else ctx.lineTo(cx+x,cy+y);
-    }
-    ctx.closePath(); ctx.fill();
-  }
-  function drawPlus(cx,cy,s){
-    ctx.save(); ctx.translate(cx,cy); ctx.beginPath();
-    ctx.rect(-s/2,-s*1.6,s,s*3.2); ctx.rect(-s*1.6,-s/2,s*3.2,s);
-    ctx.fill(); ctx.restore();
-  }
-  function drawPatient(x,y){
-    ctx.save(); ctx.translate(x,y); var r=10*(window.devicePixelRatio||1);
-    ctx.fillStyle='#ffe9c9'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#f0f0f0'; ctx.strokeStyle='#cfcfcf'; ctx.lineWidth=1*(window.devicePixelRatio||1);
-    ctx.beginPath(); ctx.moveTo(-r,-4); ctx.lineTo(r,-1); ctx.lineTo(r,3); ctx.lineTo(-r,0); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(-4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4,0,1.2*(window.devicePixelRatio||1),0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#c0e9f5'; ctx.beginPath(); ctx.moveTo(-6,r); ctx.lineTo(6,r); ctx.lineTo(0,r+10); ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
-  function drawNurse(x,y,scale){ if(scale==null) scale=1; var r=9*(window.devicePixelRatio||1)*scale;
-    ctx.save(); ctx.translate(x,y);
-    ctx.fillStyle='#ffe9f1'; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.ellipse(0,-r*0.9,r*0.9,r*0.55,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ff78b4'; drawPlus(0,-r*0.9,6*(window.devicePixelRatio||1)*scale);
-    ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(-3,-1,1.1*(window.devicePixelRatio||1)*scale,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(3,-1,1.1*(window.devicePixelRatio||1)*scale,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#ff4fae'; ctx.lineWidth=1.3*(window.devicePixelRatio||1)*scale; ctx.beginPath(); ctx.arc(0,3,3*scale,0,Math.PI); ctx.stroke(); ctx.restore();
-  }
-  function drawBandAidCross(x,y,scale){
-    if(scale==null) scale=1; var dpr=(window.devicePixelRatio||1), s=dpr*scale; ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/4);
-    var w=36*s,h=10*s,r=5*s;
-    ctx.save(); ctx.rotate(-Math.PI/4); ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.beginPath(); ctx.ellipse(0,(w/2+h/2)*0.4,(w*0.55),3*s,0,0,Math.PI*2); ctx.fill(); ctx.restore();
-    var base='#ffe0b3', edge='#e6be86', hole='#f3c992';
-    function roundRectCenter(cx,cy,w2,h2,r2){ var x=cx-w2/2, y=cy-h2/2; ctx.beginPath(); ctx.moveTo(x+r2,y); ctx.lineTo(x+w2-r2,y); ctx.quadraticCurveTo(x+w2,y,x+w2,y+r2); ctx.lineTo(x+w2,y+h2-r2); ctx.quadraticCurveTo(x+w2,y+h2,x+w2-r2,y+h2); ctx.lineTo(x+r2,y+h2); ctx.quadraticCurveTo(x,y+h2,x,y+h2-r2); ctx.lineTo(x,y+r2); ctx.quadraticCurveTo(x,y,x+r2,y); ctx.closePath(); }
-    function drawPill(cx,cy,w2,h2,r2, fill, stroke){ ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1.5*s; roundRectCenter(cx,cy,w2,h2,r2); ctx.fill(); ctx.stroke(); var pw=w2*0.36, ph=h2*0.7, pr=3*s; ctx.fillStyle='#fff4e2'; ctx.strokeStyle='#f2d7ad'; ctx.lineWidth=1*s; roundRectCenter(cx,cy,pw,ph,pr); ctx.fill(); ctx.stroke(); }
-    function drawHoles(cx,cy,w2,h2,color){ ctx.fillStyle=color; var gx=w2*0.22, gy=h2*0.26, rDot=0.9*s; for(var j=-1;j<=1;j+=2){ for(var i=-1.5;i<=1.5;i+=1){ var px=cx+i*gx, py=cy+j*gy; ctx.beginPath(); ctx.arc(px,py,rDot,0,Math.PI*2); ctx.fill(); } } }
-    drawPill(0,0,w,h,r,base,edge); drawHoles(0,0,w,h,hole); ctx.save(); ctx.rotate(Math.PI/2); drawPill(0,0,w,h,r,base,edge); drawHoles(0,0,w,h,hole); ctx.restore(); ctx.restore();
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    drawBackdrop();
-    ctx.lineWidth=3*(window.devicePixelRatio||1);
-    ctx.strokeStyle='#ffb6de';
-    for(var i=0;i<COLS;i++){ line(colX[i],topMargin,colX[i],H-bottomMargin); }
-    ctx.strokeStyle='#79d1e3';
-    for(var k=0;k<bars.length;k++){ var b=bars[k]; if(b.y<=revealY){ line(colX[b.from],b.y,colX[b.from+1],b.y); } }
-    if(player){ drawPatient(player.x,player.y); }
-    ctx.fillStyle='#ffffff'; ctx.globalAlpha=1.0; ctx.fillRect(0,revealY,W,H-revealY);
-    var g=ctx.createLinearGradient(0,revealY-14,0,revealY+2); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(1,'rgba(255,255,255,1)'); ctx.fillStyle=g; ctx.fillRect(0,revealY-14,W,16);
-    if(revealY>H-bottomMargin-26){ for(i=0;i<COLS;i++){ var cx=colX[i]; var ty=H-bottomMargin+8; if(goals[i]==='win') drawNurse(cx,ty,0.85); else drawBandAidCross(cx,ty,0.9); } }
-  }
-
-  function advancePlayer(){
-    if(!player) return;
-    var EPS=0.5*(window.devicePixelRatio||1);
-    if(player.phase==='down'){
-      var candidates=[]; for(var i=0;i<bars.length;i++){ var bb=bars[i]; if(bb.y>player.y+EPS && (bb.from===player.col-1 || bb.from===player.col)) candidates.push(bb); }
-      candidates.sort(function(a,b){return a.y-b.y;});
-      var nextBar=candidates[0];
-      var nextY= nextBar? nextBar.y : (H-bottomMargin);
-      var dy=Math.max(0, Math.min(SPEED_Y, nextY-player.y));
-      player.y+=dy; revealY=Math.min(player.y+REVEAL_BUFFER, H-bottomMargin+12);
-      if(nextBar && Math.abs(player.y-nextY)<=EPS){
-        if(nextBar.from===player.col){ player.phase='right'; player.targetX=colX[player.col+1]; }
-        else { player.phase='left'; player.targetX=colX[player.col-1]; }
-      }
-      if(player.y>=H-bottomMargin-EPS){ running=false; endResult(goals[player.col]==='win'); }
-    } else {
-      var dir=(player.phase==='right')?1:-1;
-      var vx=dir*SPEED_X, nx=player.x+vx;
-      if((dir>0 && nx>=player.targetX) || (dir<0 && nx<=player.targetX)){ player.x=player.targetX; player.col+=dir; player.phase='down'; player.y+=EPS; }
-      else { player.x=nx; }
-    }
-  }
-  function stopAnim(){ if(animId) cancelAnimationFrame(animId); animId=null; }
-  function animate(){ stopAnim(); var step=function(){ if(!running){ draw(); return; } advancePlayer(); draw(); animId=requestAnimationFrame(step); }; animId=requestAnimationFrame(step); }
-
-  function endResult(isVisibleWin){
-    var overlay=document.getElementById('resultOverlay');
-    var isTrueWin = isVisibleWin && (Math.random() < (1/3));
-    function show(kind){
-      var badge,title,note;
-      if(kind==='win'){ badge='<span class="badge win">大当たり💖</span>'; title='ナースさんに診てもらえた♡'; note='本日のご主人様は超ラッキー！受付で画面を見せてね♪'; }
-      else if(kind==='fake'){ badge='<span class="badge lose">偽ナースだった…💊</span>'; title='残念…'; note='再診予約をおすすめします。'; }
-      else { badge='<span class="badge lose">診察中…💊</span>'; title='残念…診察延期です…'; note='再診予約をおすすめします。'; }
-      overlay.innerHTML='<div class="resultCard">'+badge+'<h2>'+title+'</h2><p>'+note+'</p></div>';
-      overlay.classList.add('show');
-      var sb=document.getElementById('startBtn'); if(sb) sb.disabled=false;
-    }
-    if(isTrueWin){ showGlowAtColumn(player.col); confettiHeartsFrontLayer(20); setTimeout(function(){ show('win'); }, 350); }
-    else if(isVisibleWin){ animateNurseToPatient(player.col,650); smokePuffAtColumn(player.col,14); setTimeout(function(){ show('fake'); }, 700); }
-    else { show('lose'); }
-  }
-
-  function confettiHeartsFrontLayer(count){
-    if(count==null) count=18;
-    var fx=document.getElementById('fxLayer');
-    var colors=['#ff7eb6','#79d1e3','#ffd166','#95d47a'];
-    var width=fx.clientWidth;
-    for(var i=0;i<count;i++){
-      var h=document.createElement('div'); h.className='heart';
-      h.style.left=(Math.random()*width)+'px';
-      h.style.animationDuration=(1100+Math.random()*700)+'ms';
-      h.style.background=colors[i%colors.length];
-      fx.appendChild(h);
-      h.addEventListener('animationend', function(){ h.remove(); });
-    }
-  }
-  function showGlowAtColumn(col){
-    var fx=document.getElementById('fxLayer');
-    var cv=canvas.getBoundingClientRect(); var fxr=fx.getBoundingClientRect();
-    var dpr=window.devicePixelRatio||1; var x=colX[col]/dpr + (cv.left - fxr.left); var y=(H-bottomMargin+8)/dpr + (cv.top - fxr.top);
-    var el=document.createElement('div'); el.className='glowBurst'; el.style.left=x+'px'; el.style.top=y+'px'; fx.appendChild(el);
-    setTimeout(function(){ el.remove(); }, 900);
-  }
-  function smokePuffAtColumn(col,count){
-    if(count==null) count=14;
-    var fx=document.getElementById('fxLayer');
-    var cv=canvas.getBoundingClientRect(); var fxr=fx.getBoundingClientRect();
-    var dpr=window.devicePixelRatio||1; var baseX=colX[col]/dpr + (cv.left - fxr.left); var baseY=(H-bottomMargin+8)/dpr + (cv.top - fxr.top);
-    for(var i=0;i<count;i++){
-      var s=document.createElement('div'); s.className='smoke';
-      s.style.left=(baseX + (Math.random()*24-12))+'px';
-      s.style.top=(baseY + (Math.random()*8-4))+'px';
-      s.style.animationDuration=(600+Math.random()*300)+'ms';
-      fx.appendChild(s); s.addEventListener('animationend', function(){ this.remove(); });
-    }
-  }
-
-  function resetGame(){
-    chosenIndex=null; running=false; revealY=topMargin;
-    genBars(); genGoals(); buildChoiceButtons(); setupPressable();
-    stopAnim(); player=null;
-    var ov=document.getElementById('resultOverlay'); ov.innerHTML=''; ov.classList.remove('show');
-    draw();
-  }
-
-  // ====== 起動：CSSで高さができていれば即描画できる ======
-  function mount(){
-    try{
-      resize(); genBars(); genGoals(); buildChoiceButtons(); setupPressable(); draw();
-      var sb=document.getElementById('startBtn');
-      var mb=document.getElementById('muteBtn');
-      sb.addEventListener('touchstart', function(){ resetGame(); setupAudio(); resumeAudio(); }, {passive:true});
-      sb.addEventListener('click', function(){ resetGame(); setupAudio(); resumeAudio(); });
-      mb.addEventListener('touchstart', function(){ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); }, {passive:true});
-      mb.addEventListener('click', function(){ audio.muted=!audio.muted; mb.setAttribute('aria-pressed', audio.muted?'true':'false'); });
-    }catch(e){
-      var ov=document.getElementById('resultOverlay');
-      ov.innerHTML='<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>';
-      ov.classList.add('show');
-    }
-  }
-  // DOMが組まれたら即実行
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', mount, {once:true}); }
-  else { mount(); }
-
-})();
-</script>
+  <!-- 最小のJS：ランプをOKにするだけ。これも動かない場合はJSが全ブロック状態 -->
+  <script>
+    (function(){
+      try{ var s=document.getElementById('lampState'); if(s){ s.textContent='OK'; s.style.color='#0a7'; } }catch(e){}
+    })();
+  </script>
 </body>
 </html>
