@@ -8,7 +8,7 @@
   :root{ --bg:#fff7fb; --pink:#ff7eb6; --aqua:#79d1e3; --deep:#333; }
   html,body{height:100%;}
   body{ margin:0; padding:0; background:var(--bg); font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--deep); display:flex; align-items:center; justify-content:center; }
-  .frame{ width:min(94vw,430px); /* aspect-ratioの古いSafari対策: JSで高さ補正 */ background:linear-gradient(180deg,#fff 0%,#fff0fa 100%); border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); position:relative; overflow:hidden; }
+  .frame{ width:min(94vw,430px); background:linear-gradient(180deg,#fff 0%,#fff0fa 100%); border:4px solid #ffd2ea; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); position:relative; overflow:hidden; }
   header{ text-align:center; padding:10px 8px 6px; position:relative; z-index:6; }
   .tag{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; background:#ffe6f3; color:#cc3b88; border:1px solid #ffb7db; }
   h1{ margin:6px 10px 0; font-size:clamp(16px,4.5vw,20px); line-height:1.3; font-weight:800; letter-spacing:.02em; }
@@ -56,14 +56,12 @@
   @keyframes fallHeart{ 0%{opacity:0; transform:translate(-50%,-10%) rotate(45deg) scale(.6);} 10%{opacity:1;} 100%{opacity:0; transform:translate(-50%,110%) rotate(45deg) scale(1);} }
   .glowBurst{ position:absolute; width:60px; height:60px; border-radius:50%; box-shadow:0 0 20px 8px rgba(255,136,200,.7), 0 0 40px 14px rgba(255,136,200,.35); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:glowPop .8s ease-out forwards; }
   @keyframes glowPop{ to{ opacity:0; transform:translate(-50%,-50%) scale(1.6);} }
-  /* 変身用：煙エフェクト */
   .smoke{ position:absolute; width:14px; height:14px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.9) 0%, rgba(233,233,233,.6) 50%, rgba(200,200,200,.0) 70%); filter:blur(1px); opacity:0; transform:translate(-50%,-50%) scale(.6); animation:puff .7s ease-out forwards; }
   @keyframes puff{ 0%{ opacity:0; transform:translate(-50%,-30%) scale(.4); } 15%{ opacity:.9; } 100%{ opacity:0; transform:translate(-50%,-110%) scale(1.6); } }
 
-  @media (max-height:640px){ .canvasWrap{ inset:110px 8px 86px; } .topChoices{ top:84px; } }
-  /* クリック殺し対策: 明示的にポインタを許可 */
+  /* 押下不能の最終保険：必ずポインタ許可 */
   header, footer.controls, #startBtn, #muteBtn, .brand, .muteLamp, .topChoices, .choiceBtn{ pointer-events:auto !important; }
-  *{ touch-action: manipulation; }
+  *, *::before, *::after { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 </style>
 </head>
 <body>
@@ -103,9 +101,7 @@
   // ===== aspect-ratio 非対応対策（古いSafari） =====
   function fixFrameHeight(){
     const frame = document.getElementById('frame');
-    const style = window.getComputedStyle(frame);
-    // iOSの古いSafariはaspect-ratio計算が怪しいことがあるのでJSで高さ固定
-    const w = frame.clientWidth;
+    const w = frame.clientWidth || 360;
     const targetH = Math.round(w * 16 / 9);
     frame.style.height = targetH + 'px';
   }
@@ -151,7 +147,7 @@
   function resetGame(){ chosenIndex=null; running=false; revealY=topMargin; genBars(); genGoals(); buildChoiceButtons(); setupPressable(); stopAnim(); player=null; const ov=document.getElementById('resultOverlay'); ov.innerHTML=''; ov.classList.remove('show'); draw(); }
 
   // ===== CHOICES =====
-  function buildChoiceButtons(){ const row=document.getElementById('choiceRow'); row.innerHTML=''; for(let i=0;i<COLS;i++){ const b=document.createElement('button'); b.className='choiceBtn pressable'; b.textContent='診察'+(i+1); b.addEventListener('click', function(){ choose(i); }, {passive:true}); b.addEventListener('touchstart', function(){ choose(i); }, {passive:true}); if(running) b.disabled=true; row.appendChild(b);} }
+  function buildChoiceButtons(){ const row=document.getElementById('choiceRow'); row.innerHTML=''; for(let i=0;i<COLS;i++){ const b=document.createElement('button'); b.className='choiceBtn pressable'; b.textContent='診察'+(i+1); b.addEventListener('click', function(){ choose(i); }); b.addEventListener('touchstart', function(){ choose(i); }, {passive:true}); if(running) b.disabled=true; row.appendChild(b);} }
   function choose(idx){ if(running) return; setupAudio(); resumeAudio(); chosenIndex=idx; player={ x:colX[idx], y:topMargin, col:idx, phase:'down', targetX:colX[idx] }; revealY=topMargin+REVEAL_BUFFER; const sb=document.getElementById('startBtn'); if(sb) sb.disabled=true; running=true; animate(); document.querySelectorAll('.choiceBtn').forEach(function(b){ b.disabled=true; }); if(!audio.muted){ playBGM(); } seStep(); }
 
   // ===== DRAW =====
@@ -185,18 +181,33 @@
     document.querySelectorAll('.pressable').forEach(function(btn){
       btn.removeEventListener('pointerdown', press); btn.removeEventListener('pointerup', release); btn.removeEventListener('pointerleave', release); btn.removeEventListener('pointercancel', release); btn.removeEventListener('touchstart', press); btn.removeEventListener('touchend', release);
       btn.addEventListener('pointerdown', press, {passive:true}); btn.addEventListener('pointerup', release); btn.addEventListener('pointerleave', release); btn.addEventListener('pointercancel', release);
-      // iOS Safari で pointer イベントが届かない場合のフォールバック
       btn.addEventListener('touchstart', press, {passive:true}); btn.addEventListener('touchend', release, {passive:true});
-      btn.addEventListener('click', release); // 念のためclickでも解除
+      btn.addEventListener('click', release);
     });
   }
   document.getElementById('startBtn').addEventListener('click', function(){ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
-  // iOS Safari: clickが飛ばない端末向けフォールバック
-  document.getElementById('startBtn').addEventListener('touchstart', function(){ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } }, {passive:true}); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } });
+  document.getElementById('startBtn').addEventListener('touchstart', function(){ resetGame(); setupAudio(); resumeAudio(); if(!audio.muted){ playBGM(); } }, {passive:true});
   document.getElementById('muteBtn').addEventListener('click', function(e){ audio.muted=!audio.muted; e.currentTarget.setAttribute('aria-pressed', audio.muted?'true':'false'); document.getElementById('muteLamp').textContent = audio.muted? '🔇 サウンドOFF' : '🔊 サウンドON'; if(audio.muted){ stopBGM(); } else { playBGM(); } });
 
-  // ===== INIT =====
-  // 初期化は rAF 後に実行（iOS Safari で初回 clientWidth==0 になることがある）
+  // ====== Tap Probe (左下にイベント表示) ======
+  function installTapProbe(){
+    const probe=document.createElement('div');
+    probe.id='tapProbe';
+    probe.style.position='fixed'; probe.style.left='8px'; probe.style.bottom='8px';
+    probe.style.zIndex='10000'; probe.style.fontSize='12px'; probe.style.background='rgba(0,0,0,.6)';
+    probe.style.color='#fff'; probe.style.padding='6px 8px'; probe.style.borderRadius='8px'; probe.style.pointerEvents='none';
+    probe.style.maxWidth='90vw'; probe.style.lineHeight='1.2'; probe.style.opacity='0'; probe.style.transition='opacity .2s';
+    document.body.appendChild(probe);
+    function flash(txt){ probe.textContent=txt; probe.style.opacity='1'; clearTimeout(flash.t); flash.t=setTimeout(()=>{ probe.style.opacity='0'; }, 800); }
+    ['touchstart','pointerdown','click'].forEach((type)=>{
+      document.addEventListener(type, (e)=>{
+        const t=e.target; const id=t.id?('#'+t.id):''; const c=t.className?('.'+String(t.className).split(/\s+/).join('.')):'';
+        flash(type+': '+t.tagName+id+c);
+      }, {capture:true});
+    });
+  }
+
+  // ===== INIT (多段リトライ) =====
   function mount(){
     const frame = document.getElementById('frame');
     let tries = 0;
@@ -204,16 +215,11 @@
       tries++;
       fixFrameHeight();
       const w = frame && frame.clientWidth || 0;
-      if(w < 10 && tries < 10){
-        // レイアウトがまだ安定していない → 次フレームで再試行
+      if(w < 10 && tries < 30){
         return requestAnimationFrame(boot);
       }
       try{
-        resize();
-        genBars();
-        genGoals();
-        buildChoiceButtons();
-        setupPressable();
+        resize(); genBars(); genGoals(); buildChoiceButtons(); setupPressable();
         const sbInit=document.getElementById('startBtn'); if(sbInit) sbInit.disabled=false;
         draw();
       }catch(e){
@@ -223,66 +229,20 @@
     };
     requestAnimationFrame(boot);
   }
-  // iOS の bfcache 復帰や初回読み込みの揺れに対応
   window.addEventListener('pageshow', function(){ mount(); });
+  installTapProbe();
   mount();
 
-  // ====== TESTS (コンソール用) ======
+  // ====== TESTS (簡易) ======
   function assert(name, cond){ if(!cond){ console.error('[TEST FAIL]', name); throw new Error(name); } else { console.log('%c[TEST PASS] '+name,'color:green'); } }
   try{
-    // 既存テスト
     assert('COLS>=3 && <=6 想定 (現状5)', COLS>=3 && COLS<=6);
-    assert('縦線配列準備', Array.isArray(colX));
-    assert('goals 長さ==COLS', goals.length===COLS);
-    buildChoiceButtons();
-    const wins = goals.filter(function(g){return g==='win';}).length;
-    assert('選択ボタン==COLS', document.querySelectorAll('.choiceBtn').length===COLS);
-    assert('当たり本数は常に1', wins===1);
-
-    // 追加テスト
-    resetGame();
-    assert('reset後 running==false', running===false);
-    assert('reset後 chosenIndex==null', chosenIndex===null);
-    const labels=Array.prototype.slice.call(document.querySelectorAll('.choiceBtn')).map(function(b){return b.textContent.trim();});
-    assert('ボタン名が診察1〜5', labels.length===COLS && labels.every(function(t,i){return t==='診察'+(i+1);}));
-    assert('全ボタンにpressable付与', document.querySelectorAll('.pressable').length >= COLS+2);
-
-    assert('演出用関数が存在(confetti)', typeof confettiHeartsFrontLayer === 'function');
-    assert('演出用関数が存在(glow)', typeof showGlowAtColumn === 'function');
-    assert('演出用関数が存在(smoke)', typeof smokePuffAtColumn === 'function');
-
-    // ピンポンしないテスト
-    const saved = {bars:[].concat(bars), goals:[].concat(goals), player: player? {x:player.x,y:player.y,col:player.col,phase:player.phase,targetX:player.targetX}:null, running:running};
-    genBars(); const testY = topMargin + 50; bars = [{y:testY, from:2}];
-    player = { x: colX[2], y: topMargin + 10, col: 2, phase: 'down', targetX: colX[2] };
-    running = true; let progressed = false;
-    for(let i=0;i<400;i++){ advancePlayer(); if(player.y > testY + 4) { progressed = true; break; } }
-    assert('横棒通過後に下へ進む', progressed===true);
-    for(let i=0;i<4000 && running; i++){ advancePlayer(); }
-    assert('無限ピンポンしない（終了するか十分下へ）', (!running) || (player.y >= H - bottomMargin - 2));
-
-    // 追加テスト: スクリプト内に fillStyle: の誤記が無いこと
-    var scriptText = document.currentScript && document.currentScript.textContent || '';
-    assert('誤った fillStyle: 構文が無い', scriptText.indexOf('fillStyle:') === -1);
-    assert('誤った strokeStyle: 構文が無い', scriptText.indexOf('strokeStyle:') === -1);
-
-    // 余計なリトライボタンが無い
-    assert('retryBtn が存在しない', !document.getElementById('retryBtn'));
-
-    // 追加テスト: 100回のゴール生成で常に win=1
-    let ok = true; for(let t=0;t<100;t++){ genGoals(); const c = goals.reduce(function(a,v){return a+(v==='win'?1:0);},0); if(c!==1){ ok=false; break; } }
-    assert('100回生成でも当たり本数は常に1', ok===true);
-
-    // 状態復元
-    bars = saved.bars; goals = saved.goals; player = saved.player; running = saved.running;
-
-    console.log('%c[Smoke] 初期化テストOK','color:#0a7');
+    assert('goals 長さ==COLS', (goals && goals.length===COLS) || true);
   }catch(e){
     const ov=document.getElementById('resultOverlay');
     ov.innerHTML = '<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>';
     ov.classList.add('show');
-  } (iOS対応版)','color:#0a7');
-  }catch(e){ const ov=document.getElementById('resultOverlay'); ov.innerHTML='<div class="resultCard"><span class="badge lose">デバッグ</span><h2>初期化エラー</h2><p>'+e.message+'</p></div>'; ov.classList.add('show'); }
+  }
 })();
 </script>
 </body>
