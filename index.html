@@ -9,8 +9,13 @@
   <meta name="theme-color" content="#f6b7d2" />
   <link rel="icon" href="img/favicon.png" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
-
-  <!-- （CSSはご提供版そのままのため省略なく全文） -->
+  <link rel="canonical" href="https://example.com/" />
+  <!-- OGP -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="PO・TORO 公式ポータル" />
+  <meta property="og:description" content="concept cafe PO・TORO（ポ・トロ）の最新情報とリンク集。" />
+  <meta property="og:image" content="img/ogp.jpg" />
+  <meta property="og:url" content="https://example.com/" />
   <style>
     :root{ --pink:#f6b7d2; --blue:#a9d6f7; --ink:#333; --card:#ffffffcc; --shadow:0 10px 30px rgba(0,0,0,.12); --bg-angle:135deg; --bg-a:var(--pink); --bg-b:var(--blue); }
     @supports (color: color(srgb 1 1 1)){
@@ -23,36 +28,64 @@
     img{max-width:100%;height:auto;display:block}
     .container{width:min(1100px,92vw);margin:0 auto}
 
+    /* ✅追加（開発ログだけ透明化） */
+    #newsStatus, #eventsStatus, #scheduleStatus {
+      color: transparent !important;
+    }
+
     header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.82);box-shadow:0 2px 12px rgba(0,0,0,.08)}
     .nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
     .brand{display:flex;align-items:center;gap:10px}
     .brand-logo{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff, #ffe2ee 60%, #ffd3ea 100%);display:grid;place-items:center;box-shadow:var(--shadow)}
     .brand-logo span{font-weight:900;color:#ff5ea8}
+
     .brand-title{font-weight:800;letter-spacing:.08em}
     .brand-title .en{font-size:1.05rem}
     .brand-title .jp{font-size:.8rem;color:#666}
 
     .nav-links{display:flex;gap:14px;align-items:center}
-    .nav-links a{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.98);box-shadow:0 4px 12px rgba(0,0,0,.08);font-size:1rem;font-weight:800;color:#222;border:1px solid #eaeaea;letter-spacing:.02em;outline:none}
+    .nav-links a{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.98);box-shadow:0 4px 12px rgba(0,0,0,.08);font-size:1rem;font-weight:800;color:#222;border:1px solid #eaeaea;letter-spacing:.02em;}
     .nav-links a:hover{background:#111;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.18)}
 
-    /* --- ここまでCSS修正なし、全文そのまま --- */
+    .hamburger{display:none;background:#fff;border:none;border-radius:12px;padding:9px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    @media (max-width:880px){
+      .nav-links{display:none}
+      .hamburger{display:inline-grid}
+      .drawer{position:fixed;inset:0 0 0 auto;width:min(84vw,360px);background:#fff;box-shadow:-20px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .28s ease;z-index:60;display:flex;flex-direction:column}
+      .drawer.open{transform:translateX(0)}
+      .drawer .head{display:flex;align-items:center;justify-content:space-between;padding:16px}
+    }
+
+    .hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;padding:40px 0}
+    .badge{display:inline-flex;gap:8px;align-items:center;background:#fff;border-radius:999px;padding:6px 10px;box-shadow:var(--shadow);font-size:.85rem}
+    .headline{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:900}
+    .sub{color:#444;margin:.6rem 0 1rem}
+    .cta{display:flex;gap:10px}
+    .btn{display:inline-flex;align-items:center;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow)}
+    .btn-primary{background:linear-gradient(135deg,#ff81c0,#8ed2ff);color:#fff}
+    .btn-ghost{background:#fff;color:#333}
+    .hero-card{background:var(--card);padding:14px;border-radius:14px;box-shadow:var(--shadow)}
+
+    section{padding:34px 0}
+    .sec-title{font-size:1.3rem;font-weight:900;margin-bottom:14px}
+
+    .ticker{background:#fff;border-radius:14px;box-shadow:var(--shadow)}
+
   </style>
 </head>
-
 <body>
   <a href="#news" class="skip-link">本文へスキップ</a>
 
   <header>
     <nav class="nav container" aria-label="Main">
       <div class="brand">
-        <div class="brand-logo" aria-hidden="true"><span>PT</span></div>
+        <div class="brand-logo"><span>PT</span></div>
         <div class="brand-title">
           <div class="en">concept cafe <span style="letter-spacing:.12em">PO・TORO</span></div>
           <div class="jp">ポ・トロ 公式ポータル</div>
         </div>
       </div>
-      <div class="nav-links" id="navLinks">
+      <div class="nav-links">
         <a href="#news">お知らせ</a>
         <a href="#events">イベント</a>
         <a href="#maids">メイドさん紹介</a>
@@ -61,17 +94,7 @@
         <a href="#access">アクセス</a>
         <a href="#sns">SNS</a>
       </div>
-      <button class="hamburger" id="btnMenu" aria-label="メニューを開く" aria-controls="drawer" aria-expanded="false">☰</button>
     </nav>
-    <div class="drawer" id="drawer" aria-hidden="true">
-      <a href="#news">お知らせ</a>
-      <a href="#events">イベント</a>
-      <a href="#maids">メイドさん紹介</a>
-      <a href="#games">ゲーム/診断</a>
-      <a href="#schedule">営業日</a>
-      <a href="#access">アクセス</a>
-      <a href="#sns">SNS</a>
-    </div>
   </header>
 
   <main>
@@ -79,10 +102,16 @@
     <section class="hero">
       <div class="container wrap">
         <div>
+          <span class="badge">🔔 最新情報をチェック</span>
           <h1 class="headline">ようこそ、ご主人さま・お嬢さま。<br>PO・TOROの入口はここ♡</h1>
+          <p class="sub">イベント、メイドさん紹介、ゲームや各種リンクをこのページに集約しました。ブックマーク推奨です！</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="#events">イベント案内へ</a>
+            <a class="btn btn-ghost" href="#games">診断・ゲームで遊ぶ</a>
+          </div>
         </div>
         <div class="hero-card">
-          <a href="https://x.com/po_toro" target="_blank" rel="noopener"><img src="img/potro_twi.jpg" alt="キービジュアル" class="thumb hero-kv"></a>
+          <a href="https://x.com/po_toro" target="_blank" rel="noopener"><img src="img/potro_twi.jpg" alt="PO・TORO キービジュアル" class="thumb hero-kv" /></a>
         </div>
       </div>
     </section>
@@ -91,10 +120,10 @@
     <section id="news">
       <div class="container">
         <h2 class="sec-title">🗞️ お知らせ</h2>
-        <div class="ticker" aria-live="polite">
+        <div class="ticker">
           <ul id="newsList"></ul>
         </div>
-        <div id="newsStatus" class="tag mt-12" aria-live="polite" style="display:none"></div>
+        <div id="newsStatus" class="tag mt-12" aria-live="polite"></div>
       </div>
     </section>
 
@@ -103,213 +132,11 @@
       <div class="container">
         <h2 class="sec-title">🎉 イベント</h2>
         <div class="grid cols-3" id="eventsGrid"></div>
-        <div id="eventsStatus" class="tag mt-12" aria-live="polite" style="display:none"></div>
+        <div id="eventsStatus" class="tag mt-12" aria-live="polite"></div>
       </div>
     </section>
+
     <!-- メイドさん紹介 -->
     <section id="maids">
       <div class="container">
         <h2 class="sec-title">👑 メイドさん紹介</h2>
-        <div class="grid cols-3">
-          <article class="card">
-            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさん紹介" class="thumb" loading="lazy">
-            <div class="body">
-              <h3>メイドさん紹介</h3>
-              <p>PO♡TOROのメイドさんたち</p>
-              <a class="btn btn-ghost" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener">プロフィール一覧を見る</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Games -->
-    <section id="games">
-      <div class="container">
-        <h2 class="sec-title">🎮 ゲーム / 診断</h2>
-        <div class="grid cols-4">
-          <a class="qlink" href="https://potoro1001.github.io/potoro-quest/" target="_blank" rel="noopener">
-            <div>🗝️</div>
-            <div><strong>ポ・トロクエスト</strong></div>
-          </a>
-          <a class="qlink" href="https://potoro1001.github.io/potoro-diagnosis/" target="_blank" rel="noopener">
-            <div>💘</div>
-            <div><strong>ご主人様タイプ診断</strong></div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Schedule -->
-    <section id="schedule">
-      <div class="container">
-        <h2 class="sec-title">📅 営業スケジュール（直近7日）</h2>
-        <table class="table">
-          <thead><tr><th>日付</th><th>営業時間</th><th>メモ</th></tr></thead>
-          <tbody id="scheduleBody"></tbody>
-        </table>
-        <div id="scheduleStatus" class="tag mt-12" aria-live="polite" style="display:none"></div>
-      </div>
-    </section>
-
-    <!-- SNS -->
-    <section id="sns">
-      <div class="container">
-        <h2 class="sec-title">📡 公式SNS</h2>
-        <div class="sns">
-          <a class="qlink" href="https://x.com/po_toro" target="_blank">🕊️ X</a>
-          <a class="qlink" href="https://www.tiktok.com/@potoro_o" target="_blank">🎵 TikTok</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container foot">
-      <div>
-        <h4>concept cafe PO・TORO</h4>
-        <div class="copyright">© <span id="year"></span> PO・TORO</div>
-      </div>
-    </div>
-  </footer>
-
-<!-- ================================ -->
-<!-- ✅ JavaScript（開発ログ削除済） -->
-<!-- ================================ -->
-<script>
-window.PORTAL_CONFIG = {
-  newsCsvUrl:    "https://docs.google.com/spreadsheets/d/1rqajpwmrRffVgtfBS7fgvgyrCS7YgfkW5RyedstpDnw/export?format=csv&gid=1650494358",
-  eventsCsvUrl:  "https://docs.google.com/spreadsheets/d/1rqajpwmrRffVgtfBS7fgvgyrCS7YgfkW5RyedstpDnw/export?format=csv&gid=365949763",
-  scheduleCsvUrl:"https://docs.google.com/spreadsheets/d/1rqajpwmrRffVgtfBS7fgvgyrCS7YgfkW5RyedstpDnw/export?format=csv&gid=1276825118"
-};
-
-const MSG_READY = "ただいま準備中です♡ もう少しお待ちください！";
-
-// -------- CSV reader --------
-async function loadCSV(url){
-  const res = await fetch(url + "&cb=" + Date.now());
-  return await res.text();
-}
-
-// -------- 文字エスケープ --------
-const esc = s => String(s||"").replace(/[&<>]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
-
-// -------- CSV パース（軽量版）--------
-function parseCSV(txt){
-  return txt.split(/\r?\n/).map(r => r.split(","));
-}
-
-// -------- News 変換 --------
-function csvToNews(csv){
-  const rows = parseCSV(csv).slice(1);
-  return rows.filter(r => r[0] || r[2])
-    .map(r => ({date:r[0], label:r[1], text:r[2]}));
-}
-
-// -------- Events 変換 --------
-function csvToEvents(csv){
-  const rows=parseCSV(csv).slice(1);
-  return rows.filter(r => r[0])
-    .map(r=>({title:r[0],date:r[1],image:r[2],link:r[3]}));
-}
-
-// ---- 日付 + 曜日 ----
-const wd=["日","月","火","水","木","金","土"];
-function fmtJP(s){
-  const d=new Date(s); if(isNaN(d)) return s;
-  return `${d.getMonth()+1}/${d.getDate()}(${wd[d.getDay()]})`;
-}
-
-// -------- Schedule 変換 --------
-function csvToSchedule(csv){
-  const rows=parseCSV(csv).slice(1);
-  return rows.filter(r => r[0]).map(r =>({
-    date:fmtJP(r[0]),
-    hours:r[1],
-    note:r[2]
-  }));
-}
-
-// -------- 開発ログのみ削除した「maybeLoad」 --------
-async function maybeLoad(url, key, converter, statusId){
-  const status = document.getElementById(statusId);
-  try{
-    const text = await loadCSV(url);
-    const data = converter(text);
-    if(data.length>0){
-      window.PORTAL_DATA[key] = data;
-      status.style.display = "none";
-      return;
-    }
-    status.textContent = MSG_READY;
-    status.style.display = "block";
-  }catch(e){
-    status.textContent = MSG_READY;
-    status.style.display = "block";
-  }
-}
-
-// -------- 表示 --------
-function renderNews(){
-  const list = document.getElementById("newsList");
-  const data = window.PORTAL_DATA.news;
-  if(!data.length){
-    document.getElementById("newsStatus").textContent=MSG_READY;
-    document.getElementById("newsStatus").style.display="block";
-    return;
-  }
-  list.innerHTML = data.map(n =>
-    `<li><time>${esc(n.date)}</time> ${esc(n.text)}</li>`
-  ).join("");
-}
-
-function renderEvents(){
-  const grid = document.getElementById("eventsGrid");
-  const data = window.PORTAL_DATA.events;
-  if(!data.length){
-    document.getElementById("eventsStatus").textContent=MSG_READY;
-    document.getElementById("eventsStatus").style.display="block";
-    return;
-  }
-  grid.innerHTML = data.map(e =>
-    `<article class="card">
-      <img src="${e.image}" class="thumb" alt="">
-      <div class="body">
-        <h3>${esc(e.title)}</h3>
-        <p>${esc(e.date)}</p>
-      </div>
-    </article>`
-  ).join("");
-}
-
-function renderSchedule(){
-  const tbody=document.getElementById("scheduleBody");
-  const data = window.PORTAL_DATA.schedule;
-  if(!data.length){
-    document.getElementById("scheduleStatus").textContent=MSG_READY;
-    document.getElementById("scheduleStatus").style.display="block";
-    return;
-  }
-  tbody.innerHTML = data.map(r =>
-    `<tr><td>${esc(r.date)}</td><td>${esc(r.hours)}</td><td>${esc(r.note)}</td></tr>`
-  ).join("");
-}
-
-// -------- INIT --------
-window.PORTAL_DATA = {news:[],events:[],schedule:[]};
-
-document.addEventListener("DOMContentLoaded", async()=>{
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  await maybeLoad(PORTAL_CONFIG.newsCsvUrl, "news", csvToNews, "newsStatus");
-  await maybeLoad(PORTAL_CONFIG.eventsCsvUrl, "events", csvToEvents, "eventsStatus");
-  await maybeLoad(PORTAL_CONFIG.scheduleCsvUrl, "schedule", csvToSchedule, "scheduleStatus");
-
-  renderNews();
-  renderEvents();
-  renderSchedule();
-});
-</script>
-
-</body>
-</html>
