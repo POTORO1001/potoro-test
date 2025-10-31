@@ -6,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      /* ← ここで速度調整。数字を大きくするとゆっくりになる */
+      /* ← スクロールをゆっくりめに */
       --crawl-duration: 74s;
     }
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background: radial-gradient(circle at top, #111 0%, #000 55%, #000 100%);
@@ -21,6 +19,8 @@
       color: #ffe81f;
       letter-spacing: 0.08em;
     }
+
+    /* 冒頭の一文：3秒表示→1秒かけて消える */
     .intro {
       position: absolute;
       top: 35%;
@@ -28,20 +28,23 @@
       text-align: center;
       font-size: 1.1rem;
       opacity: 0;
-      animation: introFade 6s ease-out 0.5s forwards;
+      animation: introFade 4s ease-out 0s forwards;
+      /* 4秒で完全に消えるので、そのあとにcrawlを開始させる */
     }
     @keyframes introFade {
-      0% { opacity: 0; }
-      15% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
+      0%   { opacity: 0; }
+      5%   { opacity: 1; }   /* すぐ表示 */
+      75%  { opacity: 1; }   /* 0〜3秒あたりをしっかり表示 */
+      100% { opacity: 0; }   /* 3〜4秒でフェードアウト */
     }
+
     .star-wars {
       position: relative;
       height: 100vh;
       perspective: 400px;
       perspective-origin: 50% 100%;
     }
+
     .crawl {
       position: absolute;
       bottom: -10rem;
@@ -54,8 +57,8 @@
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      /* ← ここで流れる長さを指定。5.6sはイントロが消えるまでの待ち時間 */
-      animation: crawl var(--crawl-duration) linear 5.6s forwards;
+      /* ★ ここを 5.6s → 4s に変更して、introが消えたあとに流す */
+      animation: crawl var(--crawl-duration) linear 4s forwards;
     }
     @keyframes crawl {
       0% {
@@ -65,6 +68,7 @@
         transform: translate(-50%, -260vh) rotateX(28deg);
       }
     }
+
     .title-block {
       text-align: center;
       margin-bottom: 2.5rem;
@@ -78,8 +82,9 @@
     .title-block h1 {
       font-size: 2rem;
       margin: 0;
-      text-transform: none; /* 日本語タイトルでも太く */
+      text-transform: none;
     }
+
     .stars {
       position: fixed;
       inset: 0;
@@ -96,6 +101,7 @@
       from { transform: translateY(0); }
       to { transform: translateY(300px); }
     }
+
     @media (max-width: 600px) {
       .crawl {
         font-size: 1rem;
@@ -110,7 +116,7 @@
 <body>
   <div class="stars"></div>
 
-  <!-- 冒頭の一文 -->
+  <!-- 冒頭の一文：3秒表示させる -->
   <div class="intro">
     遥か未来、そしてどこにでもありそうな社会で――<br>
     人々は、仕事と叱責に疲れ果てていた…。
@@ -121,7 +127,6 @@
     <div class="crawl">
       <div class="title-block">
         <div class="episode">EPISODE P・O</div>
-        <!-- ★ ここを変更しました -->
         <h1>ポ・トロクエスト</h1>
       </div>
 
