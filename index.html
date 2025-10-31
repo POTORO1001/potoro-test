@@ -48,33 +48,33 @@
       perspective-origin: 50% 100%;
     }
 
-    /* ② オープニングクロール本体 */
+    /* ② オープニングクロール本体（下から出てくる版） */
     .crawl {
       position: absolute;
-      bottom: -10rem;
+      /* ★ 画面のかなり下（見えない位置）からスタート */
+      bottom: -100vh;
       width: 80%;
       max-width: 720px;
       left: 50%;
-      transform: translateX(-50%);
       transform-origin: 50% 100%;
-      /* ★ 文字を大きく */
-      font-size: 1.5rem;
+      font-size: 1.5rem;        /* 前回のご希望を維持 */
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      /* 最初は表示しない */
-      opacity: 0;
-      /* ★ 4秒後に表示しつつ、以前よりゆっくり流す（88s） */
+      opacity: 0;               /* 最初は見えない */
       animation: crawl var(--crawl-duration) linear 4s forwards;
     }
     @keyframes crawl {
       0% {
+        /* ★ 4秒後にここから表示されて上に流れる */
         opacity: 1;
-        transform: translate(-50%, 0) rotateX(20deg);
+        /* 少し手前＆下から */
+        transform: translate(-50%, 40vh) rotateX(20deg);
       }
       100% {
         opacity: 1;
-        transform: translate(-50%, -260vh) rotateX(28deg);
+        /* かなり上まで吸い込ませる */
+        transform: translate(-50%, -240vh) rotateX(28deg);
       }
     }
 
@@ -90,7 +90,7 @@
       margin-bottom: 1rem;
     }
     .title-block h1 {
-      font-size: 2.2rem; /* タイトルもほんの少しだけUP */
+      font-size: 2.2rem;
       margin: 0;
       text-transform: none;
     }
@@ -113,7 +113,7 @@
       to { transform: translateY(300px); }
     }
 
-    /* スマホ用：文字を大きくしたので少しだけ抑える */
+    /* スマホ用 */
     @media (max-width: 600px) {
       .crawl {
         font-size: 1.2rem;
