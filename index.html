@@ -6,10 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      /* ← スクロールをゆっくりめに */
+      /* スクロール速度：大きいほどゆっくり */
       --crawl-duration: 74s;
     }
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       background: radial-gradient(circle at top, #111 0%, #000 55%, #000 100%);
@@ -20,7 +22,7 @@
       letter-spacing: 0.08em;
     }
 
-    /* 冒頭の一文：3秒表示→1秒かけて消える */
+    /* ① 冒頭の一文だけを先に見せる */
     .intro {
       position: absolute;
       top: 35%;
@@ -28,16 +30,18 @@
       text-align: center;
       font-size: 1.1rem;
       opacity: 0;
+      /* 0〜3秒表示 → 3〜4秒でフェードアウト */
       animation: introFade 4s ease-out 0s forwards;
-      /* 4秒で完全に消えるので、そのあとにcrawlを開始させる */
+      z-index: 5;
     }
     @keyframes introFade {
       0%   { opacity: 0; }
-      5%   { opacity: 1; }   /* すぐ表示 */
-      75%  { opacity: 1; }   /* 0〜3秒あたりをしっかり表示 */
-      100% { opacity: 0; }   /* 3〜4秒でフェードアウト */
+      5%   { opacity: 1; }   /* すぐ出す */
+      75%  { opacity: 1; }   /* 3秒くらいしっかり表示 */
+      100% { opacity: 0; }   /* 3〜4秒で消える */
     }
 
+    /* 3D空間 */
     .star-wars {
       position: relative;
       height: 100vh;
@@ -45,6 +49,7 @@
       perspective-origin: 50% 100%;
     }
 
+    /* ② オープニングクロール本体 */
     .crawl {
       position: absolute;
       bottom: -10rem;
@@ -57,7 +62,7 @@
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      /* ★ ここを 5.6s → 4s に変更して、introが消えたあとに流す */
+      /* ★ 4秒待ってから流れ始めるので、introと重ならない */
       animation: crawl var(--crawl-duration) linear 4s forwards;
     }
     @keyframes crawl {
@@ -69,6 +74,7 @@
       }
     }
 
+    /* タイトルブロック */
     .title-block {
       text-align: center;
       margin-bottom: 2.5rem;
@@ -82,9 +88,10 @@
     .title-block h1 {
       font-size: 2rem;
       margin: 0;
-      text-transform: none;
+      text-transform: none; /* 日本語タイトルOK */
     }
 
+    /* 星空っぽい背景 */
     .stars {
       position: fixed;
       inset: 0;
@@ -102,6 +109,7 @@
       to { transform: translateY(300px); }
     }
 
+    /* スマホ用 */
     @media (max-width: 600px) {
       .crawl {
         font-size: 1rem;
@@ -116,13 +124,13 @@
 <body>
   <div class="stars"></div>
 
-  <!-- 冒頭の一文：3秒表示させる -->
+  <!-- 冒頭の一文（先に3秒見せる） -->
   <div class="intro">
     遥か未来、そしてどこにでもありそうな社会で――<br>
     人々は、仕事と叱責に疲れ果てていた…。
   </div>
 
-  <!-- クロール本体 -->
+  <!-- スターウォーズ風クロール -->
   <div class="star-wars" aria-label="オープニングストーリー">
     <div class="crawl">
       <div class="title-block">
