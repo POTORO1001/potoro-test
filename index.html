@@ -7,7 +7,7 @@
   <style>
     :root {
       /* スクロール速度：大きいほどゆっくり */
-      --crawl-duration: 74s;
+      --crawl-duration: 88s;
     }
     * {
       box-sizing: border-box;
@@ -30,15 +30,14 @@
       text-align: center;
       font-size: 1.1rem;
       opacity: 0;
-      /* 0〜3秒表示 → 3〜4秒でフェードアウト */
       animation: introFade 4s ease-out 0s forwards;
       z-index: 5;
     }
     @keyframes introFade {
       0%   { opacity: 0; }
-      5%   { opacity: 1; }   /* すぐ出す */
-      75%  { opacity: 1; }   /* 約3秒表示 */
-      100% { opacity: 0; }   /* 3〜4秒で消える */
+      5%   { opacity: 1; }
+      75%  { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* 3D空間 */
@@ -58,18 +57,19 @@
       left: 50%;
       transform: translateX(-50%);
       transform-origin: 50% 100%;
-      font-size: 1.3rem;
+      /* ★ 文字を大きく */
+      font-size: 1.5rem;
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      /* ★ 最初は見えないようにする */
+      /* 最初は表示しない */
       opacity: 0;
-      /* 4秒後に表示しつつ流す */
+      /* ★ 4秒後に表示しつつ、以前よりゆっくり流す（88s） */
       animation: crawl var(--crawl-duration) linear 4s forwards;
     }
     @keyframes crawl {
       0% {
-        opacity: 1; /* ← ここで初めて表示される */
+        opacity: 1;
         transform: translate(-50%, 0) rotateX(20deg);
       }
       100% {
@@ -90,7 +90,7 @@
       margin-bottom: 1rem;
     }
     .title-block h1 {
-      font-size: 2rem;
+      font-size: 2.2rem; /* タイトルもほんの少しだけUP */
       margin: 0;
       text-transform: none;
     }
@@ -113,14 +113,17 @@
       to { transform: translateY(300px); }
     }
 
-    /* スマホ用 */
+    /* スマホ用：文字を大きくしたので少しだけ抑える */
     @media (max-width: 600px) {
       .crawl {
-        font-size: 1rem;
+        font-size: 1.2rem;
         width: 90%;
       }
       .intro {
         font-size: 1rem;
+      }
+      .title-block h1 {
+        font-size: 1.8rem;
       }
     }
   </style>
