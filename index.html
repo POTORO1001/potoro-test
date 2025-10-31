@@ -1,202 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <title>ポ・トロクエスト オープニングクロール風</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PO・TORO 公式ポータル</title>
-  <meta name="description" content="concept cafe PO・TORO（ポ・トロ）の総合ポータル。最新イベント、メイドさん紹介、アクセス、各種コンテンツへの入口をひとまとめ。" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="theme-color" content="#f6b7d2" />
-  <link rel="icon" href="img/favicon.png" />
-  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
-  <link rel="canonical" href="https://example.com/" />
-  <!-- OGP -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="PO・TORO 公式ポータル" />
-  <meta property="og:description" content="concept cafe PO・TORO（ポ・トロ）の最新情報とリンク集。" />
-  <meta property="og:image" content="img/ogp.jpg" />
-  <meta property="og:url" content="https://example.com/" />
   <style>
-    :root{ --pink:#f6b7d2; --blue:#a9d6f7; --ink:#333; --card:#ffffffcc; --shadow:0 10px 30px rgba(0,0,0,.12); --bg-angle:135deg; --bg-a:var(--pink); --bg-b:var(--blue); }
-    @supports (color: color(srgb 1 1 1)){
-      :root{ --pink: color(srgb 0.9647 0.7176 0.8235); --blue: color(srgb 0.6627 0.8392 0.9686); }
-      .btn-primary{ background:linear-gradient(135deg,color(srgb 1 0.5059 0.7529),color(srgb 0.5569 0.8235 1)); }
+    :root {
+      /* ← ここで速度調整。数字を大きくするとゆっくりになる */
+      --crawl-duration: 74s;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%;font-family:"-apple-system","BlinkMacSystemFont","Hiragino Kaku Gothic ProN","Noto Sans JP",Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji",sans-serif;color:var(--ink);background:linear-gradient(var(--bg-angle),var(--bg-a),var(--bg-b));background-attachment:fixed;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    a{color:#0b69d5;text-decoration:none}
-    img{max-width:100%;height:auto;display:block}
-    .container{width:min(1100px,92vw);margin:0 auto}
-
-    /* ✅追加（開発ログだけ透明化） */
-    #newsStatus, #eventsStatus, #scheduleStatus {
-      color: transparent !important;
+    * {
+      box-sizing: border-box;
     }
-
-    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.82);box-shadow:0 2px 12px rgba(0,0,0,.08)}
-    .nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
-    .brand{display:flex;align-items:center;gap:10px}
-    .brand-logo{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff, #ffe2ee 60%, #ffd3ea 100%);display:grid;place-items:center;box-shadow:var(--shadow)}
-    .brand-logo span{font-weight:900;color:#ff5ea8}
-
-    .brand-title{font-weight:800;letter-spacing:.08em}
-    .brand-title .en{font-size:1.05rem}
-    .brand-title .jp{font-size:.8rem;color:#666}
-
-    .nav-links{display:flex;gap:14px;align-items:center}
-    .nav-links a{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.98);box-shadow:0 4px 12px rgba(0,0,0,.08);font-size:1rem;font-weight:800;color:#222;border:1px solid #eaeaea;letter-spacing:.02em;}
-    .nav-links a:hover{background:#111;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.18)}
-
-    .hamburger{display:none;background:#fff;border:none;border-radius:12px;padding:9px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-    @media (max-width:880px){
-      .nav-links{display:none}
-      .hamburger{display:inline-grid}
-      .drawer{position:fixed;inset:0 0 0 auto;width:min(84vw,360px);background:#fff;box-shadow:-20px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .28s ease;z-index:60;display:flex;flex-direction:column}
-      .drawer.open{transform:translateX(0)}
-      .drawer .head{display:flex;align-items:center;justify-content:space-between;padding:16px}
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #111 0%, #000 55%, #000 100%);
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Yu Gothic", "Hiragino Sans", sans-serif;
+      color: #ffe81f;
+      letter-spacing: 0.08em;
     }
-
-    .hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;padding:40px 0}
-    .badge{display:inline-flex;gap:8px;align-items:center;background:#fff;border-radius:999px;padding:6px 10px;box-shadow:var(--shadow);font-size:.85rem}
-    .headline{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:900}
-    .sub{color:#444;margin:.6rem 0 1rem}
-    .cta{display:flex;gap:10px}
-    .btn{display:inline-flex;align-items:center;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow)}
-    .btn-primary{background:linear-gradient(135deg,#ff81c0,#8ed2ff);color:#fff}
-    .btn-ghost{background:#fff;color:#333}
-    .hero-card{background:var(--card);padding:14px;border-radius:14px;box-shadow:var(--shadow)}
-
-    section{padding:34px 0}
-    .sec-title{font-size:1.3rem;font-weight:900;margin-bottom:14px}
-
-    .ticker{background:#fff;border-radius:14px;box-shadow:var(--shadow)}
-
+    .intro {
+      position: absolute;
+      top: 35%;
+      width: 100%;
+      text-align: center;
+      font-size: 1.1rem;
+      opacity: 0;
+      animation: introFade 6s ease-out 0.5s forwards;
+    }
+    @keyframes introFade {
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .star-wars {
+      position: relative;
+      height: 100vh;
+      perspective: 400px;
+      perspective-origin: 50% 100%;
+    }
+    .crawl {
+      position: absolute;
+      bottom: -10rem;
+      width: 80%;
+      max-width: 720px;
+      left: 50%;
+      transform: translateX(-50%);
+      transform-origin: 50% 100%;
+      font-size: 1.3rem;
+      text-align: justify;
+      line-height: 1.5;
+      text-shadow: 0 0 8px rgba(0,0,0,0.8);
+      /* ← ここで流れる長さを指定。5.6sはイントロが消えるまでの待ち時間 */
+      animation: crawl var(--crawl-duration) linear 5.6s forwards;
+    }
+    @keyframes crawl {
+      0% {
+        transform: translate(-50%, 0) rotateX(20deg);
+      }
+      100% {
+        transform: translate(-50%, -260vh) rotateX(28deg);
+      }
+    }
+    .title-block {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .title-block .episode {
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .title-block h1 {
+      font-size: 2rem;
+      margin: 0;
+      text-transform: none; /* 日本語タイトルでも太く */
+    }
+    .stars {
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(#fff 1px, transparent 1px),
+        radial-gradient(#fff 1px, transparent 1px);
+      background-size: 250px 250px, 320px 320px;
+      background-position: 0 0, 80px 120px;
+      opacity: 0.18;
+      pointer-events: none;
+      animation: starMove 45s linear infinite;
+    }
+    @keyframes starMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(300px); }
+    }
+    @media (max-width: 600px) {
+      .crawl {
+        font-size: 1rem;
+        width: 90%;
+      }
+      .intro {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <a href="#news" class="skip-link">本文へスキップ</a>
+  <div class="stars"></div>
 
-  <header>
-    <nav class="nav container" aria-label="Main">
-      <div class="brand">
-        <div class="brand-logo"><span>PT</span></div>
-        <div class="brand-title">
-          <div class="en">concept cafe <span style="letter-spacing:.12em">PO・TORO</span></div>
-          <div class="jp">ポ・トロ 公式ポータル</div>
-        </div>
-      </div>
-      <div class="nav-links">
-        <a href="#news">お知らせ</a>
-        <a href="#events">イベント</a>
-        <a href="#maids">メイドさん紹介</a>
-        <a href="#games">ゲーム/診断</a>
-        <a href="#schedule">営業日</a>
-        <a href="#access">アクセス</a>
-        <a href="#sns">SNS</a>
-      </div>
-    </nav>
-  </header>
+  <!-- 冒頭の一文 -->
+  <div class="intro">
+    遥か未来、そしてどこにでもありそうな社会で――<br>
+    人々は、仕事と叱責に疲れ果てていた…。
+  </div>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container wrap">
-        <div>
-          <span class="badge">🔔 最新情報をチェック</span>
-          <h1 class="headline">ようこそ、ご主人さま・お嬢さま。<br>PO・TOROの入口はここ♡</h1>
-          <p class="sub">イベント、メイドさん紹介、ゲームや各種リンクをこのページに集約しました。ブックマーク推奨です！</p>
-          <div class="cta">
-            <a class="btn btn-primary" href="#events">イベント案内へ</a>
-            <a class="btn btn-ghost" href="#games">診断・ゲームで遊ぶ</a>
-          </div>
-        </div>
-        <div class="hero-card">
-          <a href="https://x.com/po_toro" target="_blank" rel="noopener"><img src="img/potro_twi.jpg" alt="PO・TORO キービジュアル" class="thumb hero-kv" /></a>
-        </div>
+  <!-- クロール本体 -->
+  <div class="star-wars" aria-label="オープニングストーリー">
+    <div class="crawl">
+      <div class="title-block">
+        <div class="episode">EPISODE P・O</div>
+        <!-- ★ ここを変更しました -->
+        <h1>ポ・トロクエスト</h1>
       </div>
-    </section>
 
-    <!-- News -->
-    <section id="news">
-      <div class="container">
-        <h2 class="sec-title">🗞️ お知らせ</h2>
-        <div class="ticker">
-          <ul id="newsList"></ul>
-        </div>
-        <div id="newsStatus" class="tag mt-12" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- Events -->
-    <section id="events">
-      <div class="container">
-        <h2 class="sec-title">🎉 イベント</h2>
-        <div class="grid cols-3" id="eventsGrid"></div>
-        <div id="eventsStatus" class="tag mt-12" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- メイドさん紹介 -->
-    <section id="maids">
-      <div class="container">
-        <h2 class="sec-title">👑 メイドさん紹介</h2>
-        <div class="grid cols-3">
-          <article class="card">
-            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさん紹介" class="thumb" loading="lazy">
-            <div class="body">
-              <h3>メイドさん紹介</h3>
-              <p>PO♡TOROのメイドさんたち</p>
-              <a class="btn btn-ghost" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener">プロフィール一覧を見る</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Games -->
-    <section id="games">
-      <div class="container">
-        <h2 class="sec-title">🎮 ゲーム / 診断</h2>
-        <div class="grid cols-4">
-          <a class="qlink" href="https://potoro1001.github.io/potoro-quest/" target="_blank" rel="noopener">
-            <div>🗝️</div>
-            <div><strong>ポ・トロクエスト</strong></div>
-          </a>
-          <a class="qlink" href="https://potoro1001.github.io/potoro-diagnosis/" target="_blank" rel="noopener">
-            <div>💘</div>
-            <div><strong>ご主人様タイプ診断</strong></div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Schedule -->
-    <section id="schedule">
-      <div class="container">
-        <h2 class="sec-title">📅 営業スケジュール（直近7日）</h2>
-        <table class="table" aria-label="営業日と営業時間">
-          <thead><tr><th>日付</th><th>営業時間</th><th>メモ</th></tr></thead>
-          <tbody id="scheduleBody"></tbody>
-        </table>
-        <div id="scheduleStatus" class="tag mt-12" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- Access -->
-    <section id="access">
-      <div class="container">
-        <h2 class="sec-title">📍 アクセス</h2>
-        <div class="grid cols-3">
-          <div class="card" style="grid-column: span 2;">
-            <div class="body">
-              <h3>店舗情報</h3>
-              <p>〒790-0012 愛媛県松山市湊町3-7-2 2F</p>
-              <p>営業時間：平日＆祝 18:00–22:00 / 土日 17:00–22:00</p>
-              <p>料金：30分 1,000円(税込) 各種ドリンク飲み放題（生ビール含む）</p>
-              <p class="tag">※放置ゼロ宣言＆キャストドリンク無しで安心♪</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="body">
-              <h3>地図</h3>
-              <div style="position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12)">
+      <p>
+        時は20XX年。長らく封印されていた
+        <strong>「社会の闇」</strong>が解き放たれ、
+        世界は再び冷たい支配に飲み込まれた。
+      </p>
+      <p>
+        終わりのない残業。届かない評価。
+        叱責だけが空気のように漂い、
+        人々は笑顔すら記憶の彼方へ失おうとしていた。
+      </p>
+      <p>
+        希望は語られなくなり、
+        終電はいつしか「日常」と呼ばれ、
+        誰も「楽しさ」を口にしなくなった。
+      </p>
+      <p>
+        だが、その混沌の只中――
+        闇の裂け目から、ひとすじの光が生まれる。
+      </p>
+      <p>
+        それは、古き良き「お給仕」の精神を受け継ぎ、
+        主を笑顔に導くことを自らの使命とした
+        一人の<strong>メイド</strong>であった。
+      </p>
+      <p>
+        彼女は知っていた。  
+        叱責には癒やしを、  
+        残業にはご褒美を、  
+        荒んだ心にはときめきを――
+        それが世界をもう一度あたたかくする
+        ただ一つの道であることを。
+      </p>
+      <p>
+        こうして、社会の闇に立ち向かう
+        小さくも眩しい反逆が始まる。  
+        その物語こそ――
+      </p>
+      <p style="text-align:center; margin-top:2.5rem; font-size:1.2em;">
+        <strong>「ポ・トロクエスト」</strong><br>
+        である。
+      </p>
+    </div>
+  </div>
+</body>
+</html>
