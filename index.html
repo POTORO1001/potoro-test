@@ -22,7 +22,7 @@
       letter-spacing: 0.08em;
     }
 
-    /* ① 冒頭の一文だけを先に表示 */
+    /* ① 冒頭の一文だけを先に表示（0〜3秒表示、3〜4秒で消える） */
     .intro {
       position: absolute;
       top: 35%;
@@ -48,33 +48,38 @@
       perspective-origin: 50% 100%;
     }
 
-    /* ② オープニングクロール本体（下から出てくる版） */
+    /* ② オープニングクロール本体 */
     .crawl {
       position: absolute;
-      /* ★ 画面のかなり下（見えない位置）からスタート */
-      bottom: -100vh;
+      bottom: -100vh;             /* 画面のかなり下からスタート */
       width: 80%;
       max-width: 720px;
       left: 50%;
       transform-origin: 50% 100%;
-      font-size: 1.5rem;        /* 前回のご希望を維持 */
+      font-size: 1.5rem;          /* 大きめ文字を維持 */
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      opacity: 0;               /* 最初は見えない */
-      animation: crawl var(--crawl-duration) linear 4s forwards;
+      opacity: 0;                 /* 最初は見えない */
+      /* ★ 5秒後に表示&流れる＝冒頭が消えた1秒後 */
+      animation: crawl var(--crawl-duration) linear 5s forwards;
     }
+
+    /* ★ 画面真ん中よりちょい上で吸い込まれるようにした版 */
     @keyframes crawl {
       0% {
-        /* ★ 4秒後にここから表示されて上に流れる */
         opacity: 1;
-        /* 少し手前＆下から */
+        /* 画面の下からにゅっと出てきて、手前に見える位置 */
+        /* 40vh → 画面の中央より少し下寄りで出る */
         transform: translate(-50%, 40vh) rotateX(20deg);
       }
       100% {
         opacity: 1;
-        /* かなり上まで吸い込ませる */
-        transform: translate(-50%, -240vh) rotateX(28deg);
+        /*
+          -160vh：前回より短めにして「上に行き切りすぎない」ようにする。
+          これで画面中央よりちょい上あたりのラインに吸い込まれていく感じになる。
+        */
+        transform: translate(-50%, -160vh) rotateX(28deg);
       }
     }
 
