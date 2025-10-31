@@ -22,7 +22,7 @@
       letter-spacing: 0.08em;
     }
 
-    /* ① 冒頭の一文だけを先に見せる */
+    /* ① 冒頭の一文だけを先に表示 */
     .intro {
       position: absolute;
       top: 35%;
@@ -37,7 +37,7 @@
     @keyframes introFade {
       0%   { opacity: 0; }
       5%   { opacity: 1; }   /* すぐ出す */
-      75%  { opacity: 1; }   /* 3秒くらいしっかり表示 */
+      75%  { opacity: 1; }   /* 約3秒表示 */
       100% { opacity: 0; }   /* 3〜4秒で消える */
     }
 
@@ -62,14 +62,18 @@
       text-align: justify;
       line-height: 1.5;
       text-shadow: 0 0 8px rgba(0,0,0,0.8);
-      /* ★ 4秒待ってから流れ始めるので、introと重ならない */
+      /* ★ 最初は見えないようにする */
+      opacity: 0;
+      /* 4秒後に表示しつつ流す */
       animation: crawl var(--crawl-duration) linear 4s forwards;
     }
     @keyframes crawl {
       0% {
+        opacity: 1; /* ← ここで初めて表示される */
         transform: translate(-50%, 0) rotateX(20deg);
       }
       100% {
+        opacity: 1;
         transform: translate(-50%, -260vh) rotateX(28deg);
       }
     }
@@ -88,7 +92,7 @@
     .title-block h1 {
       font-size: 2rem;
       margin: 0;
-      text-transform: none; /* 日本語タイトルOK */
+      text-transform: none;
     }
 
     /* 星空っぽい背景 */
