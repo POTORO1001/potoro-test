@@ -1,2355 +1,1339 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>ポ・トロクエスト（ゲーム本体）</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PO・TORO 公式ポータル｜Ver2.0（スプシ連携）</title>
+  <meta name="description" content="concept cafe PO・TORO（ポ・トロ）の総合ポータル。本日のお給仕・直近7日・イベント・メイドさん紹介・ゲーム/診断・麻雀・アクセスをひとまとめ。" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#f6b7d2" />
+  <link rel="canonical" href="https://potoro1001.github.io/potoro-portal/" />
+
+  <!-- OGP（必要なら差し替えOK） -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="PO・TORO 公式ポータル" />
+  <meta property="og:description" content="本日のお給仕・直近7日・イベント・メイドさん紹介・ゲーム/診断・麻雀・アクセスをひとまとめ。" />
+  <meta property="og:image" content="img/potro_twi.jpg" />
+  <meta property="og:url" content="https://potoro1001.github.io/potoro-portal/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <style>
-    /* ====== 外側のページ用 ====== */
-    :root {
-      --ui: #101522;
-      --fg: #eef2ff;
-      --acc: #ff7ad6;
-      --pad: 12px;
-    }
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #0b0f18;
-      color: var(--fg);
-      font-family: ui-sans-serif, system-ui, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    :root{
+      --bg0:#fff7fb;
+      --bg1:#fff1f8;
+      --card:#ffffff;
+      --ink:#2b2b2b;
+      --muted:#6d6670;
+      --line:rgba(255, 105, 178, .22);
+      --accent:#ff68b7;
+      --accent2:#7fc9ff;
+      --accent3:#ffd1e8;
+      --shadow:0 14px 35px rgba(31, 18, 36, .10);
+      --shadow2:0 10px 22px rgba(31, 18, 36, .09);
+      --radius:22px;
+      --radius2:16px;
+      --max:1120px;
     }
 
-    /* ゲームは最初から表示 */
-    #game-root { display:block; height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(255,104,183,.18), transparent 55%),
+        radial-gradient(1000px 520px at 100% 10%, rgba(127,201,255,.18), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0) 55%, #fff 100%);
+      line-height:1.65;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
-    /* ====== ここからゲーム本体のスタイル ====== */
-    .app{
-      min-height:100%;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      padding:env(safe-area-inset-top) var(--pad) calc(110px + env(safe-area-inset-bottom)) var(--pad);
+    a{color:inherit; text-decoration:none}
+    a:focus-visible, button:focus-visible{
+      outline:3px solid rgba(255,104,183,.45);
+      outline-offset:3px;
+      border-radius:12px;
+    }
+
+    /* skip link */
+    .skip{
+      position:absolute; left:-9999px; top:auto;
+      width:1px; height:1px; overflow:hidden;
+    }
+    .skip:focus{
+      position:fixed; left:16px; top:16px;
+      width:auto; height:auto;
+      padding:10px 12px;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow2);
+      border-radius:12px;
+      z-index:9999;
+    }
+
+    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 90px}
+    header{
+      position:sticky; top:0; z-index:1000;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 247, 251, .70);
+      border-bottom:1px solid rgba(255,105,178,.16);
     }
     .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
+      max-width:var(--max); margin:0 auto;
+      padding:10px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-    .title{
-      font-weight:800;
-      color:var(--acc);
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 220px;
+    }
+    .brand img{
+      width:38px; height:38px; border-radius:12px;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+      background:#fff;
+      object-fit:cover;
+    }
+    .brand .t{
+      display:flex; flex-direction:column; line-height:1.15;
+    }
+    .brand .t small{color:var(--muted); font-weight:700; letter-spacing:.02em}
+    .brand .t b{font-size:15px}
+
+    nav{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .navlink{
+      font-size:13px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,105,178,.16);
+      background:rgba(255,255,255,.62);
+      box-shadow:0 8px 16px rgba(0,0,0,.04);
+      transition:transform .15s ease, background .15s ease;
       white-space:nowrap;
+    }
+    .navlink:hover{transform: translateY(-1px); background:#fff}
+
+    /* hero */
+    .hero{
+      margin-top:16px;
+      border-radius: calc(var(--radius) + 8px);
       overflow:hidden;
-      text-overflow:ellipsis;
+      background:
+        linear-gradient(135deg, rgba(255,104,183,.18), rgba(127,201,255,.14)),
+        #fff;
+      border:1px solid rgba(255,105,178,.16);
+      box-shadow: var(--shadow);
     }
-    .screen{ display:flex; justify-content:center; }
-    canvas{
-      image-rendering:pixelated;
-      width:100%;
-      max-width:100vw;
-      height:auto;
-      background:#000;
-      border-radius:12px;
-      outline:1px solid #2b3246;
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:0;
+      align-items:stretch;
     }
-    /* iOS Safari タップ安定化 */
-    #game{
-      -webkit-user-select:none;
-      -webkit-touch-callout:none;
-      touch-action:manipulation;
+    @media (max-width: 900px){
+      .heroGrid{grid-template-columns: 1fr}
     }
 
-    .toolbar{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:center;
-      margin-top:2px;
+    .heroLeft{
+      padding:22px 22px 18px;
+      position:relative;
+    }
+    .badgeRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-bottom:10px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+      border:1px solid rgba(255,105,178,.18);
+      background: rgba(255,255,255,.70);
+      box-shadow:0 8px 18px rgba(0,0,0,.05);
+    }
+    .dot{width:10px; height:10px; border-radius:50%}
+    .dot.p{background:rgba(255,104,183,.90)}
+    .dot.b{background:rgba(127,201,255,.90)}
+    .hero h1{
+      margin:8px 0 6px;
+      font-size: clamp(22px, 3.3vw, 32px);
+      line-height:1.2;
+      letter-spacing:.01em;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      font-weight:650;
+      max-width: 54ch;
+    }
+    .ctaRow{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:14px;
     }
     .btn{
-      background:#1a2238;
-      color:#e8ecff;
-      border:1px solid #34406a;
-      border-radius:10px;
-      padding:8px 12px;
-      font-weight:700;
-    }
-    .btn:active{ transform:translateY(1px); }
-
-    .controls{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      z-index:1000;
-      padding:8px env(safe-area-inset-right) calc(10px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:10px;
-      background:linear-gradient(180deg, rgba(11,15,24,0), rgba(11,15,24,.78));
-    }
-    .dpad{
-      display:grid;
-      grid-template-columns:56px 56px 56px;
-      grid-template-rows:56px 56px 56px;
-      gap:6px;
-      flex:0 0 auto;
-    }
-    .dpad .sp{ visibility:hidden; }
-    .btnc{
-      width:56px; height:56px;
-      border-radius:12px;
-      border:1px solid #34406a;
-      background:#111729;
-      color:#e8ecff;
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
+      border-radius: 16px;
       font-weight:900;
-      font-size:16px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      touch-action:manipulation;
+      border:1px solid rgba(255,105,178,.18);
+      background:#fff;
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      min-height:44px;
+      cursor:pointer;
     }
-    .btnc:active{ transform:scale(0.98); background:#0d1220; }
-    .actions{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:stretch;
-      min-width:220px;
+    .btn:hover{transform: translateY(-1px); box-shadow: var(--shadow)}
+    .btn.primary{
+      border-color: rgba(255,104,183,.35);
+      background: linear-gradient(135deg, rgba(255,104,183,.20), rgba(127,201,255,.14));
     }
-    .actions-row{
-      display:flex;
-      gap:8px;
-      justify-content:space-between;
+    .btn.pink{
+      background: linear-gradient(135deg, rgba(255,104,183,.22), rgba(255,209,232,.35));
+      border-color: rgba(255,104,183,.35);
     }
-    .btnL{
-      flex:1 1 0;
-      height:56px;
-      border-radius:12px;
-      border:1px solid #34406a;
-      background:#17213a;
-      color:#e8ecff;
-      font-weight:800;
-      touch-action:manipulation;
+    .btn.blue{
+      background: linear-gradient(135deg, rgba(127,201,255,.22), rgba(255,255,255,.85));
+      border-color: rgba(127,201,255,.35);
     }
-    .btnL:active{ transform:scale(0.98); background:#121a2e; }
-    /* 戦闘中に見た目で無効化 */
-    .btnL.disabled{
-      opacity:.5;
-      pointer-events:none;
+    .btn.small{
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:850;
+      font-size:13px;
+      min-height:40px;
     }
 
-    @media (max-width:360px){
-      .btnc{ width:50px; height:50px; }
-      .dpad{
-        grid-template-columns:50px 50px 50px;
-        grid-template-rows:50px 50px 50px;
-        gap:6px;
-      }
-      .btnL{ height:50px; font-size:14px; }
-      .actions{ min-width:190px; }
+    .heroRight{
+      padding:0;
+      border-left: 1px solid rgba(255,105,178,.16);
+      background: rgba(255,255,255,.55);
     }
-    @media (min-width:560px){
-      .btnc{ width:64px; height:64px; }
-      .dpad{
-        grid-template-columns:64px 64px 64px;
-        grid-template-rows:64px 64px 64px;
-      }
-      .btnL{ height:64px; }
+    @media (max-width: 900px){
+      .heroRight{border-left:0; border-top:1px solid rgba(255,105,178,.16)}
     }
 
-    /* === 説明（DOMモーダル） === */
-    .help-mask{
-      position:fixed;
-      inset:0;
-      z-index:1500;
-      display:none;
-      background:rgba(0,0,0,.55);
+    .todayBox{
+      padding:18px;
     }
-    .help-wrap{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%, -50%);
-      width:min(680px, calc(100vw - 24px));
-      height:min(520px, calc(100vh - 180px));
-      background:rgba(16,21,34,.98);
-      border:1px solid #2b3246;
-      border-radius:12px;
-      display:flex;
-      flex-direction:column;
+    .todayHead{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      margin-bottom:8px;
+    }
+    .todayHead b{font-size:15px}
+    .todayHead small{display:block; color:var(--muted); font-weight:700}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid rgba(127,201,255,.28);
+      background: rgba(127,201,255,.10);
+      white-space:nowrap;
+    }
+    .pill .dot{width:8px; height:8px}
+    .list{
+      margin:10px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:8px;
+    }
+    .row{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px 12px;
+      border-radius: 16px;
+      border:1px dashed rgba(255,105,178,.22);
+      background: rgba(255,255,255,.72);
+    }
+    .row .name{
+      display:flex; flex-direction:column; gap:2px;
+      font-weight:900;
+    }
+    .row .name small{color:var(--muted); font-weight:750}
+    .row .time{
+      font-weight:950;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,104,183,.10);
+      border:1px solid rgba(255,104,183,.18);
+      white-space:nowrap;
+    }
+
+    .note{
+      margin-top:10px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:12.5px;
+    }
+
+    /* sections */
+    section{margin-top:18px}
+    .secHead{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
+      margin: 12px 4px 10px;
+    }
+    .secHead h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.01em;
+    }
+    .secHead p{margin:0; color:var(--muted); font-weight:700; font-size:13px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+
+    .card{
+      grid-column: span 6;
+      background: rgba(255,255,255,.80);
+      border:1px solid rgba(255,105,178,.16);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      position:relative;
+    }
+    .card:hover{transform: translateY(-2px); box-shadow: var(--shadow); background:#fff}
+    .card a.full{
+      position:absolute; inset:0;
+      z-index:2;
+    }
+    .card .inner{position:relative; z-index:1; padding:14px 14px 16px}
+    .thumb{
+      width:100%;
+      aspect-ratio: 16/9;
+      background:#fff;
+      border-bottom:1px solid rgba(255,105,178,.12);
       overflow:hidden;
     }
-    .help-head{
-      padding:10px 12px;
-      border-bottom:1px solid #2b3246;
-      font-weight:800;
+    .thumb img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      transform: scale(1.02);
     }
-    .help-body{
-      flex:1 1 auto;
-      overflow:auto;
-      padding:12px;
-      line-height:1.45;
-      -webkit-overflow-scrolling:touch;
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight:950;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,105,178,.18);
+      background: rgba(255,104,183,.10);
+      margin-bottom:10px;
     }
-    .help-body p{
-      margin:0 0 .6em;
-      white-space:pre-wrap;
-      font-size:14px;
+    .kicker.blue{
+      border-color: rgba(127,201,255,.24);
+      background: rgba(127,201,255,.12);
     }
-    .help-foot{
-      padding:10px 12px;
-      border-top:1px solid #2b3246;
-      display:flex;
-      gap:8px;
-      justify-content:flex-end;
+    .kicker.gray{
+      border-color: rgba(0,0,0,.10);
+      background: rgba(255,255,255,.65);
     }
-    .help-close{
-      background:#17213a;
-      color:#e8ecff;
-      border:1px solid #34406a;
-      border-radius:10px;
-      padding:8px 12px;
-      font-weight:700;
-      touch-action:manipulation;
+    .card h3{margin:0 0 6px; font-size:16px}
+    .card p{margin:0; color:var(--muted); font-weight:700; font-size:13px}
+    .card .miniRow{
+      margin-top:12px;
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:8px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.72);
+      font-weight:900;
+      font-size:12.5px;
+      white-space:nowrap;
     }
 
-    /* === Xアプリ内ブラウザ向け：外部ブラウザ推奨バナー === */
-    .inapp-banner{
-      position:fixed;
-      left:0; right:0; top:0;
-      z-index:10000;
-      display:none;
-      padding:calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
-      background:linear-gradient(180deg, rgba(20,24,36,.98), rgba(20,24,36,.92));
-      color:#eaf0ff;
-      border-bottom:1px solid #2b3246;
-      font-size:14px;
-      line-height:1.35;
+    @media (max-width: 980px){
+      .card{grid-column: span 12}
     }
-    .inapp-banner .row{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      justify-content:space-between;
-      max-width:980px;
-      margin:0 auto;
+
+    /* system box */
+    .system{
+      background: rgba(255,255,255,.80);
+      border:1px solid rgba(255,105,178,.16);
+      border-radius: calc(var(--radius) + 2px);
+      box-shadow: var(--shadow2);
+      padding:16px;
+    }
+    .sysGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 900px){
+      .sysGrid{grid-template-columns: 1fr}
+    }
+    .system h3{margin:0 0 8px; font-size:16px}
+    .system ul{margin:8px 0 0; padding-left: 18px; color:var(--muted); font-weight:700}
+    .system li{margin:6px 0}
+    .price{
+      display:grid; gap:10px;
+      padding:12px;
+      border-radius: 18px;
+      border:1px dashed rgba(255,105,178,.22);
+      background: rgba(255,255,255,.75);
+    }
+    .price .big{
+      font-size:18px; font-weight:950;
+      display:flex; align-items:baseline; justify-content:space-between; gap:10px;
       flex-wrap:wrap;
     }
-    .inapp-banner .msg{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-weight:700;
-    }
-    .inapp-banner .msg .dot{
-      width:8px; height:8px;
-      border-radius:50%;
-      background:#ff7ad6;
-      flex:0 0 auto;
-    }
-    .inapp-banner .actions{ display:flex; gap:8px; flex-wrap:wrap; }
-    .inapp-banner button, .inapp-banner a{
-      appearance:none; -webkit-appearance:none;
-      border:1px solid #34406a;
-      background:#17213a;
-      color:#e8ecff;
-      padding:8px 12px;
-      border-radius:10px;
-      font-weight:800;
-      text-decoration:none;
-      cursor:pointer;
-      touch-action:manipulation;
-    }
-    .inapp-banner .primary{ background:#1f2b4a; }
-    .inapp-banner .close{ opacity:.90; }
+    .price .big span{color:var(--muted); font-size:12px; font-weight:850}
+    .price .sub{color:var(--muted); font-weight:750; font-size:12.5px}
 
-    @media (max-width:560px){
-      body.with-inapp-banner #game-root .app{
-        padding-top:calc(20px + env(safe-area-inset-top));
-      }
+    /* schedule table */
+    .tableWrap{
+      background: rgba(255,255,255,.80);
+      border:1px solid rgba(255,105,178,.16);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:13.5px;
+    }
+    thead th{
+      text-align:left;
+      padding:12px 12px;
+      font-size:12.5px;
+      letter-spacing:.02em;
+      background: linear-gradient(135deg, rgba(255,104,183,.12), rgba(127,201,255,.10));
+      border-bottom:1px solid rgba(255,105,178,.14);
+    }
+    tbody td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      color:var(--muted);
+      font-weight:750;
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:0}
+    .tstrong{color:var(--ink); font-weight:950}
+    .tbadge{
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight:950;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,105,178,.18);
+      background: rgba(255,104,183,.10);
+      color:var(--ink);
+      white-space:nowrap;
+    }
+
+    /* sns embed */
+    .snsGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .snsGrid{grid-template-columns: 1fr}
+    }
+    .embedCard{
+      background: rgba(255,255,255,.80);
+      border:1px solid rgba(255,105,178,.16);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      padding:14px;
+    }
+    .embedCard h3{margin:0 0 6px; font-size:16px}
+    .embedCard p{margin:0 0 10px; color:var(--muted); font-weight:700; font-size:13px}
+    .xwrap{
+      border-radius: 16px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.70);
+      padding:10px;
+    }
+
+    /* footer */
+    footer{
+      margin-top:18px;
+      padding:14px 0 0;
+      color:var(--muted);
+      font-weight:700;
+      font-size:12.5px;
+    }
+    .footerBox{
+      background: rgba(255,255,255,.70);
+      border:1px solid rgba(255,105,178,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    @media (max-width: 800px){
+      .footerBox{grid-template-columns: 1fr}
+    }
+
+    /* floating button */
+    .float{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:2000;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+    }
+    .fab{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:14px 14px;
+      border-radius: 999px;
+      font-weight:950;
+      border:1px solid rgba(255,104,183,.35);
+      background: linear-gradient(135deg, rgba(255,104,183,.30), rgba(127,201,255,.16));
+      box-shadow: 0 16px 32px rgba(255,104,183,.22), var(--shadow);
+      cursor:pointer;
+      min-height:48px;
+      user-select:none;
+    }
+    .fab small{
+      display:inline-block;
+      font-weight:900;
+      opacity:.85;
+    }
+    .fab:hover{transform: translateY(-1px)}
+    .toTop{
+      display:none;
+      padding:11px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow2);
+      cursor:pointer;
+      font-weight:950;
+    }
+    .toTop.show{display:inline-flex}
+
+    /* modal */
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(25, 16, 28, .42);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:3000;
+      padding:14px;
+    }
+    .modalBack.open{display:flex}
+    .modal{
+      width:min(720px, 100%);
+      background:#fff;
+      border-radius: 26px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.25);
+      border:1px solid rgba(255,105,178,.18);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(135deg, rgba(255,104,183,.16), rgba(127,201,255,.12));
+      border-bottom:1px solid rgba(255,105,178,.14);
+    }
+    .modalHead b{font-size:15px}
+    .close{
+      border:1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.85);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-weight:950;
+      cursor:pointer;
+    }
+    .modalBody{
+      padding:14px 16px 16px;
+      display:grid;
+      gap:12px;
+    }
+    .infoGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 780px){
+      .infoGrid{grid-template-columns: 1fr}
+    }
+    .ibox{
+      padding:12px;
+      border-radius: 18px;
+      border:1px dashed rgba(255,105,178,.22);
+      background: rgba(255,255,255,.80);
+    }
+    .ibox b{display:block; margin-bottom:6px}
+    .ibox p{margin:0; color:var(--muted); font-weight:750; font-size:13px}
+    .modalCtas{
+      display:flex; flex-wrap:wrap; gap:10px;
+    }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{scroll-behavior:auto !important; transition:none !important}
     }
   </style>
 </head>
+
 <body>
+  <a class="skip" href="#main">本文へスキップ</a>
 
-  <div id="inapp-banner" class="inapp-banner" role="region" aria-label="外部ブラウザ推奨">
-    <div class="row">
-      <div class="msg">
-        <span class="dot" aria-hidden="true"></span>
-        <span id="inapp-banner-text">
-          アプリ内ブラウザで開いているため、ゲームの開始がブロックされることがあります。URL をコピーして Safari/Chrome で開くと安定します。
+  <header>
+    <div class="topbar" aria-label="ヘッダー">
+      <a class="brand" href="#top" aria-label="PO・TORO 公式ポータル トップへ">
+        <img src="img/potro_twi.jpg" alt="PO・TORO ロゴ" loading="eager" />
+        <span class="t">
+          <small>concept cafe</small>
+          <b>PO・TORO 公式ポータル</b>
         </span>
+      </a>
+
+      <nav aria-label="ページ内ナビ">
+        <a class="navlink" href="#news">お知らせ</a>
+        <a class="navlink" href="#events">イベント</a>
+        <a class="navlink" href="#maids">メイドさん</a>
+        <a class="navlink" href="#play">ゲーム/診断</a>
+        <a class="navlink" href="#schedule">直近7日</a>
+        <a class="navlink" href="#access">アクセス</a>
+        <a class="navlink" href="#sns">SNS</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <div id="top" class="hero" role="region" aria-label="ヒーロー">
+      <div class="heroGrid">
+        <div class="heroLeft">
+          <div class="badgeRow">
+            <span class="badge"><span class="dot p"></span> スプレッドシート更新 → 自動反映</span>
+            <span class="badge"><span class="dot b"></span> ブックマーク推奨</span>
+          </div>
+
+          <h1>ようこそ、ご主人さま・お嬢さま。<br/>PO・TOROの入口はここ♡</h1>
+          <p>本日のメイド／直近7日／イベント／メイドさん紹介／ゲーム・診断／麻雀／アクセスまで、ぜんぶこのページに集約しました。</p>
+
+          <div class="ctaRow" role="group" aria-label="目的別のショートカット">
+            <a class="btn pink" href="#today">本日のメイドを見る</a>
+            <a class="btn primary" href="#events">イベントを見る</a>
+            <a class="btn blue" href="#first">初めての方はこちら</a>
+            <button class="btn" type="button" id="openAccessTop">アクセス・ご予約</button>
+          </div>
+
+          <div class="ctaRow" style="margin-top:10px">
+            <a class="btn small" href="https://x.com/po_toro" target="_blank" rel="noopener">最新のお給仕予定（X）</a>
+            <a class="btn small" href="https://www.google.com/maps/search/?api=1&query=%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%9D%BE%E5%B1%B1%E5%B8%82%E6%B9%8A%E7%94%BA3-7-2+2F" target="_blank" rel="noopener">地図を開く</a>
+          </div>
+        </div>
+
+        <aside class="heroRight" id="today" aria-label="本日のお給仕">
+          <div class="todayBox">
+            <div class="todayHead">
+              <div>
+                <b>本日のお給仕メイド</b>
+                <small id="todayDate">（読み込み中…）</small>
+              </div>
+              <span class="pill" id="openState"><span class="dot b"></span>営業時間</span>
+            </div>
+
+            <ul class="list" id="todayList" aria-live="polite">
+              <li class="row" style="justify-content:center">
+                <span class="name"><span class="tstrong">読み込み中…</span><small>少々お待ちください</small></span>
+              </li>
+            </ul>
+
+            <p class="note" id="todayNote">
+              ※予定は変更になる場合があります。最新は <a href="https://x.com/po_toro" target="_blank" rel="noopener" style="text-decoration:underline">X（@po_toro）</a> もご確認ください。
+            </p>
+
+            <div class="ctaRow" style="margin-top:10px">
+              <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xで予定を見る</a>
+              <button class="btn small" type="button" id="openAccessToday">ご帰宅する♡（アクセス）</button>
+            </div>
+          </div>
+        </aside>
       </div>
-      <div class="actions">
-        <button id="btnCopyUrl" class="primary" type="button">URLをコピー</button>
-        <button id="btnBannerClose" class="close" type="button">閉じる</button>
+    </div>
+
+    <!-- 初めての方へ -->
+    <section id="first" aria-label="初めての方へ">
+      <div class="secHead">
+        <h2>初めてのご主人さま・お嬢さまへ♡</h2>
+        <p>不安ゼロでご帰宅できるように、要点だけまとめました。</p>
+      </div>
+
+      <div class="system">
+        <div class="sysGrid">
+          <div>
+            <h3>まずはここだけ把握すればOK</h3>
+            <ul>
+              <li><b>料金</b>：30分 1,000円（税込）</li>
+              <li><b>飲み放題</b>：各種ドリンク飲み放題（生ビール含む）</li>
+              <li><b>安心宣言</b>：放置ゼロ宣言＆キャストドリンク無し</li>
+              <li><b>迷ったら</b>：右下の「ご帰宅する♡」から地図・電話・DMへ1タップ</li>
+            </ul>
+          </div>
+          <div class="price" aria-label="料金の要点">
+            <div class="big">
+              <b>30分 1,000円（税込）</b>
+              <span>飲み放題つき</span>
+            </div>
+            <div class="sub">※システム・イベントは季節により変動する場合があります。最新情報はポータル＆Xをご確認ください。</div>
+            <div class="modalCtas">
+              <button class="btn small primary" type="button" id="openAccessFirst">アクセス・予約はこちら</button>
+              <a class="btn small" href="#maids">メイドさんを見る</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- メインカード導線 -->
+    <section aria-label="主要コンテンツ">
+      <div class="secHead">
+        <h2>今すぐ行きたい入口を選んでね♡</h2>
+        <p>カード全体がクリックできます。</p>
+      </div>
+
+      <div class="grid">
+        <article class="card" style="grid-column: span 6" aria-label="イベント">
+          <a class="full" href="#events" aria-label="イベントへ"></a>
+          <div class="thumb">
+            <img src="img/potro_cafe_maiddemo_final.png" alt="イベント案内のイメージ" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">最新</span>
+            <h3>イベント開催情報をまとめてチェック♡</h3>
+            <p>開催中・近日開催・配布グッズなど、まとめて確認できます。</p>
+            <div class="miniRow">
+              <span class="chip">開催情報</span>
+              <span class="chip">配布グッズ</span>
+              <span class="chip">最新告知</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="grid-column: span 6" aria-label="メイドさん紹介">
+          <a class="full" href="#maids" aria-label="メイドさん紹介へ"></a>
+          <div class="thumb">
+            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさん紹介のイメージ" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker blue">人気</span>
+            <h3>メイドさん紹介（プロフィール一覧）♡</h3>
+            <p>世代・誕生月で検索できる、公式プロフィールへ。</p>
+            <div class="miniRow">
+              <span class="chip">世代フィルタ</span>
+              <span class="chip">誕生月フィルタ</span>
+              <span class="chip">推しが見つかる</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="grid-column: span 6" aria-label="麻雀システム">
+          <a class="full" href="https://potoro1001.github.io/potoro-mahjong/" aria-label="麻雀システムへ" target="_blank" rel="noopener"></a>
+          <div class="thumb">
+            <img src="img/mahjong-card.png" alt="麻雀システム" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">NEW</span>
+            <h3>ポ・トロ麻雀（ルール・料金・面子募集）♡</h3>
+            <p>健全アミューズメントで、ゆったり楽しく麻雀TIME。</p>
+            <div class="miniRow">
+              <span class="chip">初心者OK</span>
+              <span class="chip">三麻対応</span>
+              <span class="chip">面子募集</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="grid-column: span 6" aria-label="アクセス">
+          <a class="full" href="#access" aria-label="アクセスへ"></a>
+          <div class="thumb">
+            <img src="img/hero-sns-x.png" alt="アクセス案内" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker gray">案内</span>
+            <h3>アクセス（地図・営業時間・住所）♡</h3>
+            <p>迷ったらここ。右下の「ご帰宅する♡」でも同じ案内が開きます。</p>
+            <div class="miniRow">
+              <span class="chip">地図</span>
+              <span class="chip">営業時間</span>
+              <span class="chip">電話</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- お知らせ -->
+    <section id="news" aria-label="お知らせ">
+      <div class="secHead">
+        <h2>お知らせ</h2>
+        <p>最新の告知はXもあわせてご確認ください。</p>
+      </div>
+
+      <div class="system">
+        <p style="margin:0; color:var(--muted); font-weight:750">
+          最新情報は <b>X（@po_toro）</b> をご確認ください♡
+        </p>
+        <div class="ctaRow" style="margin-top:12px">
+          <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">X（@po_toro）を見る</a>
+          <button class="btn small" type="button" id="openAccessNews">ご帰宅する♡（アクセス）</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- イベント -->
+    <section id="events" aria-label="イベント">
+      <div class="secHead">
+        <h2>イベント</h2>
+        <p>開催情報／配布グッズなど</p>
+      </div>
+
+      <div class="system">
+        <h3 style="margin-top:0">現在、下記グッズを配布中でございます</h3>
+        <p style="margin:0; color:var(--muted); font-weight:750">
+          お屋敷にてお渡ししている各種グッズの配布状況です。<br/>
+          ※保管期間は配布開始日から1年間です。
+        </p>
+
+        <div class="tableWrap" style="margin-top:12px" aria-label="配布グッズ一覧（必要に応じて追記）">
+          <table>
+            <thead>
+              <tr>
+                <th>配布開始日</th>
+                <th>イベント名</th>
+                <th>グッズ名</th>
+                <th>配布終了日</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tstrong">—</td>
+                <td>（ここは必要に応じて追記）</td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ctaRow" style="margin-top:12px">
+          <a class="btn small primary" href="https://x.com/po_toro" target="_blank" rel="noopener">イベント告知をXで見る</a>
+          <a class="btn small" href="#play">ゲーム/診断で遊ぶ</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- メイドさん -->
+    <section id="maids" aria-label="メイドさん紹介">
+      <div class="secHead">
+        <h2>メイドさん紹介</h2>
+        <p>プロフィール／歴代メイド服／募集</p>
+      </div>
+
+      <div class="grid">
+        <article class="card" aria-label="プロフィール一覧">
+          <a class="full" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener" aria-label="プロフィール一覧を見る"></a>
+          <div class="thumb">
+            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさんプロフィール一覧" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker blue">プロフィール</span>
+            <h3>プロフィール一覧</h3>
+            <p>PO♡TOROのメイドさんたち（世代・誕生月で検索OK）</p>
+            <div class="miniRow">
+              <span class="chip">世代</span>
+              <span class="chip">誕生月</span>
+              <span class="chip">検索</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="歴代メイド服紹介">
+          <a class="full" href="uniforms.html" aria-label="歴代メイド服を見る"></a>
+          <div class="thumb">
+            <img src="img/uniforms_thumbnail.jpg" alt="歴代メイド服紹介" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">ヒストリー</span>
+            <h3>歴代メイド服紹介</h3>
+            <p>初代から七代目までをご紹介♡</p>
+            <div class="miniRow">
+              <span class="chip">全7モデル</span>
+              <span class="chip">年表</span>
+              <span class="chip">現行も</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="メイドさん募集中">
+          <a class="full" href="https://xn--pckua2a7gp15o89zb.com" target="_blank" rel="noopener" aria-label="応募ページへ"></a>
+          <div class="thumb">
+            <img src="img/recruit_banner.jpg" alt="メイドさん募集中" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker gray">募集</span>
+            <h3>メイドさん募集中</h3>
+            <p>未経験の方も大歓迎♡</p>
+            <div class="miniRow">
+              <span class="chip">応募フォーム</span>
+              <span class="chip">見学相談</span>
+              <span class="chip">歓迎</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="推しの見つけ方">
+          <a class="full" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener" aria-label="推しを探す"></a>
+          <div class="thumb">
+            <img src="img/hero-diagnosis-card.png" alt="推し探しのヒント" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker blue">推し化</span>
+            <h3>推しの見つけ方（最短ルート）</h3>
+            <p>「誕生月」→「世代」→「ひとこと」で、推しが決まりやすい♡</p>
+            <div class="miniRow">
+              <span class="chip">誕生月で絞る</span>
+              <span class="chip">世代を見る</span>
+              <span class="chip">一言チェック</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ゲーム/診断/講義/麻雀 -->
+    <section id="play" aria-label="ゲーム / 診断 / 講義 / 麻雀">
+      <div class="secHead">
+        <h2>ゲーム / 診断 / 講義 / 麻雀</h2>
+        <p>ポ・トロの世界観で遊べるコンテンツ</p>
+      </div>
+
+      <div class="grid">
+        <article class="card" aria-label="ポ・トロクエスト">
+          <a class="full" href="https://potoro1001.github.io/potoro-quest/" target="_blank" rel="noopener" aria-label="ポ・トロクエストをプレイする"></a>
+          <div class="thumb">
+            <img src="img/hero-quest-card.png" alt="ポ・トロクエスト" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">ゲーム</span>
+            <h3>ポ・トロクエスト</h3>
+            <p>アプリ内ブラウザだとブロックされることがあるので、Safari/Chrome推奨です。</p>
+            <div class="miniRow">
+              <span class="chip">iPad OK</span>
+              <span class="chip">ターン制</span>
+              <span class="chip">チェキ券Drop</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="ご主人様タイプ診断">
+          <a class="full" href="https://potoro1001.github.io/potoro-diagnosis/" target="_blank" rel="noopener" aria-label="ご主人様タイプ診断をする"></a>
+          <div class="thumb">
+            <img src="img/hero-diagnosis-card.png" alt="ご主人様タイプ診断" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker blue">診断</span>
+            <h3>ご主人様タイプ診断</h3>
+            <p>MBTIミニ12問で性格診断（所要約1分）</p>
+            <div class="miniRow">
+              <span class="chip">2択×12</span>
+              <span class="chip">称号つき</span>
+              <span class="chip">おすすめTips</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="萌えセレクト講義">
+          <a class="full" href="https://potoro1001.github.io/potoro-moeselect/" target="_blank" rel="noopener" aria-label="萌えセレクト講義を受講する"></a>
+          <div class="thumb">
+            <img src="img/moeselect_thumbnail.jpg" alt="萌えセレクト講義" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">講義</span>
+            <h3>萌えセレクト講義</h3>
+            <p>講義形式で学ぶ「萌え」の極意</p>
+            <div class="miniRow">
+              <span class="chip">先生×生徒</span>
+              <span class="chip">オート再生</span>
+              <span class="chip">世界観重視</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="ポ・トロ麻雀">
+          <a class="full" href="https://potoro1001.github.io/potoro-mahjong/" target="_blank" rel="noopener" aria-label="ポ・トロ麻雀を確認する"></a>
+          <div class="thumb">
+            <img src="img/mahjong-card.png" alt="ポ・トロ麻雀" loading="lazy" />
+          </div>
+          <div class="inner">
+            <span class="kicker">麻雀</span>
+            <h3>ポ・トロ麻雀</h3>
+            <p>ルール・料金・面子募集までまとめて。</p>
+            <div class="miniRow">
+              <span class="chip">健全アミューズメント</span>
+              <span class="chip">予約DM</span>
+              <span class="chip">貸卓OK</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 直近7日（スプシ連携） -->
+    <section id="schedule" aria-label="営業スケジュール">
+      <div class="secHead">
+        <h2>直近7日（スプレッドシート連携）</h2>
+        <p>※表示は自動反映（今日以降7日分）</p>
+      </div>
+
+      <div class="tableWrap" aria-label="直近7日 表">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>営業時間</th>
+              <th>メモ</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTable">
+            <tr>
+              <td class="tstrong">—</td>
+              <td><span class="tbadge">読み込み中…</span></td>
+              <td>少々お待ちください</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ctaRow" style="margin-top:12px">
+        <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xで最新の営業/お給仕を見る</a>
+        <button class="btn small" type="button" id="openAccessSchedule">ご帰宅する♡（アクセス）</button>
+      </div>
+    </section>
+
+    <!-- アクセス -->
+    <section id="access" aria-label="アクセス">
+      <div class="secHead">
+        <h2>アクセス</h2>
+        <p>地図・営業時間・住所</p>
+      </div>
+
+      <div class="system">
+        <div class="sysGrid">
+          <div>
+            <h3>店舗情報</h3>
+            <p style="margin:0; color:var(--muted); font-weight:750">
+              〒790-0012 愛媛県松山市湊町3-7-2 2F<br/>
+              営業時間：平日＆祝 18:00–22:00 / 土日 17:00–22:00（目安）<br/>
+              料金：30分 1,000円(税込) 各種ドリンク飲み放題（生ビール含む）<br/>
+              ※放置ゼロ宣言＆キャストドリンク無しで安心♪
+            </p>
+
+            <div class="ctaRow" style="margin-top:12px">
+              <a class="btn small primary" href="https://www.google.com/maps/search/?api=1&query=%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%9D%BE%E5%B1%B1%E5%B8%82%E6%B9%8A%E7%94%BA3-7-2+2F" target="_blank" rel="noopener">Googleマップで開く</a>
+              <a class="btn small" href="tel:0899095211">電話する（089-909-5211）</a>
+            </div>
+          </div>
+
+          <div class="price" aria-label="ご予約/問い合わせ">
+            <div class="big"><b>ご予約・お問い合わせ</b><span>DM推奨</span></div>
+            <div class="sub">麻雀システム等は「XのDM」でのご予約が必要です。</div>
+            <div class="modalCtas">
+              <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く</a>
+              <button class="btn small" type="button" id="openAccessAccess">ご帰宅する♡（案内）</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SNS -->
+    <section id="sns" aria-label="公式SNS">
+      <div class="secHead">
+        <h2>公式SNS</h2>
+        <p>更新感＝安心感。まずは最新ポストをチェック♡</p>
+      </div>
+
+      <div class="snsGrid">
+        <div class="embedCard" aria-label="X（旧Twitter）">
+          <h3>X（旧Twitter）</h3>
+          <p>@po_toro</p>
+          <div class="xwrap">
+            <a class="twitter-timeline"
+               data-height="520"
+               data-dnt="true"
+               data-theme="light"
+               href="https://twitter.com/po_toro">Tweets by po_toro</a>
+            <noscript>
+              <p style="margin:0; color:#6d6670; font-weight:750">
+                JavaScriptが無効のためタイムラインを表示できません。<br/>
+                <a href="https://x.com/po_toro" target="_blank" rel="noopener" style="text-decoration:underline">Xを開く</a>
+              </p>
+            </noscript>
+          </div>
+          <div class="ctaRow" style="margin-top:10px">
+            <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く</a>
+          </div>
+        </div>
+
+        <div class="embedCard" aria-label="TikTok">
+          <h3>TikTok</h3>
+          <p>@potoro_o</p>
+          <div class="xwrap">
+            <p style="margin:0; color:var(--muted); font-weight:750">
+              TikTokは埋め込み表示が環境により不安定なため、ボタンでの導線を優先しています。
+            </p>
+          </div>
+          <div class="ctaRow" style="margin-top:10px">
+            <a class="btn small primary" href="https://www.tiktok.com/@potoro_o" target="_blank" rel="noopener">TikTokを開く</a>
+            <button class="btn small" type="button" id="openAccessSns">ご帰宅する♡（アクセス）</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer aria-label="フッター">
+      <div class="footerBox">
+        <div>
+          <b style="color:var(--ink)">concept cafe PO・TORO</b><br/>
+          ご帰宅ありがとうございます。最新情報は本ポータルとXをご確認ください。<br/>
+          <a href="tel:0899095211" style="text-decoration:underline">089-909-5211</a>
+        </div>
+
+        <div class="ctaRow" style="justify-content:flex-end; margin:0">
+          <a class="btn small" href="#events">イベント</a>
+          <a class="btn small" href="#maids">メイドさん</a>
+          <a class="btn small" href="#play">ゲーム/診断</a>
+          <button class="btn small pink" type="button" id="openAccessFooter">ご帰宅する♡</button>
+        </div>
+      </div>
+
+      <p style="text-align:center; margin:12px 0 0">
+        © PO・TORO / concept cafe. All rights reserved.
+      </p>
+    </footer>
+  </main>
+
+  <!-- Floating Actions -->
+  <div class="float" aria-label="固定ボタン">
+    <button class="toTop" id="toTop" type="button" aria-label="ページ上部へ">▲</button>
+    <button class="fab" id="openAccessFab" type="button" aria-haspopup="dialog" aria-controls="accessModal">
+      ご帰宅する♡ <small>（アクセス）</small>
+    </button>
+  </div>
+
+  <!-- Access Modal -->
+  <div class="modalBack" id="accessModal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+    <div class="modal">
+      <div class="modalHead">
+        <b id="accessTitle">ご帰宅案内♡（アクセス・お問い合わせ）</b>
+        <button class="close" id="closeAccess" type="button" aria-label="閉じる">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="infoGrid">
+          <div class="ibox">
+            <b>住所</b>
+            <p>〒790-0012 愛媛県松山市湊町3-7-2 2F</p>
+          </div>
+          <div class="ibox">
+            <b>営業時間（目安）</b>
+            <p>平日＆祝 18:00–22:00 / 土日 17:00–22:00<br/>※最新はXをご確認ください</p>
+          </div>
+          <div class="ibox">
+            <b>料金</b>
+            <p>30分 1,000円（税込）<br/>各種ドリンク飲み放題（生ビール含む）</p>
+          </div>
+          <div class="ibox">
+            <b>連絡</b>
+            <p>電話：089-909-5211<br/>予約：XのDM推奨</p>
+          </div>
+        </div>
+
+        <div class="modalCtas">
+          <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%9D%BE%E5%B1%B1%E5%B8%82%E6%B9%8A%E7%94%BA3-7-2+2F" target="_blank" rel="noopener">地図を開く</a>
+          <a class="btn" href="tel:0899095211">電話する</a>
+          <a class="btn pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く（DM）</a>
+          <button class="btn" id="closeAccess2" type="button">閉じる</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ゲーム本体 -->
-  <div id="game-root">
-    <div class="app">
-      <div class="topbar">
-        <div class="title">ポ・トロクエスト</div>
-        <div class="toolbar">
-          <button class="btn" id="btnHelp">説明</button>
-          <button class="btn" id="btnStory">あらすじ</button>
-          <button class="btn" id="btnMute">効果音: ON</button>
-          <button class="btn" id="btnReset">最初から</button>
-          <button class="btn" id="btnStart">開始</button>
-          <button class="btn" id="btnFull">全画面</button>
-        </div>
-      </div>
-
-      <div class="screen">
-        <canvas id="game" width="320" height="240" aria-label="game canvas"></canvas>
-      </div>
-    </div>
-
-    <!-- タイトル専用の全面ヒットエリア -->
-    <div id="titleStartHit" style="display:none; position:fixed; inset:0; z-index:1200;"></div>
-
-    <!-- On-screen controls -->
-    <div class="controls">
-      <div class="dpad">
-        <div class="sp"></div><button class="btnc" data-k="ArrowUp">▲</button><div class="sp"></div>
-        <button class="btnc" data-k="ArrowLeft" aria-label="左">◀</button><div class="sp"></div>
-        <button class="btnc" data-k="ArrowRight" aria-label="右">▶</button><div class="sp"></div>
-        <button class="btnc" data-k="ArrowDown">▼</button><div class="sp"></div>
-      </div>
-      <div class="actions">
-        <div class="actions-row">
-          <button class="btnL" data-k="Enter">OK</button>
-          <button class="btnL" data-k="KeyX" data-alt="Escape">戻る</button>
-        </div>
-        <div class="actions-row">
-          <button class="btnL" id="btnActEquip">装備</button>
-          <button class="btnL" id="btnActItems">道具</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 説明（DOMモーダル） -->
-    <div class="help-mask" id="helpMask" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <div class="help-wrap">
-        <div class="help-head" id="helpTitle">《説明書》</div>
-        <div class="help-body" id="helpBody">
-          <p>【ポ・トロクエスト　説明書】
-・「町」→「フィールド」→「ダンジョン」を進み、大広間にいるボスを目指します。
-・戦闘はターン制で、各ターン毎にコマンドを選びます。
-・コマンド：「いやす(通常攻撃)/おまじない/ぼうぎょ/どうぐ」。
-・おまじない：もえもえぎゅー(MP5：敵に20ダメージ)。
-・おまじない：おいしくなーれ(MP10：HP全回復)。
-・おまじない：にしきぬやまー(MP15：ボス以外の敵を即撃破。ボスには大ダメージ)。
-・どうぐ：オムライス(+HP30)、紅茶(+MP10)、くろれきし(ボス以外の敵を即撃破。ボスには大ダメージ)。
-・装備：武器1枠、制服3枠(頭/胴/脚)。宝箱から入手できます。
-・スタートから持っている装備品がありますが、装備しなければ効果(ステータス上昇)がありません。
-・町では敵は出ません。フィールド/ダンジョンで敵が出現します。
-・ミュートは上部「効果音」ボタンで切替できます。
-・攻略本が現実のお屋敷にあります。
-・BOSSがチェキ券を落とすことがあります。その表示画面のスクリーンショットをお屋敷にお持ちいただくとチェキ券(現物)とお渡しいたします。</p>
-        </div>
-        <div class="help-foot">
-          <button class="help-close" id="helpClose">閉じる</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- あらすじモーダル -->
-    <div class="help-mask" id="storyMask" role="dialog" aria-modal="true" aria-labelledby="storyTitle" style="display:none">
-      <div class="help-wrap">
-        <div class="help-head" id="storyTitle">あらすじ</div>
-        <div class="help-body" style="padding:0;display:flex;justify-content:center;align-items:center;">
-          <iframe
-            id="storyFrame"
-            src="opening.html"
-            title="ポ・トロクエスト あらすじ"
-            style="width:100%;height:100%;border:none;border-radius:0;background:#000;"
-            allow="autoplay; fullscreen"
-          ></iframe>
-        </div>
-        <div class="help-foot">
-          <button class="help-close" id="storyClose">閉じる</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 名前入力モーダル -->
-    <div class="help-mask" id="nameMask" role="dialog" aria-modal="true" aria-labelledby="nameTitle" style="display:none">
-      <div class="help-wrap" style="max-width:520px;height:auto">
-        <div class="help-head" id="nameTitle">お名前を入力してください（12文字まで）</div>
-        <div class="help-body" style="height:auto">
-          <input id="nameInput" type="text" maxlength="12"
-                 placeholder="推しのお名前"
-                 style="width:100%;padding:10px;border-radius:8px;border:1px solid #34406a;background:#0f1628;color:#e8ecff;font-size:16px" />
-          <p style="margin-top:.6em;color:#9fb4ff;font-size:12px">※空欄は不可／あとで変更不可</p>
-        </div>
-        <div class="help-foot">
-          <button class="help-close" id="nameCancel">キャンセル</button>
-          <button class="help-close" id="nameOk" style="background:#1f2b4a">OK</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- X widgets -->
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
   <script>
-  /* ======== Core constants ======== */
-  const VIEW_W=320, VIEW_H=240, TILE=16;
-  const W=20, H=15;
+    // ===== スプレッドシートAPI（あなたのWebアプリURL） =====
+    const API_URL = "https://script.google.com/macros/s/AKfycbwH0mhrm5rYXQdaa8h--MK-A2TeYxUsjtcaWNXaHa73FQ-59n2z-EWy0hu8OxeCf5rR/exec";
 
-  /* ======== Equipment/Items ======== */
-  const WEAPONS=[
-   {id:"duster", name:"フェザーダスター", atk:2},
-   {id:"broom", name:"マジカルホーキ", atk:4},
-   {id:"vacuum_ex", name:"異国の掃除機", atk:7}
-  ];
-  const UNIFORMS=[
-   {id:"legs_stocking", slot:"legs", name:"黒のストッキング", def:2},
-   {id:"body_apron",   slot:"body", name:"純白エプロン",     def:4},
-   {id:"head_ribbon",  slot:"head", name:"メイドカチューシャ", def:7},
-   {id:"body_replica6",slot:"body", name:"六代目メイド服(レプリカ)", def:100}
-  ];
-  const ITEMS=[
-   {id:"omurice", name:"オムライス", kind:"healHP", power:30},
-   {id:"tea",     name:"紅茶",       kind:"healMP", power:10},
-   {id:"horse",   name:"くろれきし", kind:"insta",  power:0}
-  ];
-
-  /* ======== Enemies ======== */
-  let ENEMIES=[
-   {name:"定時のご主人様",     hp:42,  atk:10, def:6,  exp:22},
-   {name:"残業のご主人様",     hp:70,  atk:14, def:8,  exp:36},
-   {name:"叱責を受けたご主人様", hp:110, atk:18, def:12, exp:60}
-  ];
-  let BOSS={name:"残業かつ叱責されたご主人様", hp:220, atk:24, def:16, exp:200, boss:true};
-
-  /* ======== Player base ======== */
-  const heroBase={
-    name:"まろ（見習いメイド）", lv:1,
-    hp:24, maxhp:24, mp:8, maxmp:8,
-    atk:5, def:2, exp:0,
-    weapon:null, u_legs:null, u_body:null, u_head:null,
-    invW:[WEAPONS[0]],
-    invU:[UNIFORMS[0]],
-    invI:[{id:"omurice",qty:1},{id:"tea",qty:1},{id:"horse",qty:1}]
-  };
-
-  /* ======== Audio ======== */
-  let mute=false;
-  function audio(){
-    try{
-      if(!audio.ctx){
-        audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      return audio.ctx;
-    }catch(e){
-      return null;
-    }
-  }
-  function tone(f,ms,type,vol,when){
-    f   = (typeof f   === "number") ? f   : 440;
-    ms  = (typeof ms  === "number") ? ms  : 70;
-    vol = (typeof vol === "number") ? vol : 0.5;
-    type= type || "square";
-    when= (typeof when === "number") ? when : 0;
-
-    if(mute) return;
-    const c = audio();
-    if(!c) return;
-    const o=c.createOscillator();
-    const g=c.createGain();
-    o.type = type;
-    o.frequency.value = f;
-    g.gain.value = vol;
-    o.connect(g);
-    g.connect(c.destination);
-    const t = c.currentTime + when/1000;
-    o.start(t);
-    o.stop(t + ms/1000);
-  }
-  function seq(steps){
-    let offset = 0;
-    for (var i=0; i<steps.length; i++){
-      var s = steps[i];
-      var vol  = (typeof s.vol  === "number") ? s.vol  : 0.5;
-      var wait = (typeof s.wait === "number") ? s.wait : s.ms;
-      tone(s.f, s.ms, s.type || "sine", vol, offset);
-      offset += wait;
-    }
-  }
-
-  /* ======== BGM ======== */
-  let bgmTimer=null, bgmKind=null;
-  function bgmStop(){
-    if(bgmTimer){
-      clearInterval(bgmTimer);
-      bgmTimer=null;
-    }
-    bgmKind=null;
-  }
-  function bgmStart(kind){
-    if(mute) return;
-    if(bgmKind===kind) return;
-    bgmStop();
-    bgmKind=kind;
-
-    function loop(bar, steps){
-      function play(){ seq(steps); }
-      play();
-      bgmTimer = setInterval(play, bar);
-    }
-
-    if(kind==="field"){
-      loop(1600, [
-        {f:262,ms:140,vol:0.22,type:'sine'},{f:330,ms:140,vol:0.20,type:'sine'},
-        {f:392,ms:140,vol:0.20,type:'sine'},{f:523,ms:140,vol:0.20,type:'sine'},
-        {f:330,ms:140,vol:0.18,type:'sine'},{f:392,ms:140,vol:0.18,type:'sine'},
-        {f:494,ms:140,vol:0.18,type:'sine'},{f:392,ms:140,vol:0.18,type:'sine'},
-        {f:349,ms:160,vol:0.16,type:'sine'},{f:392,ms:160,vol:0.16,type:'sine'},
-        {f:330,ms:160,vol:0.16,type:'sine'},{f:262,ms:200,vol:0.16,type:'sine'}
-      ]);
-    }else if(kind==="town"){
-      loop(1700, [
-        {f:330,ms:150,vol:0.18,type:'sine'},{f:392,ms:150,vol:0.18,type:'sine'},
-        {f:440,ms:150,vol:0.18,type:'sine'},{f:392,ms:150,vol:0.18,type:'sine'},
-        {f:349,ms:160,vol:0.16,type:'sine'},{f:330,ms:160,vol:0.16,type:'sine'},
-        {f:294,ms:220,vol:0.16,type:'sine'}
-      ]);
-    }else if(kind==="battle"){
-      loop(2100, [
-        {f:196,ms:120,vol:0.34,type:'square'},{f:0,ms:40,vol:0},
-        {f:233,ms:120,vol:0.34,type:'square'},{f:0,ms:20,vol:0},
-        {f:262,ms:120,vol:0.34,type:'square'},{f:0,ms:20,vol:0},
-        {f:233,ms:120,vol:0.34,type:'square'},
-        {f:784,ms:80,vol:0.28,type:'triangle'},{f:0,ms:20,vol:0},
-        {f:880,ms:80,vol:0.30,type:'triangle'},
-        {f:0,ms:20,vol:0},
-        {f:120,ms:70,vol:0.35,type:'square'},
-        {f:294,ms:120,vol:0.34,type:'square'},{f:0,ms:20,vol:0},
-        {f:330,ms:120,vol:0.34,type:'square'},{f:0,ms:20,vol:0},
-        {f:370,ms:120,vol:0.34,type:'square'},
-        {f:988,ms:90,vol:0.32,type:'triangle'},
-        {f:880,ms:90,vol:0.30,type:'triangle'},
-        {f:784,ms:160,vol:0.30,type:'square'}
-      ]);
-    }else if(kind==="boss"){
-      loop(1500, [
-        {f:196,ms:150,vol:0.36,type:'square'},{f:247,ms:150,vol:0.34,type:'square'},
-        {f:294,ms:150,vol:0.34,type:'square'},{f:392,ms:150,vol:0.32,type:'square'},
-        {f:330,ms:150,vol:0.34,type:'square'},{f:294,ms:150,vol:0.34,type:'square'},
-        {f:247,ms:150,vol:0.34,type:'square'},{f:392,ms:220,vol:0.30,type:'square'},
-        {f:523,ms:130,vol:0.28,type:'triangle'},{f:494,ms:130,vol:0.28,type:'triangle'},
-        {f:392,ms:220,vol:0.30,type:'square'}
-      ]);
-    }
-  }
-
-  /* ======== Helpers ======== */
-  function makeFilled(val){
-    var arr=[];
-    for(var j=0;j<H;j++){
-      var row=[];
-      for(var i=0;i<W;i++) row.push(val);
-      arr.push(row);
-    }
-    return arr;
-  }
-  function inBounds(x,y){ return x>=0 && y>=0 && x<W && y<H; }
-
-  /* ======== World / Maps (A案：町 / フィールド / ダンジョン) ======== */
-  // タイル：0=歩ける, 1=壁/侵入不可, 2=ダンジョン扉(ボス前), 3=宝箱, 4=開いた宝箱表示用, 6=ボス(大広間)
-  // ※町/フィールドの出入口は「座標(exits)」で判定（タイルは0のまま）
-
-  var MAP = makeFilled(1);
-  var hallMask = makeFilled(false);
-  var CHEST_LOOT = {};
-  var DIST = null;
-  var BOSS_DOOR = {x:1, y:1};
-
-  function blankMapAllWalls(){
-    var m = [];
-    for(var y=0;y<H;y++){
-      var row=[];
-      for(var x=0;x<W;x++) row.push(1);
-      m.push(row);
-    }
-    return m;
-  }
-  function carveRect(map, x0,y0,x1,y1, val){
-    for(var y=y0;y<=y1;y++){
-      for(var x=x0;x<=x1;x++){
-        if(inBounds(x,y)) map[y][x]=val;
-      }
-    }
-  }
-
-  function buildTown(){
-    var m=blankMapAllWalls();
-    // 町（室内）：広場
-    carveRect(m, 2,2, 17,12, 0);
-    // ちょい装飾（柱）
-    m[5][6]=1; m[5][13]=1;
-    m[8][6]=1; m[8][13]=1;
-    // 出入口（フィールドへ）
-    // 足元の床は0のまま。出口判定はexitsで。
-    return {
-      id:"town",
-      name:"ポ・トロの町",
-      tiles:m,
-      hallMask: makeFilled(false),
-      chestLoot:{},
-      bossDoor:{x:-1,y:-1},
-      dist:null,
-      exits:[
-        {x:10,y:12, to:"field", spawn:{x:10,y:11}, facing:2, label:"町の門"}
-      ],
-      encounterRate: 0.00,
-      bgm: "town"
+    // ===== ユーティリティ =====
+    const $ = (sel, root=document)=>root.querySelector(sel);
+    const pad2 = (n)=> String(n).padStart(2,'0');
+    const fmtJP = (d)=>{
+      const w = ["日","月","火","水","木","金","土"][d.getDay()];
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}（${w}）`;
     };
-  }
-
-  function buildField(){
-    var m=blankMapAllWalls();
-    // フィールド：外周は森(1)、中は草原(0)
-    carveRect(m, 1,1, 18,13, 0);
-    // 森の塊（障害物）
-    carveRect(m, 4,3, 6,5, 1);
-    carveRect(m, 12,4, 14,6, 1);
-    carveRect(m, 3,10, 5,11, 1);
-    carveRect(m, 15,10, 17,11, 1);
-
-    // 町の門（位置）
-    // 洞窟入口（ダンジョンへ）
-    // どちらもタイルは0のまま。表示と遷移はexitsで。
-    return {
-      id:"field",
-      name:"ポ・トロ草原",
-      tiles:m,
-      hallMask: makeFilled(false),
-      chestLoot:{},
-      bossDoor:{x:-1,y:-1},
-      dist:null,
-      exits:[
-        {x:10,y:11, to:"town",   spawn:{x:10,y:12}, facing:0, label:"町へ"},
-        {x:17,y:7,  to:"dungeon",spawn:{x:1,y:1},   facing:2, label:"洞窟へ"}
-      ],
-      encounterRate: 0.07, // フィールドは控えめ
-      bgm: "field"
-    };
-  }
-
-  function generateDungeon(){
-    var m=blankMapAllWalls();
-    var hm=makeFilled(false);
-    var loot={};
-    var bossDoor={x:1,y:1};
-
-    function neighbors(x,y){
-      var r=[];
-      var cand=[[x+2,y],[x-2,y],[x,y+2],[x,y-2]];
-      for(var i=0;i<cand.length;i++){
-        var nx=cand[i][0], ny=cand[i][1];
-        if(nx>0 && ny>0 && nx<W-1 && ny<H-1) r.push([nx,ny]);
-      }
-      return r;
-    }
-    function carve(x,y){
-      m[y][x]=0;
-      var ns=neighbors(x,y);
-      ns.sort(function(){return Math.random()-0.5;});
-      for(var i=0;i<ns.length;i++){
-        var nx=ns[i][0], ny=ns[i][1];
-        if(m[ny][nx]===1){
-          m[(y+ny)/2][(x+nx)/2]=0;
-          carve(nx,ny);
-        }
-      }
-    }
-    carve(1,1);
-
-    // BFS距離
-    var q=[[1,1]];
-    var dist=makeFilled(-1);
-    dist[1][1]=0;
-    var dirs=[[1,0],[-1,0],[0,1],[0,-1]];
-    while(q.length){
-      var c=q.shift();
-      var x=c[0], y=c[1];
-      for(var d=0;d<dirs.length;d++){
-        var dx=dirs[d][0], dy=dirs[d][1];
-        var nx=x+dx, ny=y+dy;
-        if(inBounds(nx,ny) && m[ny][nx]===0 && dist[ny][nx]===-1){
-          dist[ny][nx]=dist[y][x]+1;
-          q.push([nx,ny]);
-        }
-      }
+    function escapeHTML(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#39;");
     }
 
-    // 大広間（最奥）
-    var hx=1, hy=1, best=-1;
-    for(var yy=0;yy<H;yy++){
-      for(var xx=0;xx<W;xx++){
-        if(m[yy][xx]===0 && dist[yy][xx]>best){
-          best=dist[yy][xx]; hx=xx; hy=yy;
-        }
-      }
-    }
-    hm[hy][hx]=true;
-    m[hy][hx]=6;
-
-    // 扉（ボス前）
-    var dlist=[[1,0],[-1,0],[0,1],[0,-1]];
-    for(var k=0;k<dlist.length;k++){
-      var dx2=dlist[k][0], dy2=dlist[k][1];
-      var nx2=hx+dx2, ny2=hy+dy2;
-      if(inBounds(nx2,ny2) && m[ny2][nx2]===0 && dist[ny2][nx2]===best-1){
-        m[ny2][nx2]=2;
-        bossDoor={x:nx2,y:ny2};
-        break;
-      }
-    }
-
-    // 宝箱 4つ
-    var candidates=[];
-    for(var y=1;y<H-1;y++){
-      for(var x=1;x<W-1;x++){
-        if(m[y][x]===0 && !(x===1 && y===1) && m[y][x]!==6){
-          candidates.push([x,y]);
-        }
-      }
-    }
-    candidates.sort(function(){return Math.random()-0.5;});
-    var chestPos=candidates.slice(0,4);
-    var chestItems=[
-      {type:"weapon",  item:WEAPONS[1]},
-      {type:"uniform", item:UNIFORMS[1]},
-      {type:"uniform", item:UNIFORMS[2]},
-      {type:"weapon",  item:WEAPONS[2]}
+    // ===== モーダル =====
+    const modalBack = $("#accessModal");
+    const openBtns = [
+      "#openAccessFab","#openAccessTop","#openAccessToday","#openAccessFirst","#openAccessNews",
+      "#openAccessSchedule","#openAccessAccess","#openAccessSns","#openAccessFooter"
     ];
-    for(var ci=0;ci<chestPos.length;ci++){
-      var cpos = chestPos[ci];
-      var cx=cpos[0], cy=cpos[1];
-      m[cy][cx]=3;
-      loot[cx+","+cy] = chestItems[ci] || chestItems[chestItems.length-1];
+    openBtns.forEach(id=>{
+      const el = $(id);
+      if(el) el.addEventListener("click", ()=> openModal());
+    });
+    function openModal(){
+      modalBack.classList.add("open");
+      setTimeout(()=> $("#closeAccess")?.focus(), 10);
+      document.body.style.overflow = "hidden";
     }
-
-    return {
-      id:"dungeon",
-      name:"お屋敷ダンジョン",
-      tiles:m,
-      hallMask: hm,
-      chestLoot: loot,
-      bossDoor: bossDoor,
-      dist: dist,
-      exits:[
-        {x:1,y:1, to:"field", spawn:{x:16,y:7}, facing:3, label:"洞窟を出る"}
-      ],
-      encounterRate: 0.16, // ダンジョンは濃いめ
-      bgm: "field" // 探索曲はfield扱い（雰囲気は維持）
-    };
-  }
-
-  /* ======== Global State ======== */
-  var state={
-    hero:JSON.parse(JSON.stringify(heroBase)),
-    mode:"title",
-    mapId:"town",
-    x:10,y:12,facing:2,
-    dialogQueue:[],
-    battle:null,
-    title:{blink:0,show:true},
-    nameMode:false,
-    playerName:null,
-    popups:[],
-    maxPopups:4,
-    shakeT:0, shakeMag:0, shakeDur:0, shakeDecay:0.8,
-    visited: makeFilled(false),
-    afterDialogFn:null,
-    // マップ別データ
-    mapData:{
-      town:   { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-      field:  { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-      dungeon:{ openedChests:{}, visited: makeFilled(false), bossAlive:true,  dungeonSeed:0 }
+    function closeModal(){
+      modalBack.classList.remove("open");
+      document.body.style.overflow = "";
     }
-  };
+    $("#closeAccess")?.addEventListener("click", closeModal);
+    $("#closeAccess2")?.addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+    window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && modalBack.classList.contains("open")) closeModal(); });
 
-  var currentMap = null;
+    // ===== ToTop =====
+    const toTop = $("#toTop");
+    window.addEventListener("scroll", ()=>{
+      if(window.scrollY > 500) toTop.classList.add("show");
+      else toTop.classList.remove("show");
+    }, {passive:true});
+    toTop.addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
 
-  function ensureMapData(id){
-    if(!state.mapData) state.mapData={};
-    if(!state.mapData[id]){
-      state.mapData[id] = { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 };
-    }
-    if(!state.mapData[id].openedChests) state.mapData[id].openedChests = {};
-    if(!state.mapData[id].visited) state.mapData[id].visited = makeFilled(false);
-  }
+    // ===== 初期化 =====
+    (function init(){
+      const now = new Date();
+      $("#todayDate").textContent = fmtJP(now);
 
-  function loadMap(id, spawn){
-    // マップ生成（固定 or 迷宮）
-    if(id==="town") currentMap = buildTown();
-    else if(id==="field") currentMap = buildField();
-    else{
-      // dungeon：毎回同じではなく、現在の dungeonSeed に応じて生成し直すこともできるが、
-      // ここでは「開始/ゲームオーバー時に生成」を基本にし、loadでは保持された currentMap を優先。
-      // ただし未生成なら生成。
-      if(!currentMap || currentMap.id!=="dungeon"){
-        currentMap = generateDungeon();
-      }
-    }
+      // 営業時間目安（軽い表示）
+      const day = now.getDay(); // 0=Sun
+      const hours = (day === 0 || day === 6) ? "17:00–22:00（目安）" : "18:00–22:00（目安）";
+      $("#openState").innerHTML = `<span class="dot b"></span>${hours}`;
 
-    ensureMapData(id);
+      loadFromSpreadsheet();
+    })();
 
-    state.mapId = id;
-    MAP = currentMap.tiles;
-    hallMask = currentMap.hallMask || makeFilled(false);
-    CHEST_LOOT = currentMap.chestLoot || {};
-    DIST = currentMap.dist || null;
-    BOSS_DOOR = currentMap.bossDoor || {x:-1,y:-1};
+    // ===== スプシAPIから取得して「本日」「直近7日」を反映 =====
+    async function loadFromSpreadsheet(){
+      const todayList = $("#todayList");
+      const scheduleTable = $("#scheduleTable");
 
-    // mapIdごとの visited / openedChests を参照
-    state.visited = state.mapData[id].visited;
-    state.openedChests = state.mapData[id].openedChests;
+      try{
+        const res = await fetch(API_URL + "?v=" + Date.now(), { cache:"no-store" });
+        if(!res.ok) throw new Error("API error");
+        const data = await res.json();
 
-    if(spawn && typeof spawn.x==="number" && typeof spawn.y==="number"){
-      state.x = spawn.x; state.y = spawn.y;
-    }
-    reveal(state.x, state.y, 3);
-
-    // BGM
-    if(state.mode!=="battle" && state.mode!=="title" && state.mode!=="end"){
-      var kind = currentMap.bgm || "field";
-      bgmStart(kind);
-    }
-  }
-
-  function regenerateDungeonFresh(){
-    currentMap = generateDungeon();
-    ensureMapData("dungeon");
-    state.mapData.dungeon.openedChests = {};
-    state.mapData.dungeon.visited = makeFilled(false);
-    state.mapData.dungeon.bossAlive = true;
-  }
-
-  /* ======== Canvas ======== */
-  const cvs = document.getElementById('game');
-  const ctx = cvs.getContext('2d');
-
-  /* タイトル用ヒットエリア参照 */
-  const titleHitArea = document.getElementById('titleStartHit');
-  function syncTitleHitArea(){
-    if(!titleHitArea) return;
-    titleHitArea.style.display = (state.mode === 'title' && !state.nameMode) ? 'block' : 'none';
-  }
-
-  /* ======== Rendering ======== */
-  function draw(){
-    ctx.save();
-    if(state.shakeT>0){
-      var r = state.shakeT/state.shakeDur;
-      var s = state.shakeMag*r;
-      ctx.translate((Math.random()*2-1)*s,(Math.random()*2-1)*s);
-    }
-
-    if(state.mode==="title"){
-      drawTitle();
-      ctx.restore();
-      return;
-    }
-    if(state.mode==="end"){
-      drawEnd();
-      ctx.restore();
-      return;
-    }
-
-    // 背景（マップ）
-    for(var j=0;j<H;j++){
-      for(var i=0;i<W;i++){
-        var t=MAP[j][i];
-        if(t===3 && state.openedChests && state.openedChests[i+","+j]) t=4;
-
-        drawTile(i,j,t);
-      }
-    }
-
-    // オブジェクト（宝箱/扉/ボス）
-    for(j=0;j<H;j++){
-      for(i=0;i<W;i++){
-        var tt=MAP[j][i];
-        if(tt===3 || (tt===4 && !(state.openedChests && state.openedChests[i+","+j]))){
-          // 宝箱（閉）
-          ctx.fillStyle="#3a6db4"; ctx.fillRect(i*TILE+3,j*TILE+5,10,8);
-          ctx.fillStyle="#284b8a"; ctx.fillRect(i*TILE+3,j*TILE+9,10,1);
-        } else if(tt===4 && state.openedChests && state.openedChests[i+","+j]){
-          // 宝箱（開）
-          ctx.fillStyle="#284b8a"; ctx.fillRect(i*TILE+3,j*TILE+9,10,4);
-          ctx.fillStyle="#3a6db4"; ctx.fillRect(i*TILE+3,j*TILE+5,10,3);
-        } else if(tt===2){
-          // ボス前の扉（ダンジョンのみ想定）
-          ctx.fillStyle="#8b3434"; ctx.fillRect(i*TILE+2,j*TILE+2,12,12);
-        } else if(tt===6){
-          // ボス（大広間）
-          ctx.fillStyle="#e84d4d"; ctx.fillRect(i*TILE+4,j*TILE+4,8,8);
-        }
-      }
-    }
-
-    // 出入口のサイン（マップ定義のexitsに合わせて表示）
-    if(currentMap && currentMap.exits && currentMap.exits.length){
-      for(var ei=0; ei<currentMap.exits.length; ei++){
-        var ex=currentMap.exits[ei];
-        drawExitMarker(ex.x, ex.y, ex.to);
-      }
-    }
-
-    // ラベル
-    drawLocationLabels();
-
-    drawMaid(state.x,state.y,state.facing);
-    drawFog();
-    drawHUD();
-
-    if(state.mode==="dialog")      drawDialog();
-    else if(state.mode==="battle") drawBattle();
-    else if(state.mode==="equip")  drawEquip();
-    else if(state.mode==="items")  drawItemsField();
-
-    drawPopups();
-    ctx.restore();
-  }
-
-  function drawTile(i,j,t){
-    var x=i*TILE, y=j*TILE;
-
-    // 共通：床(0/2/3/4/6)は「歩ける面」
-    var isFloor = (t===0 || t===2 || t===3 || t===4 || t===6);
-
-    if(state.mapId==="field"){
-      // フィールド：床=草原、壁=森
-      if(isFloor){
-        drawGrass(x,y,TILE,TILE);
-      }else{
-        drawForest(x,y,TILE,TILE);
-      }
-    }else if(state.mapId==="town"){
-      // 町：床=石畳、壁=建物壁
-      if(isFloor){
-        drawStone(x,y,TILE,TILE);
-      }else{
-        drawWall(x,y,TILE,TILE);
-      }
-    }else{
-      // ダンジョン：床=木、壁=暗い石
-      if(isFloor){
-        if(hallMask[j] && hallMask[j][i]) drawRedWood(x,y,TILE,TILE);
-        else drawWood(x,y,TILE,TILE);
-      }else{
-        drawDarkWall(x,y,TILE,TILE);
-      }
-    }
-  }
-
-  function drawGrass(x,y,w,h){
-    ctx.fillStyle="#1f3b2d"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#28543d";
-    for(var k=0;k<h;k+=4) ctx.fillRect(x, y+k, w, 1);
-    // 花っぽい点
-    if(Math.random()<0.02){
-      ctx.fillStyle="rgba(255,255,255,.35)";
-      ctx.fillRect(x+Math.floor(Math.random()*w), y+Math.floor(Math.random()*h), 1, 1);
-    }
-  }
-  function drawForest(x,y,w,h){
-    ctx.fillStyle="#102418"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#173521"; ctx.fillRect(x+1,y+1,w-2,h-2);
-    // 木の影
-    ctx.fillStyle="rgba(0,0,0,.25)";
-    ctx.fillRect(x+3,y+2,4,12);
-    ctx.fillRect(x+10,y+3,3,10);
-  }
-  function drawStone(x,y,w,h){
-    ctx.fillStyle="#6f7a8f"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#8893a8";
-    ctx.fillRect(x+1,y+1,w-2,h-2);
-    ctx.fillStyle="rgba(0,0,0,.12)";
-    ctx.fillRect(x, y+Math.floor(h/2), w, 1);
-    ctx.fillRect(x+Math.floor(w/2), y, 1, h);
-  }
-  function drawWall(x,y,w,h){
-    ctx.fillStyle="#2d2f3a"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#34384a";
-    ctx.fillRect(x+1,y+1,w-2,h-2);
-    ctx.fillStyle="rgba(255,255,255,.06)";
-    ctx.fillRect(x+2,y+2,w-4,1);
-  }
-  function drawDarkWall(x,y,w,h){
-    ctx.fillStyle="#141823"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#1b2130";
-    ctx.fillRect(x+1,y+1,w-2,h-2);
-    ctx.fillStyle="rgba(0,0,0,.25)";
-    ctx.fillRect(x+2,y+2,3,12);
-  }
-
-  function drawWood(x,y,w,h){
-    ctx.fillStyle="#8a6b3a"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#b48a3c"; for(var k=2;k<h;k+=4) ctx.fillRect(x, y+k, w, 1);
-    ctx.fillStyle="#7a5f33"; for(k=3;k<w;k+=6) ctx.fillRect(x+k, y+1, 1, h-2);
-  }
-  function drawRedWood(x,y,w,h){
-    ctx.fillStyle="#7a2a2a"; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle="#a33b3b"; for(var k=2;k<h;k+=4) ctx.fillRect(x, y+k, w, 1);
-    ctx.fillStyle="#6a2323"; for(k=3;k<w;k+=6) ctx.fillRect(x+k, y+1, 1, h-2);
-  }
-
-  function drawExitMarker(tx,ty,to){
-    var x=tx*TILE, y=ty*TILE;
-    // フィールド：町/洞窟、町：門、ダンジョン：出口
-    ctx.save();
-    if(to==="town"){
-      // 町へ：小さな旗
-      ctx.fillStyle="rgba(0,0,0,.25)"; ctx.fillRect(x+5,y+6,7,8);
-      ctx.fillStyle="#ff7ad6"; ctx.fillRect(x+6,y+6,1,10);
-      ctx.fillStyle="#ffd6f2"; ctx.fillRect(x+7,y+6,6,4);
-    }else if(to==="dungeon"){
-      // 洞窟：口
-      ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillRect(x+3,y+6,10,8);
-      ctx.fillStyle="#222"; ctx.fillRect(x+4,y+7,8,6);
-      ctx.fillStyle="#555"; ctx.fillRect(x+4,y+7,8,1);
-    }else if(to==="field"){
-      // フィールドへ/洞窟を出る：矢印
-      ctx.fillStyle="rgba(0,0,0,.25)"; ctx.fillRect(x+4,y+4,8,8);
-      ctx.fillStyle="#7fc9ff"; ctx.fillRect(x+6,y+5,4,6);
-      ctx.fillStyle="#7fc9ff"; ctx.fillRect(x+5,y+9,6,2);
-    }
-    ctx.restore();
-  }
-
-  function drawLocationLabels(){
-    var loc = currentMap ? currentMap.name : "";
-    drawText(loc, 6, 20, "#d7dcff", "bold 11px monospace");
-
-    if(state.mapId==="town"){
-      drawText("（町：安全）", 6, 34, "#a4ffea", "bold 10px monospace");
-      drawText("門→フィールド", 6, 46, "#cfe7ff", "10px monospace");
-    }else if(state.mapId==="field"){
-      drawText("（草原：敵が出る）", 6, 34, "#ffd6f2", "bold 10px monospace");
-      drawText("町←→洞窟", 6, 46, "#cfe7ff", "10px monospace");
-    }else{
-      drawText("（ダンジョン：危険）", 6, 34, "#ffb3b3", "bold 10px monospace");
-      // 大広間ラベル
-      var hall = getHallPos();
-      drawText("大広間", hall.x*TILE+4, Math.max(0,hall.y*TILE-10), "#ff6b6b", "bold 10px monospace");
-    }
-  }
-
-  function drawTitle(){
-    ctx.fillStyle="#0b0f18";
-    ctx.fillRect(0,0,VIEW_W,VIEW_H);
-
-    for(var i=0;i<VIEW_H;i+=8){
-      ctx.fillStyle = ( (i/8)%2 ? "#111a2a" : "#0e1626" );
-      ctx.fillRect(0, i, VIEW_W, 8);
-    }
-
-    centerText("ポ・トロクエスト", VIEW_W/2, 72, "bold 20px sans-serif", "#ff7ad6");
-
-    ctx.fillStyle = "rgba(0,0,0,0.65)";
-    ctx.fillRect(0, VIEW_H - 70, VIEW_W, 70);
-
-    if(state.title.show){
-      centerText("PRESS START", VIEW_W/2, VIEW_H - 48, "bold 18px sans-serif", "#ffffff");
-    }
-    centerText("タップ または スペースキー", VIEW_W/2, VIEW_H - 26, "bold 11px sans-serif", "#e8ecff");
-  }
-
-  function drawEnd(){
-    ctx.fillStyle="#0b0f18"; ctx.fillRect(0,0,VIEW_W,VIEW_H);
-    var heroName = "あなた";
-    if(state.hero && state.hero.name){
-      heroName = state.hero.name;
-    }else if(state.playerName){
-      heroName = state.playerName;
-    }
-    var line = heroName + "は一人前のメイドになった！";
-    centerText(line, VIEW_W/2, VIEW_H/2 - 10, "bold 14px sans-serif", "#ffe9f7");
-    drawText("end", VIEW_W-36, VIEW_H-18, "#d0d4ff", "bold 12px monospace");
-  }
-
-  function centerText(t,cx,y,font,color){
-    font  = font  || "12px monospace";
-    color = color || "#fff";
-    ctx.font=font; ctx.fillStyle=color;
-    var w=ctx.measureText(t).width;
-    ctx.textBaseline="top";
-    ctx.fillText(t,cx-w/2,y);
-  }
-  function drawText(t,x,y,c,font){
-    c    = c    || "#fff";
-    font = font || "10px monospace";
-    ctx.fillStyle=c; ctx.font=font; ctx.textBaseline="top";
-    ctx.fillText(t,x,y);
-  }
-
-  function wrapLines(text, maxW, font){
-    font = font || "10px monospace";
-    ctx.font = font;
-    var lines=[];
-    var rawLines=(""+text).split("\n");
-    for(var ri=0;ri<rawLines.length;ri++){
-      var raw = rawLines[ri];
-      var line="";
-      for(var ci=0;ci<raw.length;ci++){
-        var ch=raw.charAt(ci);
-        var test=line+ch;
-        if(ctx.measureText(test).width<=maxW){
-          line=test;
+        // --- 本日 ---
+        const t = data?.today;
+        if(t && Array.isArray(t.maids) && t.maids.length){
+          todayList.innerHTML = t.maids.map(m=>{
+            const note = m.note ? `<small>${escapeHTML(m.note)}</small>` : `<small>お給仕予定</small>`;
+            return `
+              <li class="row">
+                <span class="name"><span>${escapeHTML(m.name)}</span>${note}</span>
+                <span class="time">${escapeHTML(m.time || "")}</span>
+              </li>
+            `;
+          }).join("");
+          // 営業時間をAPI側に合わせて上書き（空なら目安のまま）
+          if(t.open && t.close){
+            $("#openState").innerHTML = `<span class="dot b"></span>${escapeHTML(t.open)}–${escapeHTML(t.close)}`;
+          }
         }else{
-          lines.push(line);
-          line=ch;
-        }
-      }
-      lines.push(line);
-    }
-    return lines;
-  }
-  function drawParagraph(lines,x,y,color,font,maxW,maxLines,lineH){
-    color   = color   || "#ddd";
-    font    = font    || "10px monospace";
-    maxW    = (typeof maxW    === "number") ? maxW    : 280;
-    maxLines= (typeof maxLines=== "number") ? maxLines: 8;
-    lineH   = (typeof lineH   === "number") ? lineH   : 12;
-
-    ctx.font=font; ctx.fillStyle=color;
-    var count=0;
-    for(var i=0;i<lines.length;i++){
-      var wrapped = wrapLines(lines[i], maxW, font);
-      for(var j=0;j<wrapped.length;j++){
-        ctx.fillText(wrapped[j], x, y);
-        y+=lineH; count++;
-        if(count>=maxLines) return;
-      }
-    }
-  }
-
-  function drawMaid(tx,ty,dir){
-    var x=tx*TILE, y=ty*TILE, h=state.hero;
-    var isReplica = (h.u_body && h.u_body.id==="body_replica6");
-    var dressMain = isReplica ? "#ffffff" : "#ffd6f2";
-    var accent    = isReplica ? "#ffd700" : "#ff9ad6";
-
-    ctx.fillStyle="#6b3f2a"; ctx.fillRect(x+5,y+2,6,4);
-    ctx.fillStyle="#ffecd6"; ctx.fillRect(x+6,y+5,4,4);
-    ctx.fillStyle=dressMain; ctx.fillRect(x+5,y+9,6,7);
-    if(h.u_body){ ctx.fillStyle=accent; ctx.fillRect(x+6,y+10,4,1); }
-
-    var legsCol=h.u_legs?"#2b2b3a":"#222";
-    ctx.fillStyle=legsCol; ctx.fillRect(x+5,y+16,2,2); ctx.fillRect(x+9,y+16,2,2);
-
-    if(h.u_head){ ctx.fillStyle=accent; ctx.fillRect(x+7,y+1,2,2); }
-    if(dir===1){ ctx.fillStyle=accent; ctx.fillRect(x+11,y+7,2,2); }
-    if(dir===3){ ctx.fillStyle=accent; ctx.fillRect(x+3,y+7,2,2); }
-  }
-
-  function drawPanel(x,y,w,h){
-    ctx.fillStyle="rgba(16,21,34,.92)"; ctx.fillRect(x,y,w,h);
-    ctx.strokeStyle="#2b3246"; ctx.strokeRect(x+0.5,y+0.5,w-1,h-1);
-  }
-  function totalDef(h){
-    var d=h.def;
-    if(h.u_legs) d+=h.u_legs.def;
-    if(h.u_body) d+=h.u_body.def;
-    if(h.u_head) d+=h.u_head.def;
-    return d;
-  }
-  function drawHUD(){
-    ctx.fillStyle="rgba(0,0,0,.55)"; ctx.fillRect(0,0,VIEW_W,18);
-    var h=state.hero;
-    var atk=h.atk+(h.weapon?h.weapon.atk:0);
-    var def=totalDef(h);
-    drawText(h.name+" LV:"+h.lv+" HP:"+h.hp+"/"+h.maxhp+
-             " MP:"+h.mp+"/"+h.maxmp+" ATK:"+atk+" DEF:"+def,
-             4,4,"#fff");
-  }
-  function drawDialog(){
-    var msg = state.dialogQueue.length ? state.dialogQueue[0] : "...";
-    drawPanel(8,160,304,72);
-    drawParagraph([msg], 14, 166, "#fff", "10px monospace", 292, 4, 12);
-    drawText("▼ タップ/OKで進む",184,222,"#a4b0ff");
-  }
-
-  /* === おまじない === */
-  function getOmajinaiList(h){
-    var list=[ {id:'moe', name:'もえもえぎゅー (MP5)', mp:5, type:'damage20'} ];
-    if(h.lv>=3) list.push({id:'oishi',  name:'おいしくなーれ (MP10)', mp:10, type:'healFull'});
-    if(h.lv>=5) list.push({id:'nishiki',name:'にしきぬやまー (MP15)', mp:15, type:'insta'});
-    return list;
-  }
-
-  /* === 戦闘描画 === */
-  function drawBattle(){
-    var b=state.battle, h=state.hero, e=b.enemy;
-    drawPanel(8,20,304,208);
-
-    if(b.phase==="finished"){
-      var lines=[];
-      lines.push(b.victoryLine || (h.name+"は　"+e.name+"を　いやした！"));
-      if(b.postMsgs && b.postMsgs.length){
-        for(var pi=0;pi<b.postMsgs.length;pi++) lines.push(b.postMsgs[pi]);
-      }
-      lines.push(b.summary || "【戦闘結果】");
-      drawParagraph(lines,16,64,"#fff","10px monospace",288,8,12);
-      return;
-    }
-
-    drawText("《戦闘》",16,24,"#fff");
-    drawText(e.name,16,40,"#ffd37a");
-    drawText(h.name+" HP:"+h.hp+"/"+h.maxhp+" MP:"+h.mp+"/"+h.maxmp,144,40,"#7ad3ff");
-
-    var startIdx = Math.max(0,b.log.length-10);
-    drawParagraph(b.log.slice(startIdx), 16,56,"#ddd","10px monospace",276,6,12);
-
-    if(b.phase==="select"){
-      var menu=["いやす","おまじない","ぼうぎょ","どうぐ"];
-      var cols=2, w=120, hgt=18;
-      var mx=VIEW_W-8-cols*w-8, my=VIEW_H-8-2*hgt-8;
-      drawPanel(mx,my,cols*w+8,2*hgt+8);
-      for(var i=0;i<menu.length;i++){
-        var cx=mx+4+(i%cols)*w;
-        var cy=my+4+Math.floor(i/cols)*hgt;
-        var sel=(b.sel||0)===i;
-        ctx.fillStyle=sel?"rgba(255,122,214,.25)":"transparent";
-        ctx.fillRect(cx,cy,w,hgt);
-        drawText(menu[i],cx+4,cy+4,sel?"#ffd6f2":"#fff");
-      }
-    }else if(b.phase==="omajinai"){
-      var list=getOmajinaiList(state.hero);
-      drawPanel(20,56,280,120);
-      drawText("《おまじない》 ↑↓で選択 / OKで実行 / 戻るで戻る",28,60,"#fff");
-      if(!list.length){ drawText("まだ何も覚えていない…",28,78,"#ddd"); }
-      for(i=0;i<list.length;i++){
-        var y2=78+i*14;
-        var sel2=(b.omSel||0)===i;
-        if(sel2){ ctx.fillStyle="rgba(255,122,214,.22)"; ctx.fillRect(24,y2-2,272,14); }
-        drawText(list[i].name,32,y2, sel2?"#ffe6f7":"#fff");
-      }
-    }else if(b.phase==="item"){
-      drawItemMenu();
-    }else if(b.phase==="inter"){
-      drawText("ターン終了。次のターンへ（OK）",16,212,"#a4b0ff");
-    }
-  }
-
-  function drawItemMenu(){
-    var h=state.hero;
-    var list=h.invI.filter(function(it){return it.qty>0;});
-    drawPanel(20,56,280,120);
-    drawText("《どうぐ》 ↑↓で選択 / OKで使用 / 戻るで戻る",28,60,"#fff");
-    if(!list.length){
-      drawText("まだ何も持っていない…",28,76,"#ddd");
-      return;
-    }
-    for(var i=0;i<list.length;i++){
-      var y=78+i*14;
-      var sel=(state.battle.itemSel||0)===i;
-      if(sel){ ctx.fillStyle="rgba(122,225,255,.22)"; ctx.fillRect(24,y-2,272,14); }
-      var base = null;
-      for(var ii=0;ii<ITEMS.length;ii++){
-        if(ITEMS[ii].id===list[i].id){ base=ITEMS[ii]; break; }
-      }
-      var label = (base?base.name:list[i].id)+" ×"+list[i].qty;
-      drawText(label,32,y, sel?"#e7faff":"#fff");
-    }
-  }
-
-  /* 霧 */
-  function reveal(x,y,r){
-    r = (typeof r === "number") ? r : 3;
-    for(var j=-r;j<=r;j++){
-      for(var i=-r;i<=r;i++){
-        var nx=x+i, ny=y+j;
-        if(!inBounds(nx,ny)) continue;
-        var d=Math.abs(i)+Math.abs(j);
-        if(d<=r) state.visited[ny][nx]=true;
-      }
-    }
-  }
-  function drawFog(){
-    for(var j=0;j<H;j++){
-      for(var i=0;i<W;i++){
-        if(!state.visited[j][i]){
-          ctx.fillStyle="rgba(0,0,0,0.90)";
-          ctx.fillRect(i*TILE,j*TILE,TILE,TILE);
-        }
-      }
-    }
-  }
-
-  /* FX */
-  function addPopup(x,y,text,color,size,up,stay,fade){
-    color = color || "#fff";
-    size  = (typeof size==="number") ? size : 12;
-    up    = (typeof up==="number")   ? up   : 20;
-    stay  = (typeof stay==="number") ? stay : 400;
-    fade  = (typeof fade==="number") ? fade : 200;
-
-    if(state.popups.length>=state.maxPopups) state.popups.shift();
-    state.popups.push({
-      x:x,y:y,text:text,color:color,size:size,
-      vy:-up/stay,life:stay+fade,stay:stay,fade:fade
-    });
-  }
-  function drawPopups(){
-    var arr=state.popups;
-    for(var i=arr.length-1;i>=0;i--){
-      var p=arr[i];
-      var total=p.stay+p.fade;
-      var gone = total - p.life;
-      var alpha=1;
-      if(gone>p.stay) alpha=Math.max(0,1-(gone-p.stay)/p.fade);
-      var yy = p.y - (gone * (-p.vy));
-      ctx.globalAlpha=alpha;
-      drawText(p.text, p.x, yy, p.color, "bold "+p.size+"px monospace");
-      ctx.globalAlpha=1;
-      p.life--;
-      if(p.life<=0) arr.splice(i,1);
-    }
-  }
-  function startShake(mag,dur,decay){
-    state.shakeMag = (typeof mag==="number") ? mag : 6;
-    state.shakeDur = (typeof dur==="number") ? dur : 120;
-    state.shakeT   = state.shakeDur;
-    state.shakeDecay = (typeof decay==="number") ? decay : 0.8;
-  }
-
-  /* 距離→出現帯 */
-  function distPercentToBossDoor(x,y){
-    if(!DIST || !inBounds(x,y)) return 0;
-    var rowD  = DIST[y];
-    var rowBD = DIST[BOSS_DOOR.y];
-    var d  = (rowD  && typeof rowD[x] === "number")            ? rowD[x]            : -1;
-    var md = (rowBD && typeof rowBD[BOSS_DOOR.x] === "number") ? rowBD[BOSS_DOOR.x] : -1;
-    if(d<0 || md<=0) return 0;
-    var pct = Math.floor((d/md)*100);
-    if(pct<0)   pct=0;
-    if(pct>100) pct=100;
-    return pct;
-  }
-  function pickEnemyFor(x,y){
-    var p = distPercentToBossDoor(x,y);
-    if(p<=30){
-      return copyEnemy(ENEMIES[0]);
-    }else if(p<=60){
-      var idx = Math.random()<0.5 ? 0 : 1;
-      return copyEnemy(ENEMIES[idx]);
-    }else{
-      var r = Math.random();
-      var idx2 = r < 1/3 ? 0 : (r < 2/3 ? 1 : 2);
-      return copyEnemy(ENEMIES[idx2]);
-    }
-  }
-
-  /* ======== Input & Loop ======== */
-  var keys={};
-  document.addEventListener('keydown', function(e){
-    var tag = (e.target && e.target.tagName) || "";
-    var typing = /INPUT|TEXTAREA|SELECT/.test(tag) || (e.target && e.target.isContentEditable);
-    keys[e.code] = true;
-
-    if(e.code==="Space" && !typing) e.preventDefault();
-
-    if(state.mode==="title" && (e.code==="Enter" || e.code==="Space")) startNameEntry();
-    if(state.mode==="end"   && (e.code==="Enter" || e.code==="Space")) resetToTitle();
-  });
-  document.addEventListener('keyup', function(e){
-    delete keys[e.code];
-  });
-
-  var last=0, acc=0;
-  function loop(ts){
-    var dt=(ts-last)/1000;
-    last=ts; acc+=dt;
-    while(acc>1/60){
-      update(1/60);
-      acc-=1/60;
-    }
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  var moveCooldown=0, actionCooldown=0, navCD=0;
-  var NAV_INTERVAL=0.18;
-  function navReady(){ return navCD<=0; }
-  function navSet(){ navCD=NAV_INTERVAL; }
-  function pressed(arr){
-    for(var i=0;i<arr.length;i++){
-      if(keys[arr[i]]) return true;
-    }
-    return false;
-  }
-
-  var prevMode="title";
-  function update(dt){
-    syncTitleHitArea();
-
-    if(state.mode==='title'){
-      syncControlsDisabled();
-      return titleUpdate(dt);
-    }
-
-    if(prevMode!==state.mode){
-      if(state.mode==='field' || state.mode==='equip' || state.mode==='dialog' || state.mode==='items'){
-        // mapごとのBGM
-        if(currentMap && currentMap.bgm) bgmStart(currentMap.bgm);
-        else bgmStart('field');
-      }else if(state.mode==='battle'){
-        // 切替済み
-      }else if(state.mode==='end'){
-        bgmStop();
-      }else{
-        bgmStop();
-      }
-      prevMode=state.mode;
-    }
-
-    if(state.mode==='dialog'){
-      if(pressed(["Enter","Space"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        state.dialogQueue.shift();
-        if(!state.dialogQueue.length){
-          var fn=state.afterDialogFn;
-          state.afterDialogFn=null;
-          if(typeof fn==="function"){ fn(); }
-          else { state.mode='field'; }
-        }
-      }
-    }
-    else if(state.mode==='battle') battleUpdate(dt);
-    else if(state.mode==='equip')  equipUpdate(dt);
-    else if(state.mode==='items')  itemsUpdate(dt);
-    else if(state.mode==='end'){
-      // no-op
-    }
-    else fieldUpdate(dt);
-
-    moveCooldown=Math.max(0,moveCooldown-dt);
-    actionCooldown=Math.max(0,actionCooldown-dt);
-    navCD=Math.max(0,navCD-dt);
-    if(state.shakeT>0){
-      state.shakeT -= dt*1000;
-      if(state.shakeT<0) state.shakeT=0;
-    }
-
-    syncControlsDisabled();
-  }
-
-  function titleUpdate(dt){
-    state.title.blink += dt;
-    if(state.title.blink >= 0.6){
-      state.title.blink = 0;
-      state.title.show = !state.title.show;
-    }
-  }
-
-  /* 名前入力 */
-  function startNameEntry(){
-    if(state.nameMode || state.mode!=='title') return;
-    state.nameMode = true;
-    armAudio();
-
-    var proceed = function(name){
-      state.hero.name = name;
-      state.playerName = name;
-
-      // v2.0：開始地点は「町」
-      state.mode = 'field';
-      prevMode = 'title';
-
-      // ダンジョンは新規生成しておく
-      regenerateDungeonFresh();
-
-      // 町へロード
-      loadMap("town", {x:10,y:11});
-      state.facing = 2;
-      state.nameMode = false;
-    };
-    var abort = function(){ state.nameMode = false; };
-
-    try{
-      var v = prompt("推しのお名前を入力してください（12文字まで）", "");
-      if(v===null){ abort(); return; }
-      var name = (v||"").replace(/^\s+|\s+$/g,"").slice(0,12);
-      if(!name){
-        openNameModal(proceed, abort);
-        return;
-      }
-      proceed(name);
-    }catch(e){
-      openNameModal(proceed, abort);
-    }
-  }
-
-  /* ===== 名前モーダル制御 ===== */
-  var nameMask   = document.getElementById('nameMask');
-  var nameInput  = document.getElementById('nameInput');
-  var nameOk     = document.getElementById('nameOk');
-  var nameCancel = document.getElementById('nameCancel');
-
-  function openNameModal(onOK, onCancel){
-    if(!nameMask){
-      if(onCancel) onCancel();
-      return;
-    }
-    nameMask.style.display='block';
-    setTimeout(function(){
-      try{ if(nameInput) nameInput.focus(); }catch(e){}
-    }, 0);
-
-    function ok(){
-      var v = "";
-      if(nameInput) v = (nameInput.value || "");
-      v = v.replace(/^\s+|\s+$/g,"").slice(0,12);
-      if(!v){
-        alert("名前を入力してください");
-        if(nameInput) nameInput.focus();
-        return;
-      }
-      cleanup();
-      onOK(v);
-    }
-    function cancel(){
-      cleanup();
-      if(onCancel) onCancel();
-    }
-    function onKey(e){
-      if(e.key==='Enter'){
-        e.preventDefault(); ok();
-      }
-      if(e.key==='Escape'){
-        e.preventDefault(); cancel();
-      }
-    }
-    function onClickMask(e){
-      if(e.target===nameMask) cancel();
-    }
-    function cleanup(){
-      nameMask.style.display='none';
-      if(nameOk)     nameOk.removeEventListener('click', ok);
-      if(nameCancel) nameCancel.removeEventListener('click', cancel);
-      document.removeEventListener('keydown', onKey);
-      nameMask.removeEventListener('click', onClickMask);
-    }
-
-    if(nameOk)     nameOk.addEventListener('click', ok);
-    if(nameCancel) nameCancel.addEventListener('click', cancel);
-    document.addEventListener('keydown', onKey);
-    nameMask.addEventListener('click', onClickMask);
-  }
-
-  /* ======== Field (map探索) ======== */
-  function findExitAt(x,y){
-    if(!currentMap || !currentMap.exits) return null;
-    for(var i=0;i<currentMap.exits.length;i++){
-      var ex=currentMap.exits[i];
-      if(ex.x===x && ex.y===y) return ex;
-    }
-    return null;
-  }
-
-  function onStepTile(t, nx, ny){
-    // 出入口（ワープ）
-    var ex = findExitAt(nx,ny);
-    if(ex){
-      // ワープ演出
-      state.mode='dialog';
-      state.dialogQueue=[
-        "「"+(ex.label || "出入口")+"」に入った。",
-        "—— 移動中 ——"
-      ];
-      state.afterDialogFn = function(){
-        // ダンジョンに入るときは、現状のダンジョンを使う（未生成なら生成）
-        if(ex.to==="dungeon"){
-          if(!currentMap || currentMap.id!=="dungeon"){
-            // field→dungeon のときはダンジョンを生成済みにしてからロード
-            //（開始/ゲームオーバーでfresh生成しているが、念のため）
-            if(!state.mapData || !state.mapData.dungeon){
-              ensureMapData("dungeon");
-              regenerateDungeonFresh();
-            }
-          }
-        }
-        loadMap(ex.to, ex.spawn);
-        if(typeof ex.facing==="number") state.facing = ex.facing;
-        state.mode='field';
-      };
-      return;
-    }
-
-    // ダンジョン固有イベント
-    if(state.mapId==="dungeon"){
-      if(t===2){
-        state.mode='dialog';
-        state.dialogQueue=["重厚な扉がきしんだ…","大広間から気配を感じる。"];
-        state.afterDialogFn=null;
-      }
-      if(t===6){
-        ensureMapData("dungeon");
-        var alive = (state.mapData.dungeon && state.mapData.dungeon.bossAlive);
-        if(alive){
-          state.mode='dialog';
-          var n = state.hero.name || "あなた";
-          var speech = "よくぞ来た"+n+"よ！ わしがご主人様の中のご主人様、ご主人王である。わしの日常の疲れを思い知るがよいっ！";
-          state.dialogQueue=[speech,"—— 戦闘開始 ——"];
-          state.afterDialogFn = function(){ startBattle(copyEnemy(BOSS)); };
-        }
-      }
-      if(t===3){
-        var key = nx+","+ny;
-        if(!state.openedChests[key]){
-          var loot = CHEST_LOOT[key];
-          if(loot){
-            giveLoot(loot);
-            state.openedChests[key]=true;
-            seq([{f:880,ms:60,type:'square',vol:0.5},{f:1320,ms:60,type:'square',vol:0.5}]);
-          }else{
-            state.openedChests[key]=true;
-          }
-          state.mode='dialog';
-          var got = loot ? loot.item.name : "なにか";
-          state.dialogQueue=["宝箱をあけた！","「"+got+"」を手に入れた！"];
-
-          // 激レア（1/128）
-          try{
-            if(Math.random()<1/128){
-              var u=state.hero.invU;
-              var hasReplica=false;
-              for(var ui=0;ui<u.length;ui++){
-                if(u[ui].id==="body_replica6"){ hasReplica=true; break; }
-              }
-              if(!hasReplica){
-                var rare=null;
-                for(ui=0;ui<UNIFORMS.length;ui++){
-                  if(UNIFORMS[ui].id==="body_replica6"){ rare=UNIFORMS[ui]; break; }
-                }
-                if(rare){
-                  u.push(rare);
-                  state.dialogQueue.push("さらに「"+rare.name+"」を手に入れた！");
-                }
-              }
-            }
-          }catch(e){}
-          state.afterDialogFn=null;
-        }
-      }
-    }
-  }
-
-  function fieldUpdate(dt){
-    var dx = (keys["ArrowRight"]||keys["KeyD"])?1:(keys["ArrowLeft"]||keys["KeyA"])?-1:0;
-    var dy = (keys["ArrowDown"]||keys["KeyS"])?1:(keys["ArrowUp"]||keys["KeyW"])?-1:0;
-    if(moveCooldown<=0 && (dx||dy)){
-      var nx=Math.max(0,Math.min(W-1,state.x+dx));
-      var ny=Math.max(0,Math.min(H-1,state.y+dy));
-      var t=MAP[ny][nx];
-
-      // 0/2/3/4/6 は歩ける、1は不可
-      if(t!==1){
-        state.x=nx; state.y=ny; moveCooldown=0.12;
-        if(dx>0)      state.facing=1;
-        else if(dx<0) state.facing=3;
-        else if(dy<0) state.facing=0;
-        else if(dy>0) state.facing=2;
-
-        reveal(state.x, state.y, 3);
-
-        // エンカウント（町は0%、フィールド/ダンジョンはマップ定義）
-        var enc = (currentMap && typeof currentMap.encounterRate==="number") ? currentMap.encounterRate : 0;
-        if(enc>0 && state.mode==='field' && state.mapId!=="town"){
-          if(t===0 && Math.random()<enc){
-            // ダンジョンは距離で敵を変える、フィールドは弱め中心
-            if(state.mapId==="dungeon" && DIST){
-              startBattle(pickEnemyFor(state.x, state.y));
-            }else{
-              // field：基本弱め、たまに中
-              var r=Math.random();
-              var e = (r<0.75) ? copyEnemy(ENEMIES[0]) : copyEnemy(ENEMIES[1]);
-              startBattle(e);
-            }
-          }
+          todayList.innerHTML = `
+            <li class="row" style="justify-content:center">
+              <span class="name"><span class="tstrong">本日のメイド情報は未入力です</span><small>today_maids シートをご確認ください</small></span>
+            </li>
+          `;
         }
 
-        // タイル/出口の処理
-        onStepTile(t, nx, ny);
-      }
-    }
-  }
-
-  /* === フィールド道具 === */
-  var fieldItemSel=0;
-  function openItemsField(){ state.mode='items'; fieldItemSel=0; }
-  function drawItemsField(){
-    var h=state.hero;
-    var list=h.invI.filter(function(it){return it.qty>0;});
-    drawPanel(20,40,280,152);
-    drawText("《道具（フィールド）》 ↑↓で選択 / OKで使用 / 戻るで閉じる",28,44,"#fff");
-    if(!list.length){
-      drawText("何も持っていない…",28,64,"#ddd");
-      return;
-    }
-    for(var i=0;i<list.length;i++){
-      var y=66+i*14;
-      var sel=(fieldItemSel||0)===i;
-      if(sel){ ctx.fillStyle="rgba(122,225,255,.22)"; ctx.fillRect(24,y-2,272,14); }
-      var base=null;
-      for(var ii=0;ii<ITEMS.length;ii++){
-        if(ITEMS[ii].id===list[i].id){ base=ITEMS[ii]; break; }
-      }
-      var label=(base?base.name:list[i].id)+" ×"+list[i].qty;
-      drawText(label,32,y, sel?"#e7faff":"#fff");
-    }
-  }
-  function itemsUpdate(dt){
-    var h=state.hero;
-    var list=h.invI.filter(function(it){return it.qty>0;});
-    if(navReady() && keys["ArrowUp"] && fieldItemSel>0){ fieldItemSel--; navSet(); }
-    if(navReady() && keys["ArrowDown"] && fieldItemSel<Math.max(0,list.length-1)){ fieldItemSel++; navSet(); }
-    if(keys["Escape"]||keys["KeyX"]){
-      state.mode='field'; return;
-    }
-    if((keys["Enter"]||keys["Space"]) && actionCooldown<=0){
-      actionCooldown=0.18;
-      if(!list.length) return;
-      var stack=list[fieldItemSel];
-      var base=null;
-      for(var i=0;i<ITEMS.length;i++){
-        if(ITEMS[i].id===stack.id){ base=ITEMS[i]; break; }
-      }
-      if(!base) return;
-      if(base.kind==="insta"){
-        state.mode='dialog'; state.dialogQueue=["ここでは使えない…（戦闘中のみ）"]; return;
-      }
-      if(base.kind==="healHP"){
-        var before=h.hp;
-        h.hp=Math.min(h.maxhp, h.hp+base.power);
-        var g=h.hp-before;
-        if(g<=0){
-          state.mode='dialog'; state.dialogQueue=["HPは十分だ。"]; return;
+        // --- 直近7日 ---
+        const next7 = Array.isArray(data?.next7) ? data.next7 : [];
+        if(next7.length){
+          scheduleTable.innerHTML = next7.map(d=>{
+            const dt = new Date(d.date + "T00:00:00+09:00");
+            const w = ["日","月","火","水","木","金","土"][dt.getDay()];
+            const label = `${escapeHTML(d.date)}（${w}）`;
+            const openClose = (d.open && d.close) ? `${escapeHTML(d.open)}–${escapeHTML(d.close)}` : "—";
+            const memo = d.note ? escapeHTML(d.note) : "—";
+            return `
+              <tr>
+                <td class="tstrong">${label}</td>
+                <td><span class="tbadge">${openClose}</span></td>
+                <td>${memo}</td>
+              </tr>
+            `;
+          }).join("");
+        }else{
+          scheduleTable.innerHTML = `
+            <tr>
+              <td class="tstrong">—</td>
+              <td><span class="tbadge">—</span></td>
+              <td>直近の予定が未入力です（直近7日シートをご確認ください）</td>
+            </tr>
+          `;
         }
-        stack.qty--; if(stack.qty<0) stack.qty=0;
-        var inMain=null;
-        for(i=0;i<h.invI.length;i++){
-          if(h.invI[i].id===stack.id){ inMain=h.invI[i]; break; }
-        }
-        if(inMain) inMain.qty=stack.qty;
-        state.mode='dialog'; state.dialogQueue=["「"+base.name+"」を使った。HPが"+g+"回復！"];
-      }else if(base.kind==="healMP"){
-        var beforeMP=h.mp;
-        h.mp=Math.min(h.maxmp, h.mp+base.power);
-        var g2=h.mp-beforeMP;
-        if(g2<=0){
-          state.mode='dialog'; state.dialogQueue=["MPは十分だ。"]; return;
-        }
-        stack.qty--; if(stack.qty<0) stack.qty=0;
-        var inMain2=null;
-        for(i=0;i<h.invI.length;i++){
-          if(h.invI[i].id===stack.id){ inMain2=h.invI[i]; break; }
-        }
-        if(inMain2) inMain2.qty=stack.qty;
-        state.mode='dialog'; state.dialogQueue=["「"+base.name+"」を使った。MPが"+g2+"回復！"];
+
+      }catch(e){
+        todayList.innerHTML = `
+          <li class="row" style="justify-content:center">
+            <span class="name">
+              <span class="tstrong">スプレッドシートAPIに接続できません</span>
+              <small>Webアプリ公開設定／ヘッダー一致をご確認ください</small>
+            </span>
+          </li>
+        `;
+        scheduleTable.innerHTML = `
+          <tr>
+            <td class="tstrong">—</td>
+            <td><span class="tbadge">—</span></td>
+            <td>スプレッドシートAPIに接続できません</td>
+          </tr>
+        `;
       }
     }
-  }
-
-  /* === 戦闘 === */
-  function copyEnemy(t){ return JSON.parse(JSON.stringify(t)); }
-  function hasItem(list,id){
-    for(var i=0;i<list.length;i++){
-      if(list[i].id===id) return true;
-    }
-    return false;
-  }
-  function giveLoot(loot){
-    var h=state.hero;
-    if(loot.type==="weapon"){
-      if(!hasItem(h.invW, loot.item.id)) h.invW.push(loot.item);
-    }else{
-      if(!hasItem(h.invU, loot.item.id)) h.invU.push(loot.item);
-    }
-  }
-
-  function startBattle(enemy){
-    state.battle={
-      enemy:enemy,
-      phase:'select',
-      log:["「"+enemy.name+"」があらわれた！"],
-      sel:0,
-      turn:1,
-      itemSel:0,
-      defending:false,
-      omSel:0,
-      postMsgs:[],
-      summary:""
-    };
-    bgmStart(enemy.boss ? 'boss' : 'battle');
-    state.mode='battle';
-  }
-
-  function useItem(base, stack, b, h, e){
-    var msg="";
-    if(base.kind==="healHP"){
-      var before=h.hp;
-      h.hp=Math.min(h.maxhp, h.hp+base.power);
-      var g=h.hp-before; msg=base.name+"を食べた！ HPが"+g+"回復！";
-      if(g>0) addPopup(96,74,"+"+g,"#66e0ff",12,14,350,200);
-    }else if(base.kind==="healMP"){
-      var beforeMP=h.mp;
-      h.mp=Math.min(h.maxmp, h.mp+base.power);
-      var g2=h.mp-beforeMP; msg=base.name+"を飲んだ！ MPが"+g2+"回復！";
-      if(g2>0) addPopup(96,90,"+"+g2,"#5aa3ff",12,14,350,200);
-    }else if(base.kind==="insta"){
-      if(e.boss){
-        var dd = Math.max(30, Math.floor(e.hp*0.7));
-        e.hp = Math.max(1, e.hp - dd);
-        msg=base.name+"を召喚！ 強烈な一撃！ "+dd+"ダメージ！（ボスは耐えた）";
-        addPopup(200,74,"-"+dd,"#ffd700",14,20,400,200);
-      }else{
-        e.hp=0;
-        msg=base.name+"を召喚した！ "+e.name+"はみるみるうちに倒れた！";
-        addPopup(200,74,"撃破！","#ffd700",16,20,400,200);
-      }
-    }
-    stack.qty=Math.max(0, stack.qty-1);
-    var inMain=null;
-    for(var i=0;i<h.invI.length;i++){
-      if(h.invI[i].id===stack.id){ inMain=h.invI[i]; break; }
-    }
-    if(inMain) inMain.qty=stack.qty;
-    b.log.push(msg);
-    if(e.hp<=0){ return winBattle(); }
-    enemyAct();
-  }
-
-  function enemyAttackMessage(name,dmg){
-    if(name==="残業かつ叱責されたご主人様") return "ご主人様から叱責されつつ残業と言われた時の気持ちが伝わる！！"+dmg+"ダメージをうけた！";
-    if(name==="定時のご主人様")             return "ご主人様から明日も仕事かの気持ちが伝わる！！"+dmg+"ダメージをうけた！";
-    if(name==="残業のご主人様")             return "ご主人様から残業と言われた時の気持ちが伝わる！！"+dmg+"ダメージをうけた！";
-    if(name==="叱責を受けたご主人様" || name==="叱責されたご主人様")
-      return "ご主人様から叱責された時の気持ちが伝わる！！"+dmg+"ダメージをうけた！";
-    return name+"のこうげき！ "+dmg+"ダメージ！";
-  }
-
-  function enemyAct(){
-    var b=state.battle, h=state.hero, e=b.enemy;
-    var def=totalDef(h);
-    var dmg=Math.max(1, e.atk - def + Math.floor(Math.random()*3));
-    if(b.defending){ dmg=Math.floor(dmg/2); b.defending=false; }
-    h.hp-=dmg;
-    addPopup(96,74,"-"+dmg,"#ff5555",12,16,350,200);
-    startShake(6,120,0.8);
-    seq([{f:180,ms:120,type:'sine',vol:0.5}]);
-    b.log.push(enemyAttackMessage(e.name,dmg));
-    if(h.hp<=0){
-      b.log.push(h.name+"は倒れてしまった…");
-      setTimeout(function(){ gameOver(); },400);
-    }else{
-      b.phase='inter';
-    }
-  }
-
-  function winBattle(){
-    var b=state.battle, h=state.hero, e=b.enemy;
-    b.log.push(e.name+"をたおした！");
-    seq([
-      {f:523,ms:120,type:'sine',vol:0.5},
-      {f:659,ms:120,type:'sine',vol:0.5},
-      {f:784,ms:120,type:'sine',vol:0.5}
-    ]);
-
-    var gainedExp=e.exp;
-    h.exp+=gainedExp;
-    var post=[];
-    while(h.exp >= h.lv*22){
-      h.exp -= h.lv*22; h.lv++;
-      h.maxhp+=6; h.maxmp+=2; h.atk+=2; h.def+=1;
-      h.hp=h.maxhp; h.mp=h.maxmp;
-      post.push(h.name+"は　レベルが　あがった！");
-      if(h.lv===3) post.push(h.name+"は　あたらしいおまじないを　おぼえた！");
-      if(h.lv===5) post.push(h.name+"は　あたらしいおまじないを　おぼえた！");
-    }
-    var dropNote="";
-    if(!e.boss && Math.random()<0.30){
-      var id = (Math.random()<0.5) ? "omurice" : "tea";
-      var base=null;
-      for(var ii=0;ii<ITEMS.length;ii++){
-        if(ITEMS[ii].id===id){ base=ITEMS[ii]; break; }
-      }
-      var stack=null;
-      for(ii=0;ii<h.invI.length;ii++){
-        if(h.invI[ii].id===id){ stack=h.invI[ii]; break; }
-      }
-      if(stack) stack.qty+=1;
-      else h.invI.push({id:id,qty:1});
-      if(base) dropNote=" / 入手どうぐ："+base.name;
-    }
-    var needNext=h.lv*22 - h.exp;
-    b.victoryLine = h.name+"は　"+e.name+"を　いやした！";
-    b.postMsgs = post;
-    b.summary  = "【戦闘結果】\nEXP+"+gainedExp+" / 次のレベルまで "+Math.max(0,needNext)+dropNote;
-
-    if(e.boss){
-      b.phase='finished';
-      // ボス討伐フラグ
-      ensureMapData("dungeon");
-      state.mapData.dungeon.bossAlive = false;
-
-      setTimeout(function(){ showEnding(); },900);
-    }else{
-      b.phase='finished';
-    }
-  }
-
-  function battleUpdate(dt){
-    var b=state.battle, h=state.hero, e=b.enemy;
-    if(b.phase==='select'){
-      if(navReady() && keys["ArrowLeft"] && b.sel%2===1){ b.sel--; navSet(); }
-      if(navReady() && keys["ArrowRight"]&& b.sel%2===0){ b.sel++; navSet(); }
-      if(navReady() && keys["ArrowUp"]   && b.sel>1)    { b.sel-=2; navSet(); }
-      if(navReady() && keys["ArrowDown"] && b.sel<2)    { b.sel+=2; navSet(); }
-      if((keys["Enter"]||keys["Space"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        if(b.sel===0){
-          var atk=h.atk+(h.weapon?h.weapon.atk:0);
-          var dmg=Math.max(1, atk - e.def + Math.floor(Math.random()*3));
-          e.hp-=dmg;
-          b.log.push(h.name+"のいやしの一撃！ "+e.name+"に"+dmg+"ダメージ！");
-          addPopup(200,74,String(dmg),"#ffffff",12,20,400,200);
-          seq([{f:320,ms:70,type:'square',vol:0.5},{f:220,ms:70,type:'square',vol:0.5}]);
-          if(e.hp<=0) return winBattle();
-          enemyAct();
-        }else if(b.sel===1){
-          b.phase='omajinai'; b.omSel=0;
-        }else if(b.sel===2){
-          b.defending=true;
-          b.log.push("身をかためた！ 次の攻撃のダメージを減少");
-          enemyAct();
-        }else if(b.sel===3){
-          b.phase='item'; b.itemSel=0;
-        }
-      }
-    }else if(b.phase==='omajinai'){
-      var list=getOmajinaiList(h);
-      if(navReady() && keys["ArrowUp"]   && b.omSel>0){ b.omSel--; navSet(); }
-      if(navReady() && keys["ArrowDown"] && b.omSel<Math.max(0,list.length-1)){ b.omSel++; navSet(); }
-      if(keys["Escape"]||keys["KeyX"]) b.phase='select';
-      if((keys["Enter"]||keys["Space"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        if(!list.length){ b.log.push("まだ何も覚えていない…"); b.phase='select'; return; }
-        var sp=list[b.omSel];
-        if(h.mp < sp.mp){ b.log.push("MPがたりない…"); return; }
-        h.mp -= sp.mp;
-        if(sp.type==='damage20'){
-          e.hp-=20; b.log.push("おまじない『もえもえぎゅー』！ 20ダメージ！");
-          addPopup(200,74,"20","#ffffff",12,20,400,200);
-          seq([{f:660,ms:80,type:'square',vol:0.5},{f:990,ms:80,type:'square',vol:0.5}]);
-          if(e.hp<=0) return winBattle();
-          enemyAct();
-        }else if(sp.type==='healFull'){
-          var gain=h.maxhp-h.hp;
-          h.hp=h.maxhp; b.log.push("おまじない『おいしくなーれ』！ HPが全回復！");
-          if(gain>0) addPopup(96,74,"+"+gain,"#66e0ff",12,14,350,200);
-          seq([{f:523,ms:300,type:'sine',vol:0.5},{f:659,ms:300,type:'sine',vol:0.5},{f:784,ms:300,type:'sine',vol:0.5}]);
-          enemyAct();
-        }else if(sp.type==='insta'){
-          if(e.boss){
-            var dd=Math.max(30, Math.floor(e.hp*0.7));
-            e.hp=Math.max(1,e.hp-dd);
-            b.log.push("おまじない『にしきぬやまー』！ 圧倒的な気配！(ボスは耐えた)");
-            addPopup(200,74,"-"+dd,"#ffd700",14,20,400,200);
-            enemyAct();
-          }else{
-            e.hp=0;
-            b.log.push("おまじない『にしきぬやまー』！ 敵は飲み込まれた…！");
-            addPopup(200,74,"撃破！","#ffd700",16,20,400,200);
-            return winBattle();
-          }
-        }
-      }
-    }else if(b.phase==='item'){
-      var list2=h.invI.filter(function(it){return it.qty>0;});
-      if(navReady() && keys["ArrowUp"]   && b.itemSel>0){ b.itemSel--; navSet(); }
-      if(navReady() && keys["ArrowDown"] && b.itemSel<Math.max(0,list2.length-1)){ b.itemSel++; navSet(); }
-      if(keys["Escape"]||keys["KeyX"]) b.phase='select';
-      if((keys["Enter"]||keys["Space"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        if(!list2.length){ b.log.push("まだ何も持っていない…"); b.phase='select'; return; }
-        var stack2=list2[b.itemSel];
-        var base2=null;
-        for(var i2=0;i2<ITEMS.length;i2++){
-          if(ITEMS[i2].id===stack2.id){ base2=ITEMS[i2]; break; }
-        }
-        if(!base2){ b.phase='select'; return; }
-        useItem(base2, stack2, b, h, e);
-      }
-    }else if(b.phase==='inter'){
-      if((keys["Enter"]||keys["Space"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        b.phase='select'; b.sel=0; b.turn++;
-      }
-    }else if(b.phase==='finished'){
-      if((keys["Escape"]||keys["KeyX"]) && actionCooldown<=0){
-        actionCooldown=0.18;
-        endBattle(true);
-      }
-    }
-  }
-
-  function showEnding(){ bgmStop(); state.mode='end'; }
-  function endBattle(){ state.mode='field'; state.battle=null; if(currentMap && currentMap.bgm) bgmStart(currentMap.bgm); else bgmStart('field'); }
-
-  /* ======== Game Over ======== */
-  function gameOver(){
-    var lastName = (state.hero && state.hero.name) ? state.hero.name : (state.playerName||null);
-    state.hero=JSON.parse(JSON.stringify(heroBase));
-    if(lastName){
-      state.hero.name = lastName; state.playerName = lastName;
-    }
-    state.battle=null;
-
-    // ダンジョンは作り直し（「屋敷の気配が変わった」）
-    regenerateDungeonFresh();
-
-    // 町/フィールドの探索状況は残す（DQっぽく）or リセットしたいならここで初期化
-    // 今回は「ダンジョンだけ変化」仕様にしてます
-    // ただし、フィールド/町の霧は残ると遊びやすいのでそのまま
-
-    // 現在地は町へ
-    state.mode='dialog';
-    state.dialogQueue=['目の前が真っ黒になった…','屋敷の気配が変わったようだ（ダンジョンが変化した）','町に戻された。'];
-    state.afterDialogFn=function(){
-      loadMap("town", {x:10,y:11});
-      state.facing=2;
-      state.mode='field';
-    };
-  }
-
-  /* ======== Equip ======== */
-  var equipState={cat:0, sel:0};
-  function openEquip(){ equipState={cat:0,sel:0}; state.mode='equip'; }
-  function equipList(cat,h){
-    if(cat===0) return h.invW;
-    if(cat===1) return h.invU.filter(function(i){return i.slot==='legs';});
-    if(cat===2) return h.invU.filter(function(i){return i.slot==='body';});
-    return h.invU.filter(function(i){return i.slot==='head';});
-  }
-  function equipUpdate(dt){
-    var h=state.hero;
-    var list=equipList(equipState.cat,h);
-    if(navReady() && (keys["ArrowLeft"]||keys["KeyQ"])) { equipState.cat=(equipState.cat+3)%4; equipState.sel=0; navSet(); }
-    if(navReady() && (keys["ArrowRight"]||keys["KeyE"])) { equipState.cat=(equipState.cat+1)%4; equipState.sel=0; navSet(); }
-    if(navReady() && keys["ArrowUp"]   && equipState.sel>0){ equipState.sel--; navSet(); }
-    if(navReady() && keys["ArrowDown"] && equipState.sel<list.length-1){ equipState.sel++; navSet(); }
-    if(keys["Enter"]||keys["Space"]){
-      var it=list[equipState.sel];
-      if(it) equipItem(h,it);
-    }
-    if(keys["Escape"]||keys["KeyX"]) closeEquip(true);
-  }
-  function equipItem(h,it){
-    if(it.atk) h.weapon=it;
-    else if(it.slot==='legs') h.u_legs=it;
-    else if(it.slot==='body') h.u_body=it;
-    else h.u_head=it;
-  }
-  function drawEquip(){
-    var h=state.hero;
-    drawPanel(8,16,304,208);
-    drawText("《装備》",16,20,"#fff");
-    drawText("武器: "+(h.weapon?h.weapon.name:"(なし)"),16,36,"#ffd6f2");
-    drawText("脚: "+(h.u_legs?h.u_legs.name:"(なし)"),16,48,"#a4ffea");
-    drawText("胴: "+(h.u_body?h.u_body.name:"(なし)"),16,60,"#a4ffea");
-    drawText("頭: "+(h.u_head?h.u_head.name:"(なし)"),16,72,"#a4ffea");
-    drawText("←→カテゴリ / ↑↓選択 / OK=装備 / 戻る=閉じる",16,88,"#ddd");
-    var titles=["武器","脚（ストッキング）","胴（エプロン）","頭（カチューシャ）"];
-    var title=titles[equipState.cat];
-    drawText("カテゴリ: "+title,16,104,"#fff");
-    var list=equipList(equipState.cat,h);
-    for(var i=0;i<list.length;i++){
-      var y=120+i*14;
-      var sel=(i===equipState.sel);
-      if(sel){ ctx.fillStyle="rgba(122,225,255,.22)"; ctx.fillRect(12,y-2,296,14); }
-      var it=list[i];
-      var stat = it.atk ? "(+ATK "+it.atk+")":"(+DEF "+it.def+")";
-      drawText(it.name+" "+stat,20,y, sel?"#e7faff":"#fff");
-    }
-  }
-  function closeEquip(){ state.mode='field'; }
-
-  /* ======== Buttons / Header Clicks ======== */
-  document.getElementById('btnReset').onclick=function(){
-    if(confirm("最初からはじめますか？")){
-      bgmStop();
-
-      var keepName = state.playerName || null;
-
-      state={
-        hero:JSON.parse(JSON.stringify(heroBase)),
-        mode:"title",
-        mapId:"town",
-        x:10,y:11,facing:2,
-        dialogQueue:[],
-        battle:null,
-        title:{blink:0,show:true},
-        nameMode:false,
-        playerName:keepName,
-        popups:[],
-        maxPopups:4,
-        shakeT:0, shakeMag:0, shakeDur:0, shakeDecay:0.8,
-        visited: makeFilled(false),
-        afterDialogFn:null,
-        mapData:{
-          town:   { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-          field:  { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-          dungeon:{ openedChests:{}, visited: makeFilled(false), bossAlive:true,  dungeonSeed:0 }
-        }
-      };
-
-      // ダンジョンはfresh
-      regenerateDungeonFresh();
-
-      // マップ初期化（町の地形表示用）
-      currentMap = buildTown();
-      loadMap("town", {x:10,y:11});
-
-      prevMode='title';
-      state.mode='title';
-      syncTitleHitArea();
-    }
-  };
-
-  document.getElementById('btnMute').onclick=function(e){
-    mute=!mute;
-    e.target.textContent="効果音: "+(mute?"OFF":"ON");
-    if(mute) bgmStop();
-    else{
-      if(state.mode==='field' || state.mode==='equip' || state.mode==='dialog' || state.mode==='items'){
-        if(currentMap && currentMap.bgm) bgmStart(currentMap.bgm); else bgmStart('field');
-      }else if(state.mode==='battle'){
-        var boss = state.battle && state.battle.enemy && state.battle.enemy.boss;
-        bgmStart(boss ? 'boss' : 'battle');
-      }
-    }
-  };
-
-  document.getElementById('btnFull').onclick=function(){
-    var el=document.getElementById('game');
-    if(!document.fullscreenElement){
-      if(el.requestFullscreen) el.requestFullscreen();
-    }else{
-      if(document.exitFullscreen) document.exitFullscreen();
-    }
-  };
-
-  document.getElementById('btnStart').onclick=function(e){
-    e.preventDefault();
-    if(state.mode==='title' && !state.nameMode) startNameEntry();
-  };
-
-  document.getElementById('btnActEquip').onclick=function(){
-    if(state.mode==='battle') return;
-    openEquip();
-  };
-  document.getElementById('btnActItems').onclick=function(){
-    if(state.mode==='battle') return;
-    openItemsField();
-  };
-
-  function syncControlsDisabled(){
-    var equipBtn=document.getElementById('btnActEquip');
-    var itemsBtn=document.getElementById('btnActItems');
-    var disabled=(state.mode==='battle');
-    if(equipBtn) equipBtn.classList.toggle('disabled', disabled);
-    if(itemsBtn) itemsBtn.classList.toggle('disabled', disabled);
-  }
-
-  /* === 説明モーダル === */
-  var helpMask=document.getElementById('helpMask');
-  var helpBody=document.getElementById('helpBody');
-  var helpClose=document.getElementById('helpClose');
-  document.getElementById('btnHelp').onclick=function(){
-    helpMask.style.display='block';
-    setTimeout(function(){ helpBody.scrollTop=0; }, 0);
-  };
-  helpClose.onclick=function(){ helpMask.style.display='none'; };
-  helpMask.addEventListener('click',function(e){
-    if(e.target===helpMask) helpMask.style.display='none';
-  });
-
-  /* === あらすじモーダル === */
-  var storyMask=document.getElementById('storyMask');
-  var storyFrame=document.getElementById('storyFrame');
-  var storyClose=document.getElementById('storyClose');
-  document.getElementById('btnStory').onclick=function(){
-    bgmStop();
-    storyMask.style.display='block';
-    try{
-      if(storyFrame){
-        var src=storyFrame.getAttribute('src');
-        storyFrame.setAttribute('src', src);
-      }
-    }catch(e){}
-  };
-  storyClose.onclick=function(){
-    storyMask.style.display='none';
-    if(!mute){
-      if(state.mode==='field' || state.mode==='equip' || state.mode==='dialog' || state.mode==='items'){
-        if(currentMap && currentMap.bgm) bgmStart(currentMap.bgm); else bgmStart('field');
-      }else if(state.mode==='battle'){
-        var boss = state.battle && state.battle.enemy && state.battle.enemy.boss;
-        bgmStart(boss ? 'boss' : 'battle');
-      }
-    }
-  };
-  storyMask.addEventListener('click',function(e){
-    if(e.target===storyMask) storyClose.click();
-  });
-
-  /* === iOS audio unlock === */
-  function armAudio(){
-    try{
-      var c = audio();
-      if(c && c.state==='suspended' && c.resume) c.resume();
-    }catch(e){}
-  }
-  ['pointerdown','touchstart'].forEach(function(ev){
-    document.addEventListener(ev,function(){ armAudio(); },{once:true,passive:true});
-  });
-
-  /* === タイトル起動＆タップ開始 === */
-  function bootGameToTitle(){
-    if(bootGameToTitle._booted) return;
-    bootGameToTitle._booted=true;
-
-    // 最初は町/フィールド/ダンジョンの土台を準備
-    regenerateDungeonFresh();
-    currentMap = buildTown();
-    loadMap("town", {x:10,y:11});
-
-    prevMode='title';
-    state.mode='title';
-    state.title.show=true;
-    bgmStop();
-    syncTitleHitArea();
-    requestAnimationFrame(loop);
-
-    function handleTapToStart(e){
-      if(state.mode==='title' && !state.nameMode){
-        if(e && e.cancelable) e.preventDefault();
-        if(e && e.stopPropagation) e.stopPropagation();
-        startNameEntry();
-      }
-    }
-
-    var hit=document.getElementById('titleStartHit');
-    ['click','touchstart','touchend','pointerdown','pointerup'].forEach(function(ev){
-      cvs.addEventListener(ev,handleTapToStart,{passive:false});
-    });
-    if(hit){
-      ['click','touchstart','touchend','pointerdown','pointerup'].forEach(function(ev){
-        hit.addEventListener(ev,handleTapToStart,{passive:false});
-      });
-    }
-  }
-  bootGameToTitle();
-
-  function resetToTitle(){
-    var keepName = state.playerName || null;
-    state={
-      hero:JSON.parse(JSON.stringify(heroBase)),
-      mode:"title",
-      mapId:"town",
-      x:10,y:11,facing:2,
-      dialogQueue:[],
-      battle:null,
-      title:{blink:0,show:true},
-      nameMode:false,
-      playerName:keepName,
-      popups:[],
-      maxPopups:4,
-      shakeT:0, shakeMag:0, shakeDur:0, shakeDecay:0.8,
-      visited: makeFilled(false),
-      afterDialogFn:null,
-      mapData:{
-        town:   { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-        field:  { openedChests:{}, visited: makeFilled(false), bossAlive:false, dungeonSeed:0 },
-        dungeon:{ openedChests:{}, visited: makeFilled(false), bossAlive:true,  dungeonSeed:0 }
-      }
-    };
-    regenerateDungeonFresh();
-    currentMap = buildTown();
-    loadMap("town", {x:10,y:11});
-    prevMode='title';
-    bgmStop();
-    syncTitleHitArea();
-  }
-
-  /* タッチD-Pad/OK/戻る */
-  function press(code,duration){
-    duration = (typeof duration==="number") ? duration : 120;
-    keys[code]=true;
-    setTimeout(function(){ delete keys[code]; }, duration);
-  }
-  function bindPad(){
-    var btns=document.querySelectorAll('.btnc');
-    for(var i=0;i<btns.length;i++){
-      (function(b){
-        var code=b.getAttribute('data-k');
-        var tid=null;
-        function start(){
-          press(code);
-          tid=setInterval(function(){ press(code); },150);
-        }
-        function end(){
-          if(tid){ clearInterval(tid); tid=null; }
-          delete keys[code];
-        }
-        b.addEventListener('touchstart',function(e){ e.preventDefault(); start(); },{passive:false});
-        b.addEventListener('mousedown',function(e){ e.preventDefault(); start(); });
-        ['touchend','touchcancel','mouseup','mouseleave'].forEach(function(ev){
-          b.addEventListener(ev,end,{passive:true});
-        });
-      })(btns[i]);
-    }
-
-    var btnL=document.querySelectorAll('.btnL');
-    for(i=0;i<btnL.length;i++){
-      (function(b){
-        var main=b.getAttribute('data-k');
-        var alt =b.getAttribute('data-alt');
-        if(main){
-          b.addEventListener('click',function(e){
-            e.preventDefault();
-            press(main);
-            if(alt) setTimeout(function(){ press(alt); },10);
-            if(state.mode==='title' && !state.nameMode && (main==='Enter' || main==='Space')){
-              startNameEntry();
-            }
-          });
-        }
-      })(btnL[i]);
-    }
-  }
-  bindPad();
-
-  /* ユーティリティ */
-  function getHallPos(){
-    for(var y=0;y<H;y++){
-      for(var x=0;x<W;x++){
-        if(hallMask[y] && hallMask[y][x]) return {x:x,y:y};
-      }
-    }
-    return {x:W-2,y:H-2};
-  }
   </script>
+
+  <noscript>
+    <div style="max-width:1120px;margin:16px auto 0;padding:12px 14px;background:#fff;border:1px solid rgba(255,105,178,.18);border-radius:18px;box-shadow:0 10px 22px rgba(0,0,0,.08);color:#6d6670;font-weight:750">
+      JavaScriptが無効になっています。本日のメイド・直近7日の自動反映がご利用いただけません。<br/>
+      最新情報は <a href="https://x.com/po_toro" target="_blank" rel="noopener" style="text-decoration:underline">X（@po_toro）</a> をご確認ください。
+    </div>
+  </noscript>
 </body>
 </html>
