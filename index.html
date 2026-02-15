@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>PO・TORO 公式ポータル｜Ver2.0（スプシ連携）</title>
+  <title>PO・TORO 公式ポータル｜Ver2.1（スプシ連携・UX強化）</title>
   <meta name="description" content="concept cafe PO・TORO（ポ・トロ）の総合ポータル。本日のお給仕・直近7日・イベント・メイドさん紹介・ゲーム/診断・麻雀・アクセスをひとまとめ。" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#f6b7d2" />
@@ -33,10 +33,12 @@
       --radius:22px;
       --radius2:16px;
       --max:1120px;
+      --headerH:72px; /* sticky header offset */
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
@@ -56,6 +58,9 @@
       outline-offset:3px;
       border-radius:12px;
     }
+
+    /* anchor offset */
+    section{scroll-margin-top: calc(var(--headerH) + 14px);}
 
     /* skip link */
     .skip{
@@ -84,6 +89,7 @@
       max-width:var(--max); margin:0 auto;
       padding:10px 16px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
+      min-height: var(--headerH);
     }
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -186,8 +192,10 @@
       transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
       min-height:44px;
       cursor:pointer;
+      user-select:none;
     }
     .btn:hover{transform: translateY(-1px); box-shadow: var(--shadow)}
+    .btn:active{transform: translateY(0px)}
     .btn.primary{
       border-color: rgba(255,104,183,.35);
       background: linear-gradient(135deg, rgba(255,104,183,.20), rgba(127,201,255,.14));
@@ -206,6 +214,10 @@
       font-weight:850;
       font-size:13px;
       min-height:40px;
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.68);
+      border-color: rgba(0,0,0,.10);
     }
 
     .heroRight{
@@ -270,6 +282,20 @@
       color:var(--muted);
       font-weight:700;
       font-size:12.5px;
+    }
+    .metaRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,105,178,.10);
+    }
+    .metaRow small{
+      color:var(--muted);
+      font-weight:750;
+      font-size:12px;
     }
 
     /* sections */
@@ -509,6 +535,7 @@
       cursor:pointer;
       min-height:48px;
       user-select:none;
+      transition: transform .15s ease;
     }
     .fab small{
       display:inline-block;
@@ -587,6 +614,25 @@
       display:flex; flex-wrap:wrap; gap:10px;
     }
 
+    /* toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 2500;
+      display:none;
+      padding:10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow: var(--shadow2);
+      font-weight:850;
+      color: var(--ink);
+      max-width: min(720px, calc(100% - 24px));
+    }
+    .toast.show{display:block}
+
     /* reduced motion */
     @media (prefers-reduced-motion: reduce){
       *{scroll-behavior:auto !important; transition:none !important}
@@ -600,7 +646,7 @@
   <header>
     <div class="topbar" aria-label="ヘッダー">
       <a class="brand" href="#top" aria-label="PO・TORO 公式ポータル トップへ">
-        <img src="img/potro_twi.jpg" alt="PO・TORO ロゴ" loading="eager" />
+        <img src="img/potro_twi.jpg" alt="PO・TORO ロゴ" loading="eager" decoding="async" />
         <span class="t">
           <small>concept cafe</small>
           <b>PO・TORO 公式ポータル</b>
@@ -667,6 +713,12 @@
             <div class="ctaRow" style="margin-top:10px">
               <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xで予定を見る</a>
               <button class="btn small" type="button" id="openAccessToday">ご帰宅する♡（アクセス）</button>
+              <button class="btn small ghost" type="button" id="reloadData">再読み込み</button>
+            </div>
+
+            <div class="metaRow" aria-label="データ更新情報">
+              <small id="lastUpdated">最終更新：—</small>
+              <small id="apiStatus">接続：—</small>
             </div>
           </div>
         </aside>
@@ -714,626 +766,3 @@
       </div>
 
       <div class="grid">
-        <article class="card" style="grid-column: span 6" aria-label="イベント">
-          <a class="full" href="#events" aria-label="イベントへ"></a>
-          <div class="thumb">
-            <img src="img/potro_cafe_maiddemo_final.png" alt="イベント案内のイメージ" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">最新</span>
-            <h3>イベント開催情報をまとめてチェック♡</h3>
-            <p>開催中・近日開催・配布グッズなど、まとめて確認できます。</p>
-            <div class="miniRow">
-              <span class="chip">開催情報</span>
-              <span class="chip">配布グッズ</span>
-              <span class="chip">最新告知</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" style="grid-column: span 6" aria-label="メイドさん紹介">
-          <a class="full" href="#maids" aria-label="メイドさん紹介へ"></a>
-          <div class="thumb">
-            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさん紹介のイメージ" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker blue">人気</span>
-            <h3>メイドさん紹介（プロフィール一覧）♡</h3>
-            <p>世代・誕生月で検索できる、公式プロフィールへ。</p>
-            <div class="miniRow">
-              <span class="chip">世代フィルタ</span>
-              <span class="chip">誕生月フィルタ</span>
-              <span class="chip">推しが見つかる</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" style="grid-column: span 6" aria-label="麻雀システム">
-          <a class="full" href="https://potoro1001.github.io/potoro-mahjong/" aria-label="麻雀システムへ" target="_blank" rel="noopener"></a>
-          <div class="thumb">
-            <img src="img/mahjong-card.png" alt="麻雀システム" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">NEW</span>
-            <h3>ポ・トロ麻雀（ルール・料金・面子募集）♡</h3>
-            <p>健全アミューズメントで、ゆったり楽しく麻雀TIME。</p>
-            <div class="miniRow">
-              <span class="chip">初心者OK</span>
-              <span class="chip">三麻対応</span>
-              <span class="chip">面子募集</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" style="grid-column: span 6" aria-label="アクセス">
-          <a class="full" href="#access" aria-label="アクセスへ"></a>
-          <div class="thumb">
-            <img src="img/hero-sns-x.png" alt="アクセス案内" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker gray">案内</span>
-            <h3>アクセス（地図・営業時間・住所）♡</h3>
-            <p>迷ったらここ。右下の「ご帰宅する♡」でも同じ案内が開きます。</p>
-            <div class="miniRow">
-              <span class="chip">地図</span>
-              <span class="chip">営業時間</span>
-              <span class="chip">電話</span>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- お知らせ -->
-    <section id="news" aria-label="お知らせ">
-      <div class="secHead">
-        <h2>お知らせ</h2>
-        <p>最新の告知はXもあわせてご確認ください。</p>
-      </div>
-
-      <div class="system">
-        <p style="margin:0; color:var(--muted); font-weight:750">
-          最新情報は <b>X（@po_toro）</b> をご確認ください♡
-        </p>
-        <div class="ctaRow" style="margin-top:12px">
-          <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">X（@po_toro）を見る</a>
-          <button class="btn small" type="button" id="openAccessNews">ご帰宅する♡（アクセス）</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- イベント -->
-    <section id="events" aria-label="イベント">
-      <div class="secHead">
-        <h2>イベント</h2>
-        <p>開催情報／配布グッズなど</p>
-      </div>
-
-      <div class="system">
-        <h3 style="margin-top:0">現在、下記グッズを配布中でございます</h3>
-        <p style="margin:0; color:var(--muted); font-weight:750">
-          お屋敷にてお渡ししている各種グッズの配布状況です。<br/>
-          ※保管期間は配布開始日から1年間です。
-        </p>
-
-        <div class="tableWrap" style="margin-top:12px" aria-label="配布グッズ一覧（必要に応じて追記）">
-          <table>
-            <thead>
-              <tr>
-                <th>配布開始日</th>
-                <th>イベント名</th>
-                <th>グッズ名</th>
-                <th>配布終了日</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="tstrong">—</td>
-                <td>（ここは必要に応じて追記）</td>
-                <td>—</td>
-                <td>—</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="ctaRow" style="margin-top:12px">
-          <a class="btn small primary" href="https://x.com/po_toro" target="_blank" rel="noopener">イベント告知をXで見る</a>
-          <a class="btn small" href="#play">ゲーム/診断で遊ぶ</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- メイドさん -->
-    <section id="maids" aria-label="メイドさん紹介">
-      <div class="secHead">
-        <h2>メイドさん紹介</h2>
-        <p>プロフィール／歴代メイド服／募集</p>
-      </div>
-
-      <div class="grid">
-        <article class="card" aria-label="プロフィール一覧">
-          <a class="full" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener" aria-label="プロフィール一覧を見る"></a>
-          <div class="thumb">
-            <img src="img/potro_cafe_maiddemo_final.png" alt="メイドさんプロフィール一覧" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker blue">プロフィール</span>
-            <h3>プロフィール一覧</h3>
-            <p>PO♡TOROのメイドさんたち（世代・誕生月で検索OK）</p>
-            <div class="miniRow">
-              <span class="chip">世代</span>
-              <span class="chip">誕生月</span>
-              <span class="chip">検索</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="歴代メイド服紹介">
-          <a class="full" href="uniforms.html" aria-label="歴代メイド服を見る"></a>
-          <div class="thumb">
-            <img src="img/uniforms_thumbnail.jpg" alt="歴代メイド服紹介" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">ヒストリー</span>
-            <h3>歴代メイド服紹介</h3>
-            <p>初代から七代目までをご紹介♡</p>
-            <div class="miniRow">
-              <span class="chip">全7モデル</span>
-              <span class="chip">年表</span>
-              <span class="chip">現行も</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="メイドさん募集中">
-          <a class="full" href="https://xn--pckua2a7gp15o89zb.com" target="_blank" rel="noopener" aria-label="応募ページへ"></a>
-          <div class="thumb">
-            <img src="img/recruit_banner.jpg" alt="メイドさん募集中" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker gray">募集</span>
-            <h3>メイドさん募集中</h3>
-            <p>未経験の方も大歓迎♡</p>
-            <div class="miniRow">
-              <span class="chip">応募フォーム</span>
-              <span class="chip">見学相談</span>
-              <span class="chip">歓迎</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="推しの見つけ方">
-          <a class="full" href="https://potoro1001.github.io/potoro-profile-public/" target="_blank" rel="noopener" aria-label="推しを探す"></a>
-          <div class="thumb">
-            <img src="img/hero-diagnosis-card.png" alt="推し探しのヒント" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker blue">推し化</span>
-            <h3>推しの見つけ方（最短ルート）</h3>
-            <p>「誕生月」→「世代」→「ひとこと」で、推しが決まりやすい♡</p>
-            <div class="miniRow">
-              <span class="chip">誕生月で絞る</span>
-              <span class="chip">世代を見る</span>
-              <span class="chip">一言チェック</span>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ゲーム/診断/講義/麻雀 -->
-    <section id="play" aria-label="ゲーム / 診断 / 講義 / 麻雀">
-      <div class="secHead">
-        <h2>ゲーム / 診断 / 講義 / 麻雀</h2>
-        <p>ポ・トロの世界観で遊べるコンテンツ</p>
-      </div>
-
-      <div class="grid">
-        <article class="card" aria-label="ポ・トロクエスト">
-          <a class="full" href="https://potoro1001.github.io/potoro-quest/" target="_blank" rel="noopener" aria-label="ポ・トロクエストをプレイする"></a>
-          <div class="thumb">
-            <img src="img/hero-quest-card.png" alt="ポ・トロクエスト" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">ゲーム</span>
-            <h3>ポ・トロクエスト</h3>
-            <p>アプリ内ブラウザだとブロックされることがあるので、Safari/Chrome推奨です。</p>
-            <div class="miniRow">
-              <span class="chip">iPad OK</span>
-              <span class="chip">ターン制</span>
-              <span class="chip">チェキ券Drop</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="ご主人様タイプ診断">
-          <a class="full" href="https://potoro1001.github.io/potoro-diagnosis/" target="_blank" rel="noopener" aria-label="ご主人様タイプ診断をする"></a>
-          <div class="thumb">
-            <img src="img/hero-diagnosis-card.png" alt="ご主人様タイプ診断" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker blue">診断</span>
-            <h3>ご主人様タイプ診断</h3>
-            <p>MBTIミニ12問で性格診断（所要約1分）</p>
-            <div class="miniRow">
-              <span class="chip">2択×12</span>
-              <span class="chip">称号つき</span>
-              <span class="chip">おすすめTips</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="萌えセレクト講義">
-          <a class="full" href="https://potoro1001.github.io/potoro-moeselect/" target="_blank" rel="noopener" aria-label="萌えセレクト講義を受講する"></a>
-          <div class="thumb">
-            <img src="img/moeselect_thumbnail.jpg" alt="萌えセレクト講義" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">講義</span>
-            <h3>萌えセレクト講義</h3>
-            <p>講義形式で学ぶ「萌え」の極意</p>
-            <div class="miniRow">
-              <span class="chip">先生×生徒</span>
-              <span class="chip">オート再生</span>
-              <span class="chip">世界観重視</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" aria-label="ポ・トロ麻雀">
-          <a class="full" href="https://potoro1001.github.io/potoro-mahjong/" target="_blank" rel="noopener" aria-label="ポ・トロ麻雀を確認する"></a>
-          <div class="thumb">
-            <img src="img/mahjong-card.png" alt="ポ・トロ麻雀" loading="lazy" />
-          </div>
-          <div class="inner">
-            <span class="kicker">麻雀</span>
-            <h3>ポ・トロ麻雀</h3>
-            <p>ルール・料金・面子募集までまとめて。</p>
-            <div class="miniRow">
-              <span class="chip">健全アミューズメント</span>
-              <span class="chip">予約DM</span>
-              <span class="chip">貸卓OK</span>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- 直近7日（スプシ連携） -->
-    <section id="schedule" aria-label="営業スケジュール">
-      <div class="secHead">
-        <h2>直近7日（スプレッドシート連携）</h2>
-        <p>※表示は自動反映（今日以降7日分）</p>
-      </div>
-
-      <div class="tableWrap" aria-label="直近7日 表">
-        <table>
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>営業時間</th>
-              <th>メモ</th>
-            </tr>
-          </thead>
-          <tbody id="scheduleTable">
-            <tr>
-              <td class="tstrong">—</td>
-              <td><span class="tbadge">読み込み中…</span></td>
-              <td>少々お待ちください</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="ctaRow" style="margin-top:12px">
-        <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xで最新の営業/お給仕を見る</a>
-        <button class="btn small" type="button" id="openAccessSchedule">ご帰宅する♡（アクセス）</button>
-      </div>
-    </section>
-
-    <!-- アクセス -->
-    <section id="access" aria-label="アクセス">
-      <div class="secHead">
-        <h2>アクセス</h2>
-        <p>地図・営業時間・住所</p>
-      </div>
-
-      <div class="system">
-        <div class="sysGrid">
-          <div>
-            <h3>店舗情報</h3>
-            <p style="margin:0; color:var(--muted); font-weight:750">
-              〒790-0012 愛媛県松山市湊町3-7-2 2F<br/>
-              営業時間：平日＆祝 18:00–22:00 / 土日 17:00–22:00（目安）<br/>
-              料金：30分 1,000円(税込) 各種ドリンク飲み放題（生ビール含む）<br/>
-              ※放置ゼロ宣言＆キャストドリンク無しで安心♪
-            </p>
-
-            <div class="ctaRow" style="margin-top:12px">
-              <a class="btn small primary" href="https://www.google.com/maps/search/?api=1&query=%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%9D%BE%E5%B1%B1%E5%B8%82%E6%B9%8A%E7%94%BA3-7-2+2F" target="_blank" rel="noopener">Googleマップで開く</a>
-              <a class="btn small" href="tel:0899095211">電話する（089-909-5211）</a>
-            </div>
-          </div>
-
-          <div class="price" aria-label="ご予約/問い合わせ">
-            <div class="big"><b>ご予約・お問い合わせ</b><span>DM推奨</span></div>
-            <div class="sub">麻雀システム等は「XのDM」でのご予約が必要です。</div>
-            <div class="modalCtas">
-              <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く</a>
-              <button class="btn small" type="button" id="openAccessAccess">ご帰宅する♡（案内）</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SNS -->
-    <section id="sns" aria-label="公式SNS">
-      <div class="secHead">
-        <h2>公式SNS</h2>
-        <p>更新感＝安心感。まずは最新ポストをチェック♡</p>
-      </div>
-
-      <div class="snsGrid">
-        <div class="embedCard" aria-label="X（旧Twitter）">
-          <h3>X（旧Twitter）</h3>
-          <p>@po_toro</p>
-          <div class="xwrap">
-            <a class="twitter-timeline"
-               data-height="520"
-               data-dnt="true"
-               data-theme="light"
-               href="https://twitter.com/po_toro">Tweets by po_toro</a>
-            <noscript>
-              <p style="margin:0; color:#6d6670; font-weight:750">
-                JavaScriptが無効のためタイムラインを表示できません。<br/>
-                <a href="https://x.com/po_toro" target="_blank" rel="noopener" style="text-decoration:underline">Xを開く</a>
-              </p>
-            </noscript>
-          </div>
-          <div class="ctaRow" style="margin-top:10px">
-            <a class="btn small pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く</a>
-          </div>
-        </div>
-
-        <div class="embedCard" aria-label="TikTok">
-          <h3>TikTok</h3>
-          <p>@potoro_o</p>
-          <div class="xwrap">
-            <p style="margin:0; color:var(--muted); font-weight:750">
-              TikTokは埋め込み表示が環境により不安定なため、ボタンでの導線を優先しています。
-            </p>
-          </div>
-          <div class="ctaRow" style="margin-top:10px">
-            <a class="btn small primary" href="https://www.tiktok.com/@potoro_o" target="_blank" rel="noopener">TikTokを開く</a>
-            <button class="btn small" type="button" id="openAccessSns">ご帰宅する♡（アクセス）</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer aria-label="フッター">
-      <div class="footerBox">
-        <div>
-          <b style="color:var(--ink)">concept cafe PO・TORO</b><br/>
-          ご帰宅ありがとうございます。最新情報は本ポータルとXをご確認ください。<br/>
-          <a href="tel:0899095211" style="text-decoration:underline">089-909-5211</a>
-        </div>
-
-        <div class="ctaRow" style="justify-content:flex-end; margin:0">
-          <a class="btn small" href="#events">イベント</a>
-          <a class="btn small" href="#maids">メイドさん</a>
-          <a class="btn small" href="#play">ゲーム/診断</a>
-          <button class="btn small pink" type="button" id="openAccessFooter">ご帰宅する♡</button>
-        </div>
-      </div>
-
-      <p style="text-align:center; margin:12px 0 0">
-        © PO・TORO / concept cafe. All rights reserved.
-      </p>
-    </footer>
-  </main>
-
-  <!-- Floating Actions -->
-  <div class="float" aria-label="固定ボタン">
-    <button class="toTop" id="toTop" type="button" aria-label="ページ上部へ">▲</button>
-    <button class="fab" id="openAccessFab" type="button" aria-haspopup="dialog" aria-controls="accessModal">
-      ご帰宅する♡ <small>（アクセス）</small>
-    </button>
-  </div>
-
-  <!-- Access Modal -->
-  <div class="modalBack" id="accessModal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
-    <div class="modal">
-      <div class="modalHead">
-        <b id="accessTitle">ご帰宅案内♡（アクセス・お問い合わせ）</b>
-        <button class="close" id="closeAccess" type="button" aria-label="閉じる">✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="infoGrid">
-          <div class="ibox">
-            <b>住所</b>
-            <p>〒790-0012 愛媛県松山市湊町3-7-2 2F</p>
-          </div>
-          <div class="ibox">
-            <b>営業時間（目安）</b>
-            <p>平日＆祝 18:00–22:00 / 土日 17:00–22:00<br/>※最新はXをご確認ください</p>
-          </div>
-          <div class="ibox">
-            <b>料金</b>
-            <p>30分 1,000円（税込）<br/>各種ドリンク飲み放題（生ビール含む）</p>
-          </div>
-          <div class="ibox">
-            <b>連絡</b>
-            <p>電話：089-909-5211<br/>予約：XのDM推奨</p>
-          </div>
-        </div>
-
-        <div class="modalCtas">
-          <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%9D%BE%E5%B1%B1%E5%B8%82%E6%B9%8A%E7%94%BA3-7-2+2F" target="_blank" rel="noopener">地図を開く</a>
-          <a class="btn" href="tel:0899095211">電話する</a>
-          <a class="btn pink" href="https://x.com/po_toro" target="_blank" rel="noopener">Xを開く（DM）</a>
-          <button class="btn" id="closeAccess2" type="button">閉じる</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- X widgets -->
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-  <script>
-    // ===== スプレッドシートAPI（あなたのWebアプリURL） =====
-    const API_URL = "https://script.google.com/macros/s/AKfycbzUCf3b0jp4RRqwFQ8KUy5Z7uOQsqKZ6FwMu-QWV5VaA4ZUBAo7hMh4YFBZ3Ph_TnI/exec";
-
-    // ===== ユーティリティ =====
-    const $ = (sel, root=document)=>root.querySelector(sel);
-    const pad2 = (n)=> String(n).padStart(2,'0');
-    const fmtJP = (d)=>{
-      const w = ["日","月","火","水","木","金","土"][d.getDay()];
-      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}（${w}）`;
-    };
-    function escapeHTML(str){
-      return String(str ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#39;");
-    }
-
-    // ===== モーダル =====
-    const modalBack = $("#accessModal");
-    const openBtns = [
-      "#openAccessFab","#openAccessTop","#openAccessToday","#openAccessFirst","#openAccessNews",
-      "#openAccessSchedule","#openAccessAccess","#openAccessSns","#openAccessFooter"
-    ];
-    openBtns.forEach(id=>{
-      const el = $(id);
-      if(el) el.addEventListener("click", ()=> openModal());
-    });
-    function openModal(){
-      modalBack.classList.add("open");
-      setTimeout(()=> $("#closeAccess")?.focus(), 10);
-      document.body.style.overflow = "hidden";
-    }
-    function closeModal(){
-      modalBack.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-    $("#closeAccess")?.addEventListener("click", closeModal);
-    $("#closeAccess2")?.addEventListener("click", closeModal);
-    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
-    window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && modalBack.classList.contains("open")) closeModal(); });
-
-    // ===== ToTop =====
-    const toTop = $("#toTop");
-    window.addEventListener("scroll", ()=>{
-      if(window.scrollY > 500) toTop.classList.add("show");
-      else toTop.classList.remove("show");
-    }, {passive:true});
-    toTop.addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
-
-    // ===== 初期化 =====
-    (function init(){
-      const now = new Date();
-      $("#todayDate").textContent = fmtJP(now);
-
-      // 営業時間目安（軽い表示）
-      const day = now.getDay(); // 0=Sun
-      const hours = (day === 0 || day === 6) ? "17:00–22:00（目安）" : "18:00–22:00（目安）";
-      $("#openState").innerHTML = `<span class="dot b"></span>${hours}`;
-
-      loadFromSpreadsheet();
-    })();
-
-    // ===== スプシAPIから取得して「本日」「直近7日」を反映 =====
-    async function loadFromSpreadsheet(){
-      const todayList = $("#todayList");
-      const scheduleTable = $("#scheduleTable");
-
-      try{
-        const res = await fetch(API_URL + "?v=" + Date.now(), { cache:"no-store" });
-        if(!res.ok) throw new Error("API error");
-        const data = await res.json();
-
-        // --- 本日 ---
-        const t = data?.today;
-        if(t && Array.isArray(t.maids) && t.maids.length){
-          todayList.innerHTML = t.maids.map(m=>{
-            const note = m.note ? `<small>${escapeHTML(m.note)}</small>` : `<small>お給仕予定</small>`;
-            return `
-              <li class="row">
-                <span class="name"><span>${escapeHTML(m.name)}</span>${note}</span>
-                <span class="time">${escapeHTML(m.time || "")}</span>
-              </li>
-            `;
-          }).join("");
-          // 営業時間をAPI側に合わせて上書き（空なら目安のまま）
-          if(t.open && t.close){
-            $("#openState").innerHTML = `<span class="dot b"></span>${escapeHTML(t.open)}–${escapeHTML(t.close)}`;
-          }
-        }else{
-          todayList.innerHTML = `
-            <li class="row" style="justify-content:center">
-              <span class="name"><span class="tstrong">本日のメイド情報は未入力です</span><small>today_maids シートをご確認ください</small></span>
-            </li>
-          `;
-        }
-
-        // --- 直近7日 ---
-        const next7 = Array.isArray(data?.next7) ? data.next7 : [];
-        if(next7.length){
-          scheduleTable.innerHTML = next7.map(d=>{
-            const dt = new Date(d.date + "T00:00:00+09:00");
-            const w = ["日","月","火","水","木","金","土"][dt.getDay()];
-            const label = `${escapeHTML(d.date)}（${w}）`;
-            const openClose = (d.open && d.close) ? `${escapeHTML(d.open)}–${escapeHTML(d.close)}` : "—";
-            const memo = d.note ? escapeHTML(d.note) : "—";
-            return `
-              <tr>
-                <td class="tstrong">${label}</td>
-                <td><span class="tbadge">${openClose}</span></td>
-                <td>${memo}</td>
-              </tr>
-            `;
-          }).join("");
-        }else{
-          scheduleTable.innerHTML = `
-            <tr>
-              <td class="tstrong">—</td>
-              <td><span class="tbadge">—</span></td>
-              <td>直近の予定が未入力です（直近7日シートをご確認ください）</td>
-            </tr>
-          `;
-        }
-
-      }catch(e){
-        todayList.innerHTML = `
-          <li class="row" style="justify-content:center">
-            <span class="name">
-              <span class="tstrong">スプレッドシートAPIに接続できません</span>
-              <small>Webアプリ公開設定／ヘッダー一致をご確認ください</small>
-            </span>
-          </li>
-        `;
-        scheduleTable.innerHTML = `
-          <tr>
-            <td class="tstrong">—</td>
-            <td><span class="tbadge">—</span></td>
-            <td>スプレッドシートAPIに接続できません</td>
-          </tr>
-        `;
-      }
-    }
-  </script>
-
-  <noscript>
-    <div style="max-width:1120px;margin:16px auto 0;padding:12px 14px;background:#fff;border:1px solid rgba(255,105,178,.18);border-radius:18px;box-shadow:0 10px 22px rgba(0,0,0,.08);color:#6d6670;font-weight:750">
-      JavaScriptが無効になっています。本日のメイド・直近7日の自動反映がご利用いただけません。<br/>
-      最新情報は <a href="https://x.com/po_toro" target="_blank" rel="noopener" style="text-decoration:underline">X（@po_toro）</a> をご確認ください。
-    </div>
-  </noscript>
-</body>
-</html>
